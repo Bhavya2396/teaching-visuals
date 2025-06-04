@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heating Effect of Electric Current</title>
+    <style>
+        :root {
+            --primary: #1a1a1a;
+            --secondary: #2a2a2a;
+            --accent: #4a9eff;
+            --text: #ffffff;
+            --heat: #ff4444;
+        }
+        body {
+            background: var(--primary);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            padding: 32px 0;
+        }
+        .visualization-container {
+            display: flex;
+            gap: 32px;
+            background: var(--secondary);
+            border-radius: 15px;
+            padding: 32px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .svg-panel {
+            background: var(--primary);
+            border-radius: 10px;
+            padding: 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .control-panel {
+            background: var(--primary);
+            border-radius: 10px;
+            padding: 24px 20px;
+            min-width: 260px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        .material-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .material-button {
+            padding: 8px 12px;
+            background: var(--secondary);
+            border: none;
+            border-radius: 5px;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .material-button.active {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 0 10px var(--accent);
+        }
+        .material-button:hover {
+            background: var(--accent);
+        }
+        .control-group {
+            margin-bottom: 18px;
+        }
+        .control-label {
+            font-size: 14px;
+            margin-bottom: 4px;
+            color: var(--accent);
+        }
+        .control-slider {
+            width: 100%;
+            margin: 8px 0 0 0;
+        }
+        .control-value {
+            text-align: right;
+            font-family: 'Courier New', monospace;
+            color: var(--accent);
+            font-weight: bold;
+            font-size: 15px;
+        }
+        .meter {
+            background: var(--secondary);
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 12px;
+        }
+        .meter-value {
+            font-family: 'Courier New', monospace;
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--accent);
+            margin-top: 2px;
+        }
+        @media (max-width: 900px) {
+            .visualization-container { flex-direction: column; align-items: center; }
+            .svg-panel { margin-bottom: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="visualization-container">
+        <div class="svg-panel">
+            <svg id="lattice-svg" viewBox="0 0 700 520" width="700" height="520" style="display:block; background:#1a1a1a; border-radius:10px;">
+                <defs>
+                    <filter id="glow">
+                        <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                    <filter id="toaster-glow" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="8" result="glow"/>
+                        <feMerge>
+                            <feMergeNode in="glow"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                    <pattern id="conductor-lattice" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+                        <circle cx="12" cy="12" r="4" fill="#4a9eff" opacity="0.7"/>
+                    </pattern>
+                    <pattern id="aluminum-lattice" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+                        <circle cx="12" cy="12" r="4" fill="#ff8844" opacity="0.7"/>
+                    </pattern>
+                    <pattern id="iron-lattice" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+                        <circle cx="12" cy="12" r="4" fill="#ff4444" opacity="0.7"/>
+                        <circle cx="6" cy="6" r="2" fill="#884444" opacity="0.5"/>
+                    </pattern>
+                    <pattern id="nichrome-lattice" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+                        <circle cx="12" cy="12" r="4" fill="#a459d1" opacity="0.7"/>
+                        <circle cx="18" cy="18" r="2" fill="#ff4444" opacity="0.5"/>
+                    </pattern>
+                </defs>
+                <rect id="lattice-bg" x="40" y="60" width="620" height="280" fill="url(#conductor-lattice)" stroke="#444" stroke-width="2" rx="18"/>
+                <g id="electrons-group"></g>
+                <g id="heat-group"></g>
+                <!-- Toaster at the bottom -->
+                <g id="toaster-group" transform="translate(200,370)">
+                    <!-- Toaster body -->
+                    <rect x="0" y="0" width="300" height="60" rx="20" fill="#444" stroke="#222" stroke-width="3"/>
+                    <!-- Toaster slot -->
+                    <rect x="60" y="10" width="180" height="18" rx="8" fill="#222"/>
+                    <!-- Heating element (glow) -->
+                    <rect id="toaster-element" x="80" y="20" width="140" height="12" rx="6" fill="#ffb347" filter="url(#toaster-glow)" opacity="0.5"/>
+                    <!-- Filament label below the element -->
+                    <text x="150" y="48" text-anchor="middle" fill="#ffb347" font-size="16" font-family="monospace" font-weight="bold" style="text-shadow:0 2px 6px #222;">Filament</text>
+                    <!-- Formula label below the filament -->
+                    <text x="150" y="65" text-anchor="middle" fill="#4a9eff" font-size="17" font-family="monospace" font-weight="bold" style="text-shadow:0 2px 8px #111;">P = I²R</text>
+                    <!-- Resistance box under the filament, moved further down -->
+                    <g id="resistance-box-group" transform="translate(0,40)">
+                        <rect x="80" y="55" width="140" height="48" rx="10" fill="#222" stroke="#4a9eff" stroke-width="2" filter="url(#glow)"/>
+                        <text id="resistance-value-svg" x="150" y="78" text-anchor="middle" fill="#4a9eff" font-size="18" font-family="monospace" font-weight="bold">R = 1.00 Ω</text>
+                        <text x="150" y="97" text-anchor="middle" fill="#888" font-size="14" font-family="monospace">R = ρL/A</text>
+                    </g>
+                    <!-- Toaster feet -->
+                    <rect x="30" y="55" width="30" height="10" rx="4" fill="#222"/>
+                    <rect x="240" y="55" width="30" height="10" rx="4" fill="#222"/>
+                </g>
+            </svg>
+            </div>
+            <div class="control-panel">
+                        <div class="material-selector">
+                            <button class="material-button active" data-material="copper">Copper</button>
+                            <button class="material-button" data-material="aluminum">Aluminum</button>
+                            <button class="material-button" data-material="iron">Iron</button>
+                            <button class="material-button" data-material="nichrome">Nichrome</button>
+                        </div>
+                    <div class="control-group">
+                <div class="control-label">Current (A)</div>
+                <input type="range" class="control-slider" id="currentSlider" min="0.1" max="10" value="1" step="0.1">
+                        <div class="control-value" id="currentValue">1.0 A</div>
+                    </div>
+                    <div class="control-group">
+                <div class="control-label">Length (m)</div>
+                        <input type="range" class="control-slider" id="lengthSlider" min="0.1" max="5" value="1" step="0.1">
+                        <div class="control-value" id="lengthValue">1.0 m</div>
+                    </div>
+                    <div class="control-group">
+                <div class="control-label">Area (mm²)</div>
+                        <input type="range" class="control-slider" id="areaSlider" min="0.1" max="10" value="1" step="0.1">
+                        <div class="control-value" id="areaValue">1.0 mm²</div>
+                    </div>
+            <div class="meter">
+                <div>Resistance</div>
+                <div class="meter-value" id="resistanceMeter">1.0 Ω</div>
+                </div>
+            <div class="meter">
+                <div>Power</div>
+                <div class="meter-value" id="powerMeter">0.0 W</div>
+            </div>
+        </div>
+    </div>
+</div>
+    <script>
+const resistivityValues = {
+    copper: 1.68e-8,
+    aluminum: 2.82e-8,
+    iron: 9.70e-8,
+    nichrome: 1.10e-6
+};
+
+// Add voice feedback messages
+const voiceFeedback = {
+    materials: {
+        copper: "Copper has the second lowest resistivity, allowing electrons to flow easily with minimal heat generation.",
+        aluminum: "Aluminum has moderate resistivity, generating more heat than copper but less than iron.",
+        iron: "Iron has higher resistivity, causing more electron collisions and increased heat generation.",
+        nichrome: "Nichrome has the highest resistivity, creating maximum heat through electron collisions - perfect for heating elements."
+    },
+    current: {
+        low: "At low current, fewer electrons flow, resulting in less collisions and minimal heating.",
+        medium: "At medium current, more electrons flow, increasing collisions and heat generation.",
+        high: "At high current, many electrons flow, causing frequent collisions and significant heating."
+    },
+    length: {
+        short: "A shorter conductor means less distance for electrons to travel, reducing total resistance and heating.",
+        medium: "Medium length provides balanced resistance and heat distribution.",
+        long: "A longer conductor increases the distance electrons must travel, raising total resistance and heating."
+    },
+    area: {
+        small: "Small cross-sectional area concentrates electron flow, increasing resistance and heating.",
+        medium: "Medium area provides balanced current flow and heat generation.",
+        large: "Large cross-sectional area allows electrons to spread out, reducing resistance and heating."
+    }
+};
+
+// Function to speak feedback
+function speakFeedback(text) {
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel(); // Stop any current speech
+        const utter = new window.SpeechSynthesisUtterance(text);
+        utter.rate = 1.03;
+        utter.pitch = 1.05;
+        utter.volume = 0.95;
+        utter.lang = 'en-US';
+        const voices = window.speechSynthesis.getVoices();
+        const preferred = voices.find(v => v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('natural'));
+        if (preferred) utter.voice = preferred;
+        window.speechSynthesis.speak(utter);
+    }
+}
+
+// Add voice toggle button
+document.querySelector('.control-panel').insertAdjacentHTML('afterbegin', `
+    <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+        <label class="control-label">Voice Feedback:</label>
+        <button id="voice-toggle" style="background: var(--accent); color: #fff; border: none; border-radius: 5px; padding: 8px 12px; cursor: pointer;">
+            🔊 Enabled
+        </button>
+    </div>
+`);
+
+let voiceFeedbackEnabled = true;
+
+document.getElementById('voice-toggle').addEventListener('click', function() {
+    voiceFeedbackEnabled = !voiceFeedbackEnabled;
+    this.innerHTML = voiceFeedbackEnabled ? '🔊 Enabled' : '🔇 Disabled';
+    this.style.background = voiceFeedbackEnabled ? 'var(--accent)' : '#666';
+    if (!voiceFeedbackEnabled) {
+        window.speechSynthesis.cancel();
+    }
+});
+
+const latticePatterns = {
+    copper: 'url(#conductor-lattice)',
+    aluminum: 'url(#aluminum-lattice)',
+    iron: 'url(#iron-lattice)',
+    nichrome: 'url(#nichrome-lattice)'
+};
+const electronColors = {
+    copper: '#4a9eff',
+    aluminum: '#ff8844',
+    iron: '#ff4444',
+    nichrome: '#a459d1'
+};
+let material = 'copper';
+let current = 1;
+let length = 1;
+let area = 1;
+let electrons = [];
+let animationId = null;
+let lastPower = 0;
+
+function calculateResistance() {
+    const baseResistivity = resistivityValues[material];
+    const areaInMeters = area * 1e-6;
+    const resistance = (baseResistivity * length) / areaInMeters;
+                document.getElementById('resistanceMeter').textContent = `${resistance.toFixed(2)} Ω`;
+    updateSVGResistanceValue(resistance);
+                return resistance;
+            }
+            
+function updateToasterGlow(power) {
+    // Clamp power for visual effect
+    const minOpacity = 0.15;
+    const maxOpacity = 1.0;
+    const minColor = [255, 179, 71]; // #ffb347
+    const maxColor = [255, 68, 68];  // #ff4444
+    // Normalize power (tune maxPower as needed for your range)
+    const maxPower = 100;
+    let t = Math.min(1, power / maxPower);
+    // Interpolate color
+    const color = minColor.map((c, i) => Math.round(c + (maxColor[i] - c) * t));
+    const colorStr = `rgb(${color[0]},${color[1]},${color[2]})`;
+    // Interpolate opacity
+    const opacity = minOpacity + (maxOpacity - minOpacity) * t;
+    const elem = document.getElementById('toaster-element');
+    if (elem) {
+        elem.setAttribute('fill', colorStr);
+        elem.setAttribute('opacity', opacity);
+    }
+}
+
+function calculatePower() {
+    const resistance = calculateResistance();
+    const power = Math.pow(current, 2) * resistance;
+                document.getElementById('powerMeter').textContent = `${power.toFixed(2)} W`;
+    updateToasterGlow(power);
+    lastPower = power;
+                return power;
+            }
+            
+function updateLatticePattern() {
+    const lattice = document.getElementById('lattice-bg');
+    lattice.setAttribute('fill', latticePatterns[material]);
+    // Update lattice dimensions based on length and area
+    const width = 620 * (length / 5); // Scale width based on length
+    const height = 280 * (area / 10); // Scale height based on area
+    lattice.setAttribute('width', width);
+    lattice.setAttribute('height', height);
+    // Center the lattice
+    const x = (700 - width) / 2;
+    const y = (520 - height) / 2;
+    lattice.setAttribute('x', x);
+    lattice.setAttribute('y', y);
+}
+
+function updateSliders() {
+    document.getElementById('currentValue').textContent = `${current.toFixed(1)} A`;
+    document.getElementById('lengthValue').textContent = `${length.toFixed(1)} m`;
+    document.getElementById('areaValue').textContent = `${area.toFixed(1)} mm²`;
+}
+
+function createElectrons() {
+    const group = document.getElementById('electrons-group');
+    group.innerHTML = '';
+    electrons = [];
+    const num = Math.max(8, Math.floor(current * 8));
+    const lattice = document.getElementById('lattice-bg');
+    const latticeX = parseFloat(lattice.getAttribute('x'));
+    const latticeY = parseFloat(lattice.getAttribute('y'));
+    const latticeWidth = parseFloat(lattice.getAttribute('width'));
+    const latticeHeight = parseFloat(lattice.getAttribute('height'));
+    for (let i = 0; i < num; i++) {
+        const e = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        e.setAttribute('r', '4');
+        e.setAttribute('fill', electronColors[material]);
+        e.setAttribute('filter', 'url(#glow)');
+        group.appendChild(e);
+        electrons.push({
+            el: e,
+            x: latticeX + Math.random() * latticeWidth,
+            y: latticeY + Math.random() * latticeHeight,
+            vx: 1.5 + Math.random() * 1.5,
+            vy: (Math.random() - 0.5) * 0.7
+        });
+    }
+}
+
+function createHeatParticle(x, y) {
+    const group = document.getElementById('heat-group');
+    const p = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    p.setAttribute('cx', x);
+    p.setAttribute('cy', y);
+    p.setAttribute('r', '2');
+    p.setAttribute('fill', '#ff4444');
+    p.setAttribute('opacity', '0.8');
+    group.appendChild(p);
+    let opacity = 0.8;
+    let size = 2;
+    let vy = -1;
+    function animateParticle() {
+        opacity -= 0.02;
+        size += 0.1;
+        vy += 0.05;
+        p.setAttribute('opacity', opacity);
+        p.setAttribute('r', size);
+        p.setAttribute('cy', parseFloat(p.getAttribute('cy')) + vy);
+                    if (opacity > 0) {
+            requestAnimationFrame(animateParticle);
+                    } else {
+            p.remove();
+                    }
+    }
+    animateParticle();
+            }
+            
+function animateElectrons() {
+    const resistance = calculateResistance();
+    const speedFactor = 2.5 / (resistance + 0.1);
+    const lattice = document.getElementById('lattice-bg');
+    const latticeX = parseFloat(lattice.getAttribute('x'));
+    const latticeY = parseFloat(lattice.getAttribute('y'));
+    const latticeWidth = parseFloat(lattice.getAttribute('width'));
+    const latticeHeight = parseFloat(lattice.getAttribute('height'));
+    electrons.forEach(e => {
+        e.x += e.vx * speedFactor;
+        e.y += e.vy * speedFactor;
+        // Bounce off lattice boundaries
+        if (e.x < latticeX) { e.x = latticeX; e.vx *= -1; }
+        if (e.x > latticeX + latticeWidth) { e.x = latticeX + latticeWidth; e.vx *= -1; }
+        if (e.y < latticeY) { e.y = latticeY; e.vy *= -1; }
+        if (e.y > latticeY + latticeHeight) { e.y = latticeY + latticeHeight; e.vy *= -1; }
+        // Random collision
+        if (Math.random() < 0.012 * resistance) {
+            e.vx *= -0.7;
+            e.vy += (Math.random() - 0.5) * 2;
+            createHeatParticle(e.x, e.y);
+        }
+        e.el.setAttribute('cx', e.x);
+        e.el.setAttribute('cy', e.y);
+    });
+    animationId = requestAnimationFrame(animateElectrons);
+}
+
+function updateVisualization() {
+    updateLatticePattern();
+    updateSliders();
+    createElectrons();
+    if (animationId) cancelAnimationFrame(animationId);
+    animateElectrons();
+    calculatePower();
+}
+
+function updateSVGResistanceValue(resistance) {
+    const svgText = document.getElementById('resistance-value-svg');
+    if (svgText) {
+        svgText.textContent = `R = ${resistance.toFixed(2)} Ω`;
+                    }
+                } 
+
+// Update material buttons event listeners
+document.querySelectorAll('.material-button').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.material-button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        material = btn.dataset.material;
+        if (voiceFeedbackEnabled) {
+            speakFeedback(voiceFeedback.materials[material]);
+        }
+        updateVisualization();
+    });
+});
+
+// Update current slider
+document.getElementById('currentSlider').addEventListener('input', e => {
+    current = parseFloat(e.target.value);
+    if (voiceFeedbackEnabled) {
+        if (current <= 3) {
+            speakFeedback(voiceFeedback.current.low);
+        } else if (current <= 7) {
+            speakFeedback(voiceFeedback.current.medium);
+        } else {
+            speakFeedback(voiceFeedback.current.high);
+        }
+    }
+    updateVisualization();
+});
+
+// Update length slider
+document.getElementById('lengthSlider').addEventListener('input', e => {
+    length = parseFloat(e.target.value);
+    if (voiceFeedbackEnabled) {
+        if (length <= 1.5) {
+            speakFeedback(voiceFeedback.length.short);
+        } else if (length <= 3.5) {
+            speakFeedback(voiceFeedback.length.medium);
+        } else {
+            speakFeedback(voiceFeedback.length.long);
+        }
+    }
+    updateVisualization();
+});
+
+// Update area slider
+document.getElementById('areaSlider').addEventListener('input', e => {
+    area = parseFloat(e.target.value);
+    if (voiceFeedbackEnabled) {
+        if (area <= 3) {
+            speakFeedback(voiceFeedback.area.small);
+        } else if (area <= 7) {
+            speakFeedback(voiceFeedback.area.medium);
+        } else {
+            speakFeedback(voiceFeedback.area.large);
+        }
+    }
+    updateVisualization();
+});
+
+// Throttle function to prevent too frequent voice feedback
+function throttle(func, limit) {
+    let inThrottle;
+    return function(...args) {
+        if (!inThrottle) {
+            func.apply(this, args);
+            inThrottle = true;
+            setTimeout(() => inThrottle = false, limit);
+        }
+    }
+}
+
+// Update slider event listeners to use throttled voice feedback
+document.getElementById('currentSlider').addEventListener('input', throttle(e => {
+    current = parseFloat(e.target.value);
+    document.getElementById('currentValue').textContent = `${current.toFixed(1)} A`;
+    if (voiceFeedbackEnabled) {
+        if (current <= 3) {
+            speakFeedback(voiceFeedback.current.low);
+        } else if (current <= 7) {
+            speakFeedback(voiceFeedback.current.medium);
+        } else {
+            speakFeedback(voiceFeedback.current.high);
+        }
+    }
+    updateVisualization();
+}, 1000));
+
+// Voice-over functionality
+const voiceoverText = `Welcome! This interactive visualization shows the heating effect of electric current. You can change the material, current, length, and area using the controls on the right. Watch how electrons move through the wire lattice, and see how resistance and power change. The glowing filament below shows how much heat is produced. Try different settings to see how the heating effect depends on resistance and current!`;
+
+function playVoiceover() {
+    if ('speechSynthesis' in window && voiceFeedbackEnabled) {
+        window.speechSynthesis.cancel(); // Stop any current speech
+        const utter = new window.SpeechSynthesisUtterance(voiceoverText);
+        utter.rate = 1.03;
+        utter.pitch = 1.05;
+        utter.volume = 0.95;
+        utter.lang = 'en-US';
+        // Try to use a more human-like voice if available
+        const voices = window.speechSynthesis.getVoices();
+        const preferred = voices.find(v => v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('natural'));
+        if (preferred) utter.voice = preferred;
+        window.speechSynthesis.speak(utter);
+    }
+}
+
+window.addEventListener('load', () => {
+    setTimeout(playVoiceover, 1000); // Play voice-over after short delay
+    updateVisualization();
+});
+    </script>
+</body>
+</html> 

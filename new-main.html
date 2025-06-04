@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electric Charge - Cinematic Physics Journey</title>
+    <link rel="stylesheet" href="parallax-style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+    <!-- Cinematic Experience Container -->
+    <div id="cinematic-experience">
+        
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="active">
+            <div class="loading-content">
+                <div class="atom-spinner">
+                    <div class="nucleus"></div>
+                    <div class="electron-orbit orbit-1">
+                        <div class="electron"></div>
+                    </div>
+                    <div class="electron-orbit orbit-2">
+                        <div class="electron"></div>
+                    </div>
+                    <div class="electron-orbit orbit-3">
+                        <div class="electron"></div>
+                    </div>
+                </div>
+                <h1>Electric Charge</h1>
+                <p>Preparing cinematic journey...</p>
+                <div class="loading-bar">
+                    <div class="loading-progress"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fixed Elements -->
+        <!-- Scroll Progress Indicator -->
+        <div id="scroll-progress">
+            <div id="progress-fill"></div>
+        </div>
+
+        <!-- Scroll Navigation Hints -->
+        <div id="scroll-hint" class="visible">
+            <div class="scroll-arrow">↓</div>
+            <p>Scroll to explore electric charge</p>
+        </div>
+
+        <!-- Audio Control -->
+        <div id="audio-control">
+            <button id="mute-btn" class="control-btn">
+                <span class="unmute-icon">🔊</span>
+                <span class="mute-icon">🔇</span>
+            </button>
+        </div>
+
+        <!-- 3D Visualization Canvas (Fixed Background) -->
+        <div id="visualization-background">
+            <canvas id="charge-canvas" class="fullscreen-canvas"></canvas>
+        </div>
+
+        <!-- Scrollable Content Container -->
+        <div id="scrollable-content">
+            <!-- Cinematic Sections -->
+            <section class="cinematic-section active" data-section="0">
+                <div class="narrative-overlay">
+                    <div class="section-indicator">
+                        <span class="section-number">01</span>
+                        <span class="section-title">The Fundamental Force</span>
+                    </div>
+                    <div class="narrative-content">
+                        <h1>Electric Charge</h1>
+                        <p class="narrative-text">
+                            Welcome to the invisible world that powers everything around you. 
+                            Electric charge is the fundamental property that creates lightning, 
+                            powers your devices, and governs the very atoms in your body.
+                        </p>
+                        <div class="equation-display">Q = ±e</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="cinematic-section" data-section="1">
+                <div class="narrative-overlay">
+                    <div class="section-indicator">
+                        <span class="section-number">02</span>
+                        <span class="section-title">Nature of Charge</span>
+                    </div>
+                    <div class="narrative-content">
+                        <h1>Positive & Negative</h1>
+                        <p class="narrative-text">
+                            Charges come in two types: positive and negative. Like tiny magnets, 
+                            they create invisible fields of force that reach across space, 
+                            determining how matter behaves at the most fundamental level.
+                        </p>
+                        <div class="equation-display">F = k(q₁q₂)/r²</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="cinematic-section" data-section="2">
+                <div class="narrative-overlay">
+                    <div class="section-indicator">
+                        <span class="section-number">03</span>
+                        <span class="section-title">Repulsive Force</span>
+                    </div>
+                    <div class="narrative-content">
+                        <h1>Like Charges Repel</h1>
+                        <p class="narrative-text">
+                            Watch as identical charges push against each other with tremendous force. 
+                            This repulsion follows Coulomb's law - the closer they get, 
+                            the stronger they fight to stay apart.
+                        </p>
+                        <div class="equation-display">F_repel = k(+q)(+q)/r²</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="cinematic-section" data-section="3">
+                <div class="narrative-overlay">
+                    <div class="section-indicator">
+                        <span class="section-number">04</span>
+                        <span class="section-title">Attractive Force</span>
+                    </div>
+                    <div class="narrative-content">
+                        <h1>Opposites Attract</h1>
+                        <p class="narrative-text">
+                            Opposite charges create a beautiful dance of attraction. 
+                            They reach across empty space, pulling toward each other 
+                            with the same fundamental force that holds atoms together.
+                        </p>
+                        <div class="equation-display">F_attract = k(+q)(-q)/r²</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="cinematic-section" data-section="4">
+                <div class="narrative-overlay">
+                    <div class="section-indicator">
+                        <span class="section-number">05</span>
+                        <span class="section-title">Magnitude Matters</span>
+                    </div>
+                    <div class="narrative-content">
+                        <h1>Size of Charge</h1>
+                        <p class="narrative-text">
+                            The amount of charge determines the strength of interaction. 
+                            Larger charges create more powerful forces - it's nature's way 
+                            of amplifying the electromagnetic phenomenon.
+                        </p>
+                        <div class="equation-display">F ∝ q₁ × q₂</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="cinematic-section" data-section="5">
+                <div class="narrative-overlay">
+                    <div class="section-indicator">
+                        <span class="section-number">06</span>
+                        <span class="section-title">Distance Effect</span>
+                    </div>
+                    <div class="narrative-content">
+                        <h1>Inverse Square Law</h1>
+                        <p class="narrative-text">
+                            Distance dramatically affects electrical force. Double the distance, 
+                            and the force becomes four times weaker. This inverse square 
+                            relationship governs interactions across the universe.
+                        </p>
+                        <div class="equation-display">F ∝ 1/r²</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="cinematic-section" data-section="6">
+                <div class="narrative-overlay">
+                    <div class="section-indicator">
+                        <span class="section-number">07</span>
+                        <span class="section-title">Electric Fields</span>
+                    </div>
+                    <div class="narrative-content">
+                        <h1>Fields of Force</h1>
+                        <p class="narrative-text">
+                            Charges create invisible fields that permeate space itself. 
+                            These electric fields carry the force, creating a landscape 
+                            of potential energy that guides how charges move.
+                        </p>
+                        <div class="equation-display">E = F/q = kQ/r²</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="cinematic-section" data-section="7">
+                <div class="narrative-overlay">
+                    <div class="section-indicator">
+                        <span class="section-number">08</span>
+                        <span class="section-title">Universal Principle</span>
+                    </div>
+                    <div class="narrative-content">
+                        <h1>Foundation of Everything</h1>
+                        <p class="narrative-text">
+                            This fundamental force shapes our world - from the spark in your neurons 
+                            to the lightning in the sky. Understanding electric charge unlocks 
+                            the secrets of matter, energy, and the universe itself.
+                        </p>
+                        <div class="equation-display">k = 8.99×10⁹ N⋅m²/C²</div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Completion Screen -->
+        <div id="completion-screen">
+            <div class="completion-content">
+                <div class="achievement-badge">
+                    <div class="badge-icon">⚡</div>
+                    <h2>Journey Complete!</h2>
+                    <p>You've experienced the fundamental forces that govern our universe</p>
+                </div>
+                
+                <div class="completion-actions">
+                    <button id="restart-btn" class="action-btn primary">Experience Again</button>
+                    <button id="explore-btn" class="action-btn secondary">Explore More Physics</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="charge-3d-cinematic.js"></script>
+    <script src="cinematic-script.js"></script>
+</body>
+</html> 

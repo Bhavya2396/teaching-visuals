@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electric Charge Visualization</title>
+  <style>
+    :root {
+            --primary: #1a1a1a;
+            --secondary: #232a36;
+            --accent: #4a9eff;
+            --text: #fff;
+            --glow: #4a9eff;
+            --positive-color: #ff4444;
+            --negative-color: #4a9eff;
+            --neutral-color: #888888;
+        }
+    body {
+            background: var(--primary);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+            margin: 0;
+      display: flex;
+            align-items: center;
+      justify-content: center;
+    }
+    .container {
+      width: 100%;
+            max-width: 1100px;
+            padding: 32px 0;
+        }
+    .visualization-container {
+            display: flex;
+            gap: 32px;
+            background: var(--secondary);
+            border-radius: 15px;
+            padding: 32px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .simulation-panel {
+            background: var(--primary);
+            border-radius: 10px;
+            padding: 0;
+      position: relative;
+            overflow: hidden;
+            flex: 1;
+            min-height: 460px;
+        }
+        .control-panel {
+            background: var(--primary);
+            border-radius: 10px;
+            padding: 24px 20px;
+            min-width: 260px;
+      display: flex;
+      flex-direction: column;
+            gap: 24px;
+        }
+        .control-group {
+            margin-bottom: 18px;
+        }
+        .control-label {
+            font-size: 14px;
+            margin-bottom: 4px;
+            color: var(--accent);
+        }
+        .control-slider {
+            width: 100%;
+            margin: 8px 0 0 0;
+            background: linear-gradient(90deg, #222c3c 0%, #4a9eff 100%);
+            border-radius: 4px;
+            height: 8px;
+            outline: none;
+            -webkit-appearance: none;
+            box-shadow: 0 1px 4px rgba(74,158,255,0.15), 0 0 0 1px #222c3c;
+        }
+        .control-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: -6px;
+        }
+        .control-slider::-webkit-slider-thumb:hover {
+            box-shadow: 0 0 10px var(--accent);
+        }
+        .control-value {
+            text-align: right;
+            font-family: 'Courier New', monospace;
+            color: var(--accent);
+            font-weight: bold;
+            font-size: 15px;
+        }
+    .charge-toggle {
+      display: flex;
+      flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+    .toggle-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+            gap: 10px;
+    }
+    .toggle-btn {
+            padding: 8px 12px;
+      border: none;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 14px;
+      cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+    .toggle-btn.positive {
+      background: var(--positive-color);
+      color: white;
+    }
+    .toggle-btn.negative {
+      background: var(--negative-color);
+      color: white;
+    }
+    .toggle-btn.active {
+            box-shadow: 0 0 15px var(--glow);
+      transform: scale(0.95);
+        }
+        .meter {
+            background: var(--secondary);
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 12px;
+            box-shadow: 0 0 18px 2px #222a;
+        }
+        .meter-value {
+            font-family: 'Courier New', monospace;
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--accent);
+            margin-top: 2px;
+            animation: meter-pulse 1.2s infinite alternate;
+        }
+        @keyframes meter-pulse {
+            0% { text-shadow: 0 0 8px var(--accent); }
+            100% { text-shadow: 0 0 18px var(--accent); }
+        }
+        .formula {
+            background: var(--secondary);
+            padding: 12px 0 8px 0;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .formula-text {
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            color: var(--accent);
+        }
+        .charge-particle {
+            position: absolute;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            transition: transform 0.1s;
+            user-select: none;
+        }
+        .charge-particle:hover {
+            transform: scale(1.05);
+        }
+        .charge-particle.positive {
+            background: var(--positive-color);
+            box-shadow: 0 0 15px var(--positive-color);
+        }
+        .charge-particle.negative {
+            background: var(--negative-color);
+            box-shadow: 0 0 15px var(--negative-color);
+        }
+        .charge-particle.neutral {
+            background: var(--neutral-color);
+        }
+        .field-line {
+            position: absolute;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+        @media (max-width: 900px) {
+            .visualization-container { flex-direction: column; align-items: center; }
+            .simulation-panel { margin-bottom: 24px; height: 400px; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+        <div class="visualization-container">
+            <div class="simulation-panel" id="simulation">
+                <!-- Charges will be added here dynamically -->
+            </div>
+            <div class="control-panel">
+      <div class="charge-toggle">
+                    <div class="control-label">Charge Type</div>
+        <div class="toggle-buttons">
+                        <button class="toggle-btn positive active" data-charge="positive">Positive (+)</button>
+                        <button class="toggle-btn negative" data-charge="negative">Negative (-)</button>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="control-label">Charge Strength</div>
+                    <input type="range" class="control-slider" id="chargeStrengthSlider" min="1" max="10" value="5" step="1">
+                    <div class="control-value" id="chargeStrengthValue">5</div>
+                </div>
+                <div class="control-group">
+                    <div class="control-label">Field Visibility</div>
+                    <input type="range" class="control-slider" id="fieldVisibilitySlider" min="0" max="10" value="5" step="1">
+                    <div class="control-value" id="fieldVisibilityValue">5</div>
+                </div>
+                <div class="meter">
+                    <div>Net Force (N)</div>
+                    <div class="meter-value" id="forceMeter">0.00</div>
+                </div>
+                <div class="formula">
+                    <div class="formula-text">F = k·q₁·q₂/r²</div>
+                </div>
+                <div style="margin-top: 20px; display: flex; justify-content: center;">
+                    <button id="reset-btn" style="background: #555; color: #fff; border: none; border-radius: 5px; padding: 10px 16px; cursor: pointer; font-size: 14px;">Reset Simulation</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+        // Voice feedback and voiceover functionality
+        const voiceFeedback = {
+            chargeType: {
+                positive: "Positive charge selected. These charges repel other positive charges and attract negative charges.",
+                negative: "Negative charge selected. These charges repel other negative charges and attract positive charges."
+            },
+            chargeStrength: {
+                low: "Low charge strength creates weaker electric forces between charges.",
+                medium: "Medium charge strength provides balanced electric forces.",
+                high: "High charge strength creates stronger electric forces between charges."
+            },
+            fieldVisibility: {
+                low: "Low field visibility shows only strong field lines.",
+                medium: "Medium field visibility provides a balanced view of electric fields.",
+                high: "High field visibility shows more detailed electric field lines."
+            },
+            interactions: {
+                likeRepel: "Like charges repel! Notice how the particles move away from each other.",
+                oppositesAttract: "Opposite charges attract! Watch how they pull toward each other.",
+                distanceEffect: "The force between charges decreases with the square of the distance between them."
+            }
+        };
+
+        // Voice-over functionality
+        const voiceoverText = `Welcome to the Electric Charge visualization! This interactive demonstration shows how electric charges interact with each other. You can place positive and negative charges in the simulation area and observe how they behave. Remember that like charges repel each other, while opposite charges attract. Try dragging charges to see how the forces change with distance. The strength of the electric force follows Coulomb's Law - it's proportional to the product of the charges and inversely proportional to the square of the distance between them.`;
+
+        let currentVoice = null;
+        let voiceFeedbackEnabled = true;
+
+        function playVoiceover() {
+            if (!voiceFeedbackEnabled) return;
+            
+            if ('speechSynthesis' in window) {
+                // Cancel any ongoing speech
+                window.speechSynthesis.cancel();
+                
+                // Create new utterance
+                const utter = new window.SpeechSynthesisUtterance(voiceoverText);
+                currentVoice = utter;
+
+                // Configure voice settings
+                utter.rate = 1.0;
+                utter.pitch = 1.0;
+                utter.volume = 1.0;
+                utter.lang = 'en-US';
+
+                // Get available voices
+                let voices = window.speechSynthesis.getVoices();
+                
+                // If voices aren't loaded yet, wait for them
+                if (voices.length === 0) {
+                    window.speechSynthesis.onvoiceschanged = () => {
+                        voices = window.speechSynthesis.getVoices();
+                        setVoice(voices);
+                    };
+                } else {
+                    setVoice(voices);
+                }
+
+                // Add event listeners for better control
+                utter.onend = () => {
+                    currentVoice = null;
+                };
+
+                utter.onerror = (event) => {
+                    console.error('Speech synthesis error:', event);
+                    currentVoice = null;
+                };
+
+                // Start speaking
+                window.speechSynthesis.speak(utter);
+            }
+        }
+
+        function setVoice(voices) {
+            if (!currentVoice) return;
+            
+            // Try to find a preferred voice
+            const preferred = voices.find(v => 
+                v.name.toLowerCase().includes('female') || 
+                v.name.toLowerCase().includes('natural') ||
+                v.name.toLowerCase().includes('samantha')
+            );
+            
+            if (preferred) {
+                currentVoice.voice = preferred;
+            }
+        }
+
+        function speakFeedback(text) {
+            if (!voiceFeedbackEnabled) return;
+            
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utter = new window.SpeechSynthesisUtterance(text);
+                currentVoice = utter;
+
+                utter.rate = 1.0;
+                utter.pitch = 1.0;
+                utter.volume = 1.0;
+                utter.lang = 'en-US';
+
+                let voices = window.speechSynthesis.getVoices();
+                if (voices.length === 0) {
+                    window.speechSynthesis.onvoiceschanged = () => {
+                        voices = window.speechSynthesis.getVoices();
+                        setVoice(voices);
+                    };
+                } else {
+                    setVoice(voices);
+                }
+
+                utter.onend = () => {
+                    currentVoice = null;
+                };
+
+                utter.onerror = (event) => {
+                    console.error('Speech synthesis error:', event);
+                    currentVoice = null;
+                };
+
+                window.speechSynthesis.speak(utter);
+            }
+        }
+
+        // Add voice toggle button
+        document.querySelector('.control-panel').insertAdjacentHTML('afterbegin', `
+            <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                <label class="control-label">Voice Feedback:</label>
+                <button id="voice-toggle" style="background: var(--accent); color: #fff; border: none; border-radius: 5px; padding: 8px 12px; cursor: pointer;">
+                    🔊 Enabled
+                </button>
+            </div>
+        `);
+
+        document.getElementById('voice-toggle').addEventListener('click', function() {
+            voiceFeedbackEnabled = !voiceFeedbackEnabled;
+            this.innerHTML = voiceFeedbackEnabled ? '🔊 Enabled' : '🔇 Disabled';
+            this.style.background = voiceFeedbackEnabled ? 'var(--accent)' : '#666';
+            if (!voiceFeedbackEnabled) {
+                window.speechSynthesis.cancel();
+                currentVoice = null;
+            }
+        });
+
+        // Throttle function to prevent too frequent voice feedback
+        function throttle(func, limit) {
+            let inThrottle;
+            return function(...args) {
+                if (!inThrottle) {
+                    func.apply(this, args);
+                    inThrottle = true;
+                    setTimeout(() => inThrottle = false, limit);
+                }
+            }
+        }
+
+        // Electric Charge Simulation
+        let selectedChargeType = 'positive';
+        let chargeStrength = 5;
+        let fieldVisibility = 5;
+        let charges = [];
+        let isDragging = false;
+        let draggedCharge = null;
+        let fieldLines = [];
+        let animationId = null;
+        let distanceMessageTimer = null;
+
+        // Constants
+        const CHARGE_RADIUS = 25;
+        const COULOMB_CONSTANT = 9e5; // Simplified constant for visual effect
+        const MIN_DISTANCE = 10; // Minimum distance to prevent divide by zero
+
+        // Initialize the simulation
+        function initSimulation() {
+            const simulation = document.getElementById('simulation');
+            simulation.innerHTML = '';
+
+            // Set up simulation click handler for adding charges
+            simulation.addEventListener('mousedown', handleMouseDown);
+            simulation.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+
+            // Update display
+            updateChargeMeter();
+        }
+
+        // Create a new charge
+        function createCharge(x, y, type) {
+            const simulation = document.getElementById('simulation');
+            const charge = document.createElement('div');
+            charge.className = `charge-particle ${type}`;
+            charge.style.left = `${x - CHARGE_RADIUS}px`;
+            charge.style.top = `${y - CHARGE_RADIUS}px`;
+            charge.style.width = `${CHARGE_RADIUS * 2}px`;
+            charge.style.height = `${CHARGE_RADIUS * 2}px`;
+            charge.textContent = type === 'positive' ? '+' : '–';
+            simulation.appendChild(charge);
+
+            const chargeObj = {
+                element: charge,
+                x: x,
+                y: y,
+                vx: 0,
+                vy: 0,
+                ax: 0,
+                ay: 0,
+                type: type,
+                value: type === 'positive' ? chargeStrength : -chargeStrength
+            };
+
+            charges.push(chargeObj);
+            updateFieldLines();
+            updateChargeMeter();
+
+            // Speak feedback for new charge interactions
+            if (charges.length > 1 && voiceFeedbackEnabled) {
+                const lastCharge = charges[charges.length - 2];
+                if (lastCharge.type === chargeObj.type) {
+                    speakFeedback(voiceFeedback.interactions.likeRepel);
+                } else {
+                    speakFeedback(voiceFeedback.interactions.oppositesAttract);
+                }
+            }
+
+            return chargeObj;
+        }
+
+        // Handle mouse down on simulation area
+        function handleMouseDown(e) {
+            const simulation = document.getElementById('simulation');
+            const rect = simulation.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            // Check if clicked on existing charge
+            let clickedOnCharge = false;
+            charges.forEach(charge => {
+                const dx = x - charge.x;
+                const dy = y - charge.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < CHARGE_RADIUS) {
+                    isDragging = true;
+                    draggedCharge = charge;
+                    clickedOnCharge = true;
+                }
+            });
+
+            // If not clicked on charge, create a new one
+            if (!clickedOnCharge) {
+                createCharge(x, y, selectedChargeType);
+            }
+        }
+
+        // Handle mouse move
+        function handleMouseMove(e) {
+            if (isDragging && draggedCharge) {
+                const simulation = document.getElementById('simulation');
+                const rect = simulation.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                // Move the charge
+                draggedCharge.x = x;
+                draggedCharge.y = y;
+                draggedCharge.element.style.left = `${x - CHARGE_RADIUS}px`;
+                draggedCharge.element.style.top = `${y - CHARGE_RADIUS}px`;
+
+                // If charges moved significantly, update field lines and mention distance effect
+                clearTimeout(distanceMessageTimer);
+                distanceMessageTimer = setTimeout(() => {
+                    if (voiceFeedbackEnabled && charges.length > 1) {
+                        speakFeedback(voiceFeedback.interactions.distanceEffect);
+                    }
+                }, 1000);
+
+                updateFieldLines();
+                updateChargeMeter();
+            }
+        }
+
+        // Handle mouse up
+        function handleMouseUp() {
+            isDragging = false;
+            draggedCharge = null;
+        }
+
+        // Reset the simulation
+        function resetSimulation() {
+            charges.forEach(charge => {
+                charge.element.remove();
+            });
+            charges = [];
+            clearFieldLines();
+            updateChargeMeter();
+        }
+
+        // Update field lines
+        function updateFieldLines() {
+            clearFieldLines();
+            if (charges.length === 0 || fieldVisibility === 0) return;
+
+            const simulation = document.getElementById('simulation');
+            const lineCount = Math.max(4, fieldVisibility * 2); // Scale with visibility
+
+            charges.forEach(charge => {
+                for (let i = 0; i < lineCount; i++) {
+                    const angle = (i / lineCount) * Math.PI * 2;
+                    const line = document.createElement('div');
+                    line.className = 'field-line';
+                    
+                    // Line styling based on charge type
+                    const lineColor = charge.type === 'positive' ? 'var(--positive-color)' : 'var(--negative-color)';
+                    const direction = charge.type === 'positive' ? 1 : -1; // Direction: out for +, in for -
+                    
+                    // Create a line using SVG
+                    const svgNS = "http://www.w3.org/2000/svg";
+                    const svg = document.createElementNS(svgNS, "svg");
+                    svg.setAttribute("width", "100%");
+                    svg.setAttribute("height", "100%");
+                    svg.style.position = "absolute";
+                    svg.style.left = "0";
+                    svg.style.top = "0";
+                    svg.style.pointerEvents = "none";
+                    
+                    const path = document.createElementNS(svgNS, "path");
+                    
+                    // Calculate path endpoints
+                    const startX = charge.x;
+                    const startY = charge.y;
+                    const length = 100 * (fieldVisibility / 5);
+                    const endX = startX + Math.cos(angle) * length * direction;
+                    const endY = startY + Math.sin(angle) * length * direction;
+                    
+                    // Create a curved path
+                    const pathData = `M ${startX} ${startY} Q ${(startX + endX) / 2 + Math.sin(angle) * 20} ${(startY + endY) / 2 - Math.cos(angle) * 20} ${endX} ${endY}`;
+                    
+                    path.setAttribute("d", pathData);
+                    path.setAttribute("stroke", lineColor);
+                    path.setAttribute("stroke-width", "2");
+                    path.setAttribute("fill", "none");
+                    path.setAttribute("stroke-dasharray", "5,5");
+                    path.setAttribute("opacity", "0.6");
+                    
+                    // Add arrowhead marker
+                    const marker = document.createElementNS(svgNS, "marker");
+                    marker.setAttribute("id", `arrowhead-${charge.type}-${i}`);
+                    marker.setAttribute("markerWidth", "10");
+                    marker.setAttribute("markerHeight", "7");
+                    marker.setAttribute("refX", "10");
+                    marker.setAttribute("refY", "3.5");
+                    marker.setAttribute("orient", "auto");
+                    
+                    const polygon = document.createElementNS(svgNS, "polygon");
+                    polygon.setAttribute("points", "0 0, 10 3.5, 0 7");
+                    polygon.setAttribute("fill", lineColor);
+                    
+                    marker.appendChild(polygon);
+                    
+                    const defs = document.createElementNS(svgNS, "defs");
+                    defs.appendChild(marker);
+                    
+                    svg.appendChild(defs);
+                    
+                    // Set the marker on the path
+                    path.setAttribute("marker-end", `url(#arrowhead-${charge.type}-${i})`);
+                    
+                    svg.appendChild(path);
+                    simulation.appendChild(svg);
+                    
+                    fieldLines.push(svg);
+                }
+            });
+        }
+
+        // Clear field lines
+        function clearFieldLines() {
+            fieldLines.forEach(line => {
+                if (line && line.parentNode) {
+                    line.parentNode.removeChild(line);
+                }
+            });
+            fieldLines = [];
+        }
+
+        // Calculate net force and update display
+        function calculateForces() {
+            let totalForce = 0;
+            
+            // Reset accelerations
+            charges.forEach(charge => {
+                charge.ax = 0;
+                charge.ay = 0;
+            });
+            
+            // Calculate forces between all pairs of charges
+            for (let i = 0; i < charges.length; i++) {
+                for (let j = i + 1; j < charges.length; j++) {
+                    const q1 = charges[i];
+                    const q2 = charges[j];
+                    
+                    const dx = q2.x - q1.x;
+                    const dy = q2.y - q1.y;
+                    const distSq = dx * dx + dy * dy;
+                    const dist = Math.sqrt(distSq);
+                    
+                    if (dist < MIN_DISTANCE) continue;
+                    
+                    // Calculate force magnitude (Coulomb's Law): F = k * q1 * q2 / r^2
+                    const forceMag = COULOMB_CONSTANT * Math.abs(q1.value * q2.value) / distSq;
+                    
+                    // Force is attractive if charges have opposite signs, repulsive if same sign
+                    const forceSign = (q1.value * q2.value < 0) ? -1 : 1;
+                    
+                    // Force components
+                    const fx = forceSign * forceMag * dx / dist;
+                    const fy = forceSign * forceMag * dy / dist;
+                    
+                    // Apply force (F = ma, so a = F/m)
+                    // Assuming mass = 1 for simplicity
+                    q1.ax -= fx;
+                    q1.ay -= fy;
+                    q2.ax += fx;
+                    q2.ay += fy;
+                    
+                    totalForce += forceMag;
+                }
+            }
+            
+            // Update velocities and positions for charges (if not being dragged)
+            charges.forEach(charge => {
+                if (charge !== draggedCharge) {
+                    // Update velocity: v = v + a*dt
+                    charge.vx += charge.ax * 0.1;
+                    charge.vy += charge.ay * 0.1;
+                    
+                    // Add damping to prevent infinite oscillation
+                    charge.vx *= 0.95;
+                    charge.vy *= 0.95;
+                    
+                    // Update position: x = x + v*dt
+                    charge.x += charge.vx;
+                    charge.y += charge.vy;
+                    
+                    // Check boundaries
+                    const simulation = document.getElementById('simulation');
+                    const width = simulation.clientWidth;
+                    const height = simulation.clientHeight;
+                    
+                    if (charge.x < CHARGE_RADIUS) {
+                        charge.x = CHARGE_RADIUS;
+                        charge.vx *= -0.8;
+                    }
+                    if (charge.x > width - CHARGE_RADIUS) {
+                        charge.x = width - CHARGE_RADIUS;
+                        charge.vx *= -0.8;
+                    }
+                    if (charge.y < CHARGE_RADIUS) {
+                        charge.y = CHARGE_RADIUS;
+                        charge.vy *= -0.8;
+                    }
+                    if (charge.y > height - CHARGE_RADIUS) {
+                        charge.y = height - CHARGE_RADIUS;
+                        charge.vy *= -0.8;
+                    }
+                    
+                    // Update DOM element position
+                    charge.element.style.left = `${charge.x - CHARGE_RADIUS}px`;
+                    charge.element.style.top = `${charge.y - CHARGE_RADIUS}px`;
+                }
+            });
+            
+            return totalForce;
+        }
+
+        // Update the charge meter display
+        function updateChargeMeter() {
+            const totalForce = calculateForces().toFixed(2);
+            document.getElementById('forceMeter').textContent = totalForce;
+        }
+
+        // Animation loop
+        function animate() {
+            updateChargeMeter();
+            animationId = requestAnimationFrame(animate);
+        }
+
+        // Register event listeners for controls
+    document.querySelectorAll('.toggle-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+                selectedChargeType = btn.dataset.charge;
+                
+                // Voice feedback
+                if (voiceFeedbackEnabled) {
+                    speakFeedback(voiceFeedback.chargeType[selectedChargeType]);
+                }
+      });
+    });
+
+        document.getElementById('chargeStrengthSlider').addEventListener('input', throttle(e => {
+            chargeStrength = parseInt(e.target.value);
+            document.getElementById('chargeStrengthValue').textContent = chargeStrength;
+            
+            // Update existing charges
+            charges.forEach(charge => {
+                const sign = charge.type === 'positive' ? 1 : -1;
+                charge.value = sign * chargeStrength;
+            });
+            
+            // Voice feedback
+            if (voiceFeedbackEnabled) {
+                if (chargeStrength <= 3) {
+                    speakFeedback(voiceFeedback.chargeStrength.low);
+                } else if (chargeStrength <= 7) {
+                    speakFeedback(voiceFeedback.chargeStrength.medium);
+                } else {
+                    speakFeedback(voiceFeedback.chargeStrength.high);
+                }
+            }
+            
+            updateChargeMeter();
+        }, 1000));
+
+        document.getElementById('fieldVisibilitySlider').addEventListener('input', throttle(e => {
+            fieldVisibility = parseInt(e.target.value);
+            document.getElementById('fieldVisibilityValue').textContent = fieldVisibility;
+            updateFieldLines();
+            
+            // Voice feedback
+            if (voiceFeedbackEnabled) {
+                if (fieldVisibility <= 3) {
+                    speakFeedback(voiceFeedback.fieldVisibility.low);
+                } else if (fieldVisibility <= 7) {
+                    speakFeedback(voiceFeedback.fieldVisibility.medium);
+                } else {
+                    speakFeedback(voiceFeedback.fieldVisibility.high);
+                }
+            }
+        }, 1000));
+
+        document.getElementById('reset-btn').addEventListener('click', () => {
+            resetSimulation();
+        });
+
+        // Initialize animation and play voiceover when the page loads
+    window.addEventListener('load', () => {
+            initSimulation();
+      animate();
+            
+            // Play voiceover without showing modal
+            if (window.speechSynthesis.getVoices().length === 0) {
+                window.speechSynthesis.onvoiceschanged = () => {
+                    setTimeout(playVoiceover, 1000);
+                };
+            } else {
+                setTimeout(playVoiceover, 1000);
+            }
+        });
+
+        // Handle visibility changes
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && currentVoice) {
+                window.speechSynthesis.pause();
+            } else if (!document.hidden && currentVoice) {
+                window.speechSynthesis.resume();
+            }
+    });
+  </script>
+</body>
+</html> 

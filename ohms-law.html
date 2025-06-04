@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ohm's Law Visualization</title>
+    <style>
+        :root {
+            --primary: #1a1a1a;
+            --secondary: #232a36;
+            --accent: #4a9eff;
+            --text: #fff;
+            --glow: #4a9eff;
+            --positive-color: #ff4444;
+            --negative-color: #4a9eff;
+            --neutral-color: #888888;
+            --battery: #ffb347;
+            --resistor: #ff4444;
+            --electron: #4a9eff;
+        }
+        body {
+            background: var(--primary);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            padding: 32px 0;
+        }
+        .visualization-container {
+            display: flex;
+            gap: 32px;
+            background: var(--secondary);
+            border-radius: 15px;
+            padding: 32px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .simulation-panel {
+            background: var(--primary);
+            border-radius: 10px;
+            padding: 0;
+            position: relative;
+            overflow: hidden;
+            flex: 1;
+            min-height: 460px;
+        }
+        .control-panel {
+            background: var(--primary);
+            border-radius: 10px;
+            padding: 24px 20px;
+            min-width: 260px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        .control-group {
+            margin-bottom: 18px;
+        }
+        .control-label {
+            font-size: 14px;
+            margin-bottom: 4px;
+            color: var(--accent);
+        }
+        .control-slider {
+            width: 100%;
+            margin: 8px 0 0 0;
+            background: linear-gradient(90deg, #222c3c 0%, #4a9eff 100%);
+            border-radius: 4px;
+            height: 8px;
+            outline: none;
+            -webkit-appearance: none;
+            box-shadow: 0 1px 4px rgba(74,158,255,0.15), 0 0 0 1px #222c3c;
+        }
+        .control-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: -6px;
+        }
+        .control-slider::-webkit-slider-thumb:hover {
+            box-shadow: 0 0 10px var(--accent);
+        }
+        .control-value {
+            text-align: right;
+            font-family: 'Courier New', monospace;
+            color: var(--accent);
+            font-weight: bold;
+            font-size: 15px;
+        }
+        .meter {
+            background: var(--secondary);
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 12px;
+            box-shadow: 0 0 18px 2px #222a;
+        }
+        .meter-value {
+            font-family: 'Courier New', monospace;
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--accent);
+            margin-top: 2px;
+            animation: meter-pulse 1.2s infinite alternate;
+        }
+        @keyframes meter-pulse {
+            0% { text-shadow: 0 0 8px var(--accent); }
+            100% { text-shadow: 0 0 18px var(--accent); }
+        }
+        .formula {
+            background: var(--secondary);
+            padding: 12px 0 8px 0;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .formula-text {
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            color: var(--accent);
+        }
+        .voice-control {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .voice-button {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        @media (max-width: 900px) {
+            .visualization-container { flex-direction: column; align-items: center; }
+            .simulation-panel { margin-bottom: 24px; height: 400px; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="visualization-container">
+            <div class="simulation-panel">
+                <canvas id="circuitCanvas"></canvas>
+            </div>
+            <div class="control-panel">
+                <div class="voice-control">
+                    <label class="control-label">Voice Feedback:</label>
+                    <button id="voice-toggle" class="voice-button">🔊 Enabled</button>
+                </div>
+                <div class="control-group">
+                    <div class="control-label">Voltage (V)</div>
+                    <input type="range" class="control-slider" id="voltageSlider" min="0" max="12" value="6" step="0.1">
+                    <div class="control-value" id="voltageValue">6.0 V</div>
+                </div>
+                <div class="control-group">
+                    <div class="control-label">Resistance (Ω)</div>
+                    <input type="range" class="control-slider" id="resistanceSlider" min="100" max="2000" value="1000" step="10">
+                    <div class="control-value" id="resistanceValue">1000 Ω</div>
+                </div>
+                <div class="meter">
+                    <div>Current</div>
+                    <div class="meter-value" id="currentMeter">6.0 mA</div>
+                </div>
+                <div class="formula">
+                    <div class="formula-text">I = V/R</div>
+                </div>
+                <div class="meter" style="margin-top: 20px;">
+                    <div>Power</div>
+                    <div class="meter-value" id="powerMeter">36.0 mW</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const canvas = document.getElementById('circuitCanvas');
+        const ctx = canvas.getContext('2d');
+        let animationId = null;
+        let electrons = [];
+        let glowIntensity = 0;
+        let glowDirection = 1;
+
+        // Circuit parameters
+        const circuit = {
+            voltage: 6,
+            resistance: 1000,
+            current: 0.006, // In Amperes
+            power: 0.036    // In Watts
+        };
+
+        // Colors
+        const colors = {
+            background: '#1a1a1a',
+            wire: '#4a9eff',
+            battery: {
+                body: '#ffb347',
+                terminal: '#ffd700',
+                glow: '#ff8c00'
+            },
+            resistor: {
+                body: '#ff4444',
+                bands: ['#ff4444', '#ff6b6b', '#ff8c8c'],
+                glow: '#ff0000'
+            },
+            electron: {
+                core: '#4a9eff',
+                glow: '#00a2ff',
+                trail: '#4a9eff'
+            },
+            glow: '#4a9eff'
+        };
+
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            createElectrons();
+            drawCircuit();
+        }
+
+        function calculateCircuit() {
+            // Calculate current in Amperes
+            circuit.current = circuit.voltage / circuit.resistance;
+            
+            // Calculate power in Watts
+            circuit.power = circuit.voltage * circuit.current;
+            
+            // Update display (convert to mA and mW for readability)
+            document.getElementById('currentMeter').textContent = `${(circuit.current * 1000).toFixed(1)} mA`;
+            document.getElementById('powerMeter').textContent = `${(circuit.power * 1000).toFixed(1)} mW`;
+        }
+
+        function createElectrons() {
+            electrons = [];
+            // Scale electron count with current (minimum 5 electrons)
+            const numElectrons = Math.max(5, Math.floor(circuit.current * 2000));
+            
+            // Spread electrons around the circuit with different positions
+            for (let i = 0; i < numElectrons; i++) {
+                const progress = Math.random();
+                const position = getPositionOnCircuit(progress);
+                
+                electrons.push({
+                    progress: progress,
+                    x: position.x,
+                    y: position.y,
+                    size: 3 + Math.random() * 2,
+                    speed: circuit.current * 0.8 + Math.random() * 0.2, // Speed based on current
+                    brightness: 0.7 + Math.random() * 0.3
+                });
+            }
+        }
+
+        function getPositionOnCircuit(progress) {
+            const circuitWidth = canvas.width - 100;
+            const circuitHeight = canvas.height - 100;
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const padding = 50;
+            
+            // Calculate component dimensions
+            const batteryWidth = circuitWidth / 4;
+            const resistorWidth = circuitWidth / 4;
+            
+            // Component positions
+            const batteryX = padding + circuitWidth/3 - batteryWidth/2;
+            const resistorX = padding + circuitWidth/3 - resistorWidth/2;
+            const rightSideX = padding + 2*circuitWidth/3;
+            
+            // Define corners of the circuit (clockwise from bottom-left)
+            const corners = [
+                { x: padding, y: centerY + circuitHeight/4 },                      // Bottom left
+                { x: padding, y: centerY - circuitHeight/4 },                      // Top left
+                { x: resistorX, y: centerY - circuitHeight/4 },                    // Resistor start
+                { x: resistorX + resistorWidth, y: centerY - circuitHeight/4 },    // Resistor end
+                { x: rightSideX, y: centerY - circuitHeight/4 },                   // Top right before corner
+                { x: canvas.width - padding, y: centerY - circuitHeight/4 },       // Top right
+                { x: canvas.width - padding, y: centerY + circuitHeight/4 },       // Bottom right
+                { x: rightSideX, y: centerY + circuitHeight/4 },                   // Bottom right before battery
+                { x: batteryX + batteryWidth, y: centerY + circuitHeight/4 },      // Battery end
+                { x: batteryX, y: centerY + circuitHeight/4 }                      // Battery start
+            ];
+            
+            // Calculate total path length
+            let totalLength = 0;
+            let segmentLengths = [];
+            
+            for (let i = 0; i < corners.length; i++) {
+                const next = (i + 1) % corners.length;
+                const dx = corners[next].x - corners[i].x;
+                const dy = corners[next].y - corners[i].y;
+                const length = Math.sqrt(dx*dx + dy*dy);
+                segmentLengths.push(length);
+                totalLength += length;
+            }
+            
+            // Convert segment lengths to ratios
+            let segmentRatios = segmentLengths.map(len => len / totalLength);
+            
+            // Find which segment our progress falls into
+            let currentProgress = 0;
+            let segmentIndex = 0;
+            
+            for (let i = 0; i < segmentRatios.length; i++) {
+                if (progress >= currentProgress && progress < currentProgress + segmentRatios[i]) {
+                    segmentIndex = i;
+                    break;
+                }
+                currentProgress += segmentRatios[i];
+            }
+            
+            // Calculate position within the segment
+            const segmentProgress = (progress - currentProgress) / segmentRatios[segmentIndex];
+            const start = corners[segmentIndex];
+            const end = corners[(segmentIndex + 1) % corners.length];
+            
+            return {
+                x: start.x + (end.x - start.x) * segmentProgress,
+                y: start.y + (end.y - start.y) * segmentProgress
+            };
+        }
+
+        function drawBattery() {
+            const circuitWidth = canvas.width - 100;
+            const circuitHeight = canvas.height - 100;
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const padding = 50;
+            
+            // Position battery on the bottom segment of the circuit
+            const batteryWidth = circuitWidth / 4;
+            const batteryHeight = circuitHeight / 6;
+            const x = padding + circuitWidth/3 - batteryWidth/2;
+            const y = centerY + circuitHeight/4 - batteryHeight/2;
+            
+            // Battery glow based on voltage
+            ctx.save();
+            const glowRadius = batteryWidth/2 + (circuit.voltage / 12) * 15;
+            const gradient = ctx.createRadialGradient(
+                x + batteryWidth/2, y + batteryHeight/2, 0,
+                x + batteryWidth/2, y + batteryHeight/2, glowRadius
+            );
+            gradient.addColorStop(0, `rgba(255, 179, 71, ${circuit.voltage / 12 * 0.5})`);
+            gradient.addColorStop(1, 'rgba(255, 179, 71, 0)');
+            
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(x + batteryWidth/2, y + batteryHeight/2, glowRadius, 0, Math.PI*2);
+            ctx.fill();
+            ctx.restore();
+            
+            // Battery body
+            ctx.save();
+            ctx.fillStyle = colors.battery.body;
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.fillRect(x, y, batteryWidth, batteryHeight);
+            ctx.strokeRect(x, y, batteryWidth, batteryHeight);
+            
+            // Battery terminals (already aligned with circuit)
+            const terminalHeight = batteryHeight * 0.6;
+            
+            // Voltage label
+            ctx.font = `bold ${Math.min(16, batteryHeight/2.5)}px Arial`;
+            ctx.fillStyle = '#fff';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(`${circuit.voltage.toFixed(1)}V`, x + batteryWidth/2, y + batteryHeight/2);
+            
+            // Terminal markings
+            ctx.font = `bold ${Math.min(18, batteryHeight/2)}px Arial`;
+            ctx.fillText('+', x + batteryWidth - 10, y + batteryHeight/2);
+            ctx.fillText('-', x + 10, y + batteryHeight/2);
+            ctx.restore();
+        }
+
+        function drawResistor() {
+            const circuitWidth = canvas.width - 100;
+            const circuitHeight = canvas.height - 100;
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const padding = 50;
+            
+            // Position resistor on the top segment of the circuit
+            const resistorWidth = circuitWidth / 4;
+            const resistorHeight = circuitHeight / 6;
+            const x = padding + circuitWidth/3 - resistorWidth/2;
+            const y = centerY - circuitHeight/4 - resistorHeight/2;
+            
+            // Resistor glow based on power dissipation
+            ctx.save();
+            const powerRatio = circuit.power / 0.144; // Max power at 12V and 100Ω
+            const glowRadius = resistorWidth/2 + powerRatio * 15;
+            
+            const gradient = ctx.createRadialGradient(
+                x + resistorWidth/2, y + resistorHeight/2, 0,
+                x + resistorWidth/2, y + resistorHeight/2, glowRadius
+            );
+            gradient.addColorStop(0, `rgba(255, 68, 68, ${powerRatio * 0.6})`);
+            gradient.addColorStop(1, 'rgba(255, 68, 68, 0)');
+            
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(x + resistorWidth/2, y + resistorHeight/2, glowRadius, 0, Math.PI*2);
+            ctx.fill();
+            ctx.restore();
+            
+            // Zigzag resistor symbol
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(x, y + resistorHeight/2);
+            
+            const segments = 7;
+            const segWidth = resistorWidth / segments;
+            const segHeight = resistorHeight * 0.8;
+            
+            for (let i = 0; i < segments; i++) {
+                const x1 = x + i * segWidth;
+                const x2 = x + (i + 1) * segWidth;
+                const y1 = (i % 2 === 0) ? y + (resistorHeight - segHeight)/2 : y + resistorHeight - (resistorHeight - segHeight)/2;
+                const y2 = (i % 2 === 0) ? y + resistorHeight - (resistorHeight - segHeight)/2 : y + (resistorHeight - segHeight)/2;
+                
+                ctx.lineTo(x1, y1);
+                ctx.lineTo(x2, y2);
+            }
+            
+            ctx.lineTo(x + resistorWidth, y + resistorHeight/2);
+            ctx.strokeStyle = colors.resistor.body;
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            
+            // Resistance label
+            ctx.font = `bold ${Math.min(14, resistorHeight/2.5)}px Arial`;
+            ctx.fillStyle = '#fff';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(`${circuit.resistance}Ω`, x + resistorWidth/2, y + resistorHeight/2);
+            ctx.restore();
+        }
+
+        function drawWires() {
+            ctx.save();
+            ctx.strokeStyle = colors.wire;
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            const circuitWidth = canvas.width - 100;
+            const circuitHeight = canvas.height - 100;
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const padding = 50;
+            
+            // Calculate component dimensions for proper connections
+            const batteryWidth = circuitWidth / 4;
+            const resistorWidth = circuitWidth / 4;
+            
+            // Left battery position
+            const batteryX = padding + circuitWidth/3 - batteryWidth/2;
+            const batteryY = centerY + circuitHeight/4;
+            
+            // Left resistor position
+            const resistorX = padding + circuitWidth/3 - resistorWidth/2;
+            const resistorY = centerY - circuitHeight/4;
+            
+            // Right side of the resistor and battery alignment
+            const rightSideX = padding + 2*circuitWidth/3;
+            
+            // Top wire (with resistor)
+            ctx.beginPath();
+            ctx.moveTo(padding, resistorY);
+            ctx.lineTo(resistorX, resistorY);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(resistorX + resistorWidth, resistorY);
+            ctx.lineTo(rightSideX, resistorY);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(rightSideX, resistorY);
+            ctx.lineTo(canvas.width - padding, resistorY);
+            ctx.stroke();
+            
+            // Right wire
+            ctx.beginPath();
+            ctx.moveTo(canvas.width - padding, resistorY);
+            ctx.lineTo(canvas.width - padding, batteryY);
+            ctx.stroke();
+            
+            // Bottom wire (with battery)
+            ctx.beginPath();
+            ctx.moveTo(canvas.width - padding, batteryY);
+            ctx.lineTo(rightSideX, batteryY);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(rightSideX, batteryY);
+            ctx.lineTo(batteryX + batteryWidth, batteryY);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(batteryX, batteryY);
+            ctx.lineTo(padding, batteryY);
+            ctx.stroke();
+            
+            // Left wire
+            ctx.beginPath();
+            ctx.moveTo(padding, batteryY);
+            ctx.lineTo(padding, resistorY);
+            ctx.stroke();
+            
+            // Add subtle glow to wires
+            ctx.shadowColor = colors.glow;
+            ctx.shadowBlur = 5 + glowIntensity * 3;
+            ctx.stroke();
+            
+            ctx.restore();
+        }
+
+        function drawElectrons() {
+            const electronSpeed = 0.001 + 0.005 * (circuit.current * 1000);
+            
+            electrons.forEach(electron => {
+                // Update position based on current
+                electron.progress += electronSpeed * electron.speed;
+                if (electron.progress >= 1) {
+                    electron.progress -= 1;
+                }
+                
+                const position = getPositionOnCircuit(electron.progress);
+                electron.x = position.x;
+                electron.y = position.y;
+                
+                // Draw electron with glow
+                ctx.save();
+                const radius = electron.size + glowIntensity;
+                
+                // Create gradient for glow
+                const gradient = ctx.createRadialGradient(
+                    electron.x, electron.y, 0,
+                    electron.x, electron.y, radius * 2
+                );
+                gradient.addColorStop(0, `rgba(74, 158, 255, ${0.8 * electron.brightness})`);
+                gradient.addColorStop(1, 'rgba(74, 158, 255, 0)');
+
+                // Outer glow
+                ctx.beginPath();
+                ctx.arc(electron.x, electron.y, radius * 2, 0, Math.PI * 2);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+                
+                // Inner core
+                ctx.beginPath();
+                ctx.arc(electron.x, electron.y, radius, 0, Math.PI * 2);
+                ctx.fillStyle = colors.electron.core;
+                ctx.fill();
+                
+                // Highlight
+                ctx.beginPath();
+                ctx.arc(electron.x - radius * 0.3, electron.y - radius * 0.3, radius * 0.3, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                ctx.fill();
+                
+                ctx.restore();
+            });
+        }
+
+        function updateGlowEffect() {
+            // Pulse the glow effect
+            glowIntensity += 0.05 * glowDirection;
+            if (glowIntensity >= 1) {
+                glowIntensity = 1;
+                glowDirection = -1;
+            } else if (glowIntensity <= 0) {
+                glowIntensity = 0;
+                glowDirection = 1;
+            }
+        }
+
+        function drawCurrentArrow() {
+            const arrowX = canvas.width - 70;
+            const arrowY = canvas.height / 2;
+            const arrowSize = 15 + 10 * (circuit.current * 1000 / 12);
+            
+            ctx.save();
+            ctx.strokeStyle = colors.glow;
+            ctx.fillStyle = colors.glow;
+            ctx.lineWidth = 2;
+            
+            // Arrow body
+            ctx.beginPath();
+            ctx.moveTo(arrowX, arrowY - 40);
+            ctx.lineTo(arrowX, arrowY + 40);
+            ctx.stroke();
+            
+            // Arrow head
+            ctx.beginPath();
+            ctx.moveTo(arrowX, arrowY + 40 + arrowSize);
+            ctx.lineTo(arrowX - arrowSize, arrowY + 40);
+            ctx.lineTo(arrowX + arrowSize, arrowY + 40);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Text label
+            ctx.font = '16px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('I', arrowX, arrowY);
+            
+            ctx.restore();
+        }
+
+        function drawCircuit() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = colors.background;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Update glow effect
+            updateGlowEffect();
+
+            // Draw circuit elements
+            drawWires();
+            drawBattery();
+            drawResistor();
+            drawElectrons();
+            drawCurrentArrow();
+            
+            // Add Ohm's Law formula
+            ctx.save();
+            ctx.font = 'bold 20px Arial';
+            ctx.fillStyle = colors.glow;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText("Ohm's Law: I = V/R", canvas.width/2, 25);
+            ctx.restore();
+        }
+
+        function animate() {
+            drawCircuit();
+            animationId = requestAnimationFrame(animate);
+        }
+
+        // Voice feedback configuration
+        const voiceFeedback = {
+            voltage: {
+                low: "At low voltage, the potential difference creates a smaller driving force for electrons, resulting in lower current flow.",
+                medium: "At medium voltage, electrons are driven with moderate force through the circuit, creating a balanced current flow.",
+                high: "At high voltage, electrons are strongly driven through the circuit, resulting in higher current and power dissipation."
+            },
+            resistance: {
+                low: "With low resistance, electrons flow easily through the conductor. Following Ohm's Law, this creates higher current for the same voltage.",
+                medium: "With medium resistance, electron flow is moderately restricted. This demonstrates how resistance opposes current flow in the circuit.",
+                high: "With high resistance, electron movement is significantly restricted. According to Ohm's Law, this reduces current for the same voltage."
+            },
+            interactions: {
+                powerDissipation: "Notice how the resistor glows more with higher power dissipation. Power equals voltage squared divided by resistance (P = V²/R).",
+                ohmsLaw: "Ohm's Law states that current equals voltage divided by resistance (I = V/R). Observe how changing either value affects the current flow."
+            }
+        };
+
+        // Voiceover text
+        const voiceoverText = `Welcome to the Ohm's Law visualization! This interactive demonstration shows the relationship between voltage, resistance, and current in electrical circuits. Ohm's Law states that current equals voltage divided by resistance. You can adjust the voltage and resistance using the sliders and observe how the current automatically changes. Notice how the electrons' speed changes with current flow, and how the resistor glows more with higher power dissipation. Try different combinations to understand this fundamental principle of electricity.`;
+
+        let currentVoice = null;
+        let voiceFeedbackEnabled = true;
+
+        function playVoiceover() {
+            if (!voiceFeedbackEnabled) return;
+            
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utter = new SpeechSynthesisUtterance(voiceoverText);
+                currentVoice = utter;
+
+                utter.rate = 1.0;
+                utter.pitch = 1.0;
+                utter.volume = 1.0;
+                utter.lang = 'en-US';
+
+                let voices = window.speechSynthesis.getVoices();
+                if (voices.length === 0) {
+                    window.speechSynthesis.onvoiceschanged = () => {
+                        voices = window.speechSynthesis.getVoices();
+                        setVoice(voices);
+                    };
+                } else {
+                    setVoice(voices);
+                }
+
+                utter.onend = () => {
+                    currentVoice = null;
+                };
+
+                utter.onerror = (event) => {
+                    console.error('Speech synthesis error:', event);
+                    currentVoice = null;
+                };
+
+                window.speechSynthesis.speak(utter);
+            }
+        }
+
+        function setVoice(voices) {
+            if (!currentVoice) return;
+            
+            const preferred = voices.find(v => 
+                v.name.toLowerCase().includes('female') || 
+                v.name.toLowerCase().includes('natural') ||
+                v.name.toLowerCase().includes('samantha')
+            );
+            
+            if (preferred) {
+                currentVoice.voice = preferred;
+            }
+        }
+
+        function speakFeedback(text) {
+            if (!voiceFeedbackEnabled) return;
+            
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utter = new SpeechSynthesisUtterance(text);
+                currentVoice = utter;
+
+                utter.rate = 1.0;
+                utter.pitch = 1.0;
+                utter.volume = 1.0;
+                utter.lang = 'en-US';
+
+                let voices = window.speechSynthesis.getVoices();
+                if (voices.length === 0) {
+                    window.speechSynthesis.onvoiceschanged = () => {
+                        voices = window.speechSynthesis.getVoices();
+                        setVoice(voices);
+                    };
+                } else {
+                    setVoice(voices);
+                }
+
+                utter.onend = () => {
+                    currentVoice = null;
+                };
+
+                utter.onerror = (event) => {
+                    console.error('Speech synthesis error:', event);
+                    currentVoice = null;
+                };
+
+                window.speechSynthesis.speak(utter);
+            }
+        }
+
+        // Throttle function to prevent too frequent voice feedback
+        function throttle(func, limit) {
+            let inThrottle;
+            return function(...args) {
+                if (!inThrottle) {
+                    func.apply(this, args);
+                    inThrottle = true;
+                    setTimeout(() => inThrottle = false, limit);
+                }
+            }
+        }
+
+        // Voice toggle functionality
+        document.getElementById('voice-toggle').addEventListener('click', function() {
+            voiceFeedbackEnabled = !voiceFeedbackEnabled;
+            this.innerHTML = voiceFeedbackEnabled ? '🔊 Enabled' : '🔇 Disabled';
+            this.style.background = voiceFeedbackEnabled ? 'var(--accent)' : '#666';
+            if (!voiceFeedbackEnabled) {
+                window.speechSynthesis.cancel();
+                currentVoice = null;
+            }
+        });
+
+        // Initialize controls with throttled voice feedback
+        document.getElementById('voltageSlider').addEventListener('input', throttle(function(e) {
+            circuit.voltage = parseFloat(e.target.value);
+            document.getElementById('voltageValue').textContent = `${circuit.voltage.toFixed(1)} V`;
+            
+            if (voiceFeedbackEnabled) {
+                if (circuit.voltage <= 4) {
+                    speakFeedback(voiceFeedback.voltage.low);
+                } else if (circuit.voltage <= 8) {
+                    speakFeedback(voiceFeedback.voltage.medium);
+                } else {
+                    speakFeedback(voiceFeedback.voltage.high);
+                }
+            }
+            
+            calculateCircuit();
+            createElectrons();
+        }, 1000));
+
+        document.getElementById('resistanceSlider').addEventListener('input', throttle(function(e) {
+            circuit.resistance = parseFloat(e.target.value);
+            document.getElementById('resistanceValue').textContent = `${circuit.resistance.toFixed(0)} Ω`;
+            
+            if (voiceFeedbackEnabled) {
+                if (circuit.resistance <= 700) {
+                    speakFeedback(voiceFeedback.resistance.low);
+                } else if (circuit.resistance <= 1300) {
+                    speakFeedback(voiceFeedback.resistance.medium);
+                } else {
+                    speakFeedback(voiceFeedback.resistance.high);
+                }
+            }
+            
+            calculateCircuit();
+            createElectrons();
+        }, 1000));
+
+        // Add power dissipation voice feedback
+        setInterval(() => {
+            if (voiceFeedbackEnabled && Math.random() < 0.05) {
+                if (circuit.power > 0.05) {
+                    speakFeedback(voiceFeedback.interactions.powerDissipation);
+                } else if (Math.random() < 0.5) {
+                    speakFeedback(voiceFeedback.interactions.ohmsLaw);
+                }
+            }
+        }, 20000);
+
+        // Handle visibility changes
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && currentVoice) {
+                window.speechSynthesis.pause();
+            } else if (!document.hidden && currentVoice) {
+                window.speechSynthesis.resume();
+            }
+        });
+
+        // Initialize
+        window.addEventListener('load', () => {
+            resizeCanvas();
+            calculateCircuit();
+            createElectrons();
+            animate();
+            
+            // Play voice-over after a short delay
+            setTimeout(playVoiceover, 1000);
+        });
+
+        window.addEventListener('resize', resizeCanvas);
+    </script>
+</body>
+</html> 

@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voltage Visualization</title>
+  <style>
+    :root {
+      --primary: #1a1a1a;
+      --secondary: #232a36;
+      --accent: #4a9eff;
+      --text: #fff;
+      --glow: #4a9eff;
+      --high-voltage: #ff4444;
+      --low-voltage: #8844ff;
+      --neutral: #888888;
+    }
+    body {
+      background: var(--primary);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      width: 100%;
+      max-width: 1100px;
+      padding: 32px 0;
+    }
+    .visualization-container {
+      display: flex;
+      gap: 32px;
+      background: var(--secondary);
+      border-radius: 15px;
+      padding: 32px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    .simulation-panel {
+      background: var(--primary);
+      border-radius: 10px;
+      padding: 0;
+      position: relative;
+      overflow: hidden;
+      flex: 1;
+      min-height: 460px;
+    }
+    .control-panel {
+      background: var(--primary);
+      border-radius: 10px;
+      padding: 24px 20px;
+      min-width: 260px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .control-group {
+      margin-bottom: 18px;
+    }
+    .control-label {
+      font-size: 14px;
+      margin-bottom: 4px;
+      color: var(--accent);
+    }
+    .control-slider {
+      width: 100%;
+      margin: 8px 0 0 0;
+      background: linear-gradient(90deg, #222c3c 0%, #4a9eff 100%);
+      border-radius: 4px;
+      height: 8px;
+      outline: none;
+      -webkit-appearance: none;
+      box-shadow: 0 1px 4px rgba(74,158,255,0.15), 0 0 0 1px #222c3c;
+    }
+    .control-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      background: var(--accent);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: -6px;
+    }
+    .control-slider::-webkit-slider-thumb:hover {
+      box-shadow: 0 0 10px var(--accent);
+    }
+    .control-value {
+      text-align: right;
+      font-family: 'Courier New', monospace;
+      color: var(--accent);
+      font-weight: bold;
+      font-size: 15px;
+    }
+    .meter {
+      background: var(--secondary);
+      padding: 10px 15px;
+      border-radius: 8px;
+      text-align: center;
+      margin-top: 12px;
+      box-shadow: 0 0 18px 2px #222a;
+    }
+    .meter-value {
+      font-family: 'Courier New', monospace;
+      font-size: 22px;
+      font-weight: bold;
+      color: var(--accent);
+      margin-top: 2px;
+      animation: meter-pulse 1.2s infinite alternate;
+    }
+    @keyframes meter-pulse {
+      0% { text-shadow: 0 0 8px var(--accent); }
+      100% { text-shadow: 0 0 18px var(--accent); }
+    }
+    .formula {
+      background: var(--secondary);
+      padding: 12px 0 8px 0;
+      border-radius: 8px;
+      text-align: center;
+      margin-top: 20px;
+    }
+    .formula-text {
+      font-family: 'Courier New', monospace;
+      font-size: 18px;
+      color: var(--accent);
+    }
+    .potential-grid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    .potential-point {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      position: absolute;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      opacity: 0.7;
+      z-index: 10;
+    }
+    .electrode {
+      position: absolute;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: white;
+      font-family: 'Courier New', monospace;
+      cursor: move;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      user-select: none;
+      z-index: 20;
+    }
+    .electrode.positive {
+      background: var(--high-voltage);
+      box-shadow: 0 0 15px var(--high-voltage);
+    }
+    .electrode.negative {
+      background: var(--low-voltage);
+      box-shadow: 0 0 15px var(--low-voltage);
+    }
+    .electrode-label {
+      position: absolute;
+      font-size: 14px;
+      font-family: 'Courier New', monospace;
+      text-align: center;
+      color: var(--text);
+      pointer-events: none;
+    }
+    .voltage-line {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      z-index: 15;
+    }
+    .electron {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 10px var(--accent);
+      pointer-events: none;
+      z-index: 25;
+    }
+    @media (max-width: 900px) {
+      .visualization-container { flex-direction: column; align-items: center; }
+      .simulation-panel { margin-bottom: 24px; height: 400px; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+
+    <div class="visualization-container">
+      <div class="simulation-panel" id="simulation">
+        <!-- Voltage simulation will be rendered here -->
+        <div class="potential-grid" id="potentialGrid"></div>
+        <div class="voltage-line" id="voltageLine"></div>
+      </div>
+      <div class="control-panel">
+        <div class="control-group">
+          <div class="control-label">Voltage (V)</div>
+          <input type="range" class="control-slider" id="voltageSlider" min="1" max="12" value="6" step="1">
+          <div class="control-value" id="voltageValue">6 V</div>
+        </div>
+        <div class="control-group">
+          <div class="control-label">Equipotential Lines</div>
+          <input type="range" class="control-slider" id="linesSlider" min="0" max="10" value="5" step="1">
+          <div class="control-value" id="linesValue">5</div>
+        </div>
+        <div style="margin: 20px 0; display: flex; justify-content: center;">
+          <button id="current-toggle" style="background: var(--accent); color: #fff; border: none; border-radius: 5px; padding: 10px 16px; cursor: pointer; font-size: 14px;">
+            Toggle Current
+          </button>
+        </div>
+        <div class="meter">
+          <div>Electric Field</div>
+          <div class="meter-value" id="fieldMeter">0.00 V/m</div>
+        </div>
+        <div class="formula">
+          <div class="formula-text">V = W/q</div>
+        </div>
+        <div class="formula" style="margin-top: 10px;">
+          <div class="formula-text">E = -∇V</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Voice feedback and voiceover functionality
+    const voiceFeedback = {
+      voltage: {
+        low: "Low voltage creates a weak electric field between the electrodes.",
+        medium: "Medium voltage creates a moderate electric field, showing clear equipotential lines.",
+        high: "High voltage creates a strong electric field, generating more force on charges."
+      },
+      lines: {
+        few: "Fewer equipotential lines give a simpler view of the voltage distribution.",
+        medium: "Medium density of equipotential lines shows gradual voltage changes.",
+        many: "Many equipotential lines reveal detailed voltage distribution between the electrodes."
+      },
+      current: {
+        on: "Current flow enabled. Electrons flow from negative to positive potential.",
+        off: "Current flow disabled. No electron movement occurs without a complete circuit."
+      },
+      electrodes: {
+        closer: "As electrodes move closer, the electric field between them gets stronger.",
+        further: "As electrodes move apart, the electric field between them weakens but covers more area."
+      }
+    };
+
+    // Voice-over functionality
+    const voiceoverText = `Welcome to the Voltage visualization! This interactive demonstration shows how voltage creates electric potential differences. Voltage is the electric potential energy per unit charge, measured in volts. You can drag the positive and negative electrodes to see how their positions affect the electric field. Adjust the voltage slider to change the potential difference, and observe how equipotential lines form. Toggle the current to see how electrons flow from low to high potential.`;
+
+    let currentVoice = null;
+    let voiceFeedbackEnabled = true;
+
+    function playVoiceover() {
+      if (!voiceFeedbackEnabled) return;
+      
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utter = new window.SpeechSynthesisUtterance(voiceoverText);
+        currentVoice = utter;
+        utter.rate = 1.0;
+        utter.pitch = 1.0;
+        utter.volume = 1.0;
+        utter.lang = 'en-US';
+        
+        const voices = window.speechSynthesis.getVoices();
+        const preferred = voices.find(v => 
+          v.name.toLowerCase().includes('female') || 
+          v.name.toLowerCase().includes('natural')
+        );
+        
+        if (preferred) utter.voice = preferred;
+        
+        utter.onend = () => { currentVoice = null; };
+        utter.onerror = () => { currentVoice = null; };
+        
+        window.speechSynthesis.speak(utter);
+      }
+    }
+
+    function speakFeedback(text) {
+      if (!voiceFeedbackEnabled) return;
+      
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utter = new window.SpeechSynthesisUtterance(text);
+        currentVoice = utter;
+        utter.rate = 1.0;
+        utter.pitch = 1.0;
+        utter.volume = 1.0;
+        utter.lang = 'en-US';
+        
+        const voices = window.speechSynthesis.getVoices();
+        const preferred = voices.find(v => 
+          v.name.toLowerCase().includes('female') || 
+          v.name.toLowerCase().includes('natural')
+        );
+        
+        if (preferred) utter.voice = preferred;
+        
+        utter.onend = () => { currentVoice = null; };
+        utter.onerror = () => { currentVoice = null; };
+        
+        window.speechSynthesis.speak(utter);
+      }
+    }
+
+    // Add voice toggle button
+    document.querySelector('.control-panel').insertAdjacentHTML('afterbegin', `
+      <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+        <label class="control-label">Voice Feedback:</label>
+        <button id="voice-toggle" style="background: var(--accent); color: #fff; border: none; border-radius: 5px; padding: 8px 12px; cursor: pointer;">
+          🔊 Enabled
+        </button>
+      </div>
+    `);
+
+    document.getElementById('voice-toggle').addEventListener('click', function() {
+      voiceFeedbackEnabled = !voiceFeedbackEnabled;
+      this.innerHTML = voiceFeedbackEnabled ? '🔊 Enabled' : '🔇 Disabled';
+      this.style.background = voiceFeedbackEnabled ? 'var(--accent)' : '#666';
+      if (!voiceFeedbackEnabled) {
+        window.speechSynthesis.cancel();
+        currentVoice = null;
+      }
+    });
+
+    // Throttle function to prevent too frequent voice feedback
+    function throttle(func, limit) {
+      let inThrottle;
+      return function(...args) {
+        if (!inThrottle) {
+          func.apply(this, args);
+          inThrottle = true;
+          setTimeout(() => inThrottle = false, limit);
+        }
+      }
+    }
+
+    // Voltage Simulation Variables
+    let voltage = 6; // Initial voltage
+    let lineCount = 5; // Initial equipotential line count
+    let currentOn = false; // Current flow toggle
+    let positiveElectrode = null;
+    let negativeElectrode = null;
+    let potentialPoints = [];
+    let electrons = [];
+    let animationId = null;
+    let draggedElectrode = null;
+    let previousDistance = 0;
+    let distanceMessageTimer = null;
+
+    // Constants
+    const ELECTRODE_WIDTH = 40;
+    const ELECTRODE_HEIGHT = 80;
+    const GRID_SPACING = 20;
+    const MAX_ELECTRONS = 30;
+
+    // Initialize the simulation
+    function initSimulation() {
+      const simulation = document.getElementById('simulation');
+      
+      // Create electrodes
+      createElectrodes(simulation);
+      
+      // Create potential grid
+      createPotentialGrid();
+      
+      // Add event listeners for dragging electrodes
+      setupDragging();
+      
+      // Initial update
+      updateVisualization();
+    }
+
+    // Create electrodes
+    function createElectrodes(container) {
+      // Positive electrode (anode)
+      const positive = document.createElement('div');
+      positive.className = 'electrode positive';
+      positive.style.width = `${ELECTRODE_WIDTH}px`;
+      positive.style.height = `${ELECTRODE_HEIGHT}px`;
+      positive.style.left = '25%';
+      positive.style.top = '50%';
+      positive.style.transform = 'translate(-50%, -50%)';
+      positive.innerHTML = '+';
+      container.appendChild(positive);
+      
+      // Positive electrode label
+      const positiveLabel = document.createElement('div');
+      positiveLabel.className = 'electrode-label';
+      positiveLabel.style.top = `calc(50% + ${ELECTRODE_HEIGHT/2 + 10}px)`;
+      positiveLabel.style.left = '25%';
+      positiveLabel.style.transform = 'translateX(-50%)';
+      positiveLabel.textContent = 'High Potential';
+      container.appendChild(positiveLabel);
+      
+      // Negative electrode (cathode)
+      const negative = document.createElement('div');
+      negative.className = 'electrode negative';
+      negative.style.width = `${ELECTRODE_WIDTH}px`;
+      negative.style.height = `${ELECTRODE_HEIGHT}px`;
+      negative.style.left = '75%';
+      negative.style.top = '50%';
+      negative.style.transform = 'translate(-50%, -50%)';
+      negative.innerHTML = '–';
+      container.appendChild(negative);
+      
+      // Negative electrode label
+      const negativeLabel = document.createElement('div');
+      negativeLabel.className = 'electrode-label';
+      negativeLabel.style.top = `calc(50% + ${ELECTRODE_HEIGHT/2 + 10}px)`;
+      negativeLabel.style.left = '75%';
+      negativeLabel.style.transform = 'translateX(-50%)';
+      negativeLabel.textContent = 'Low Potential';
+      container.appendChild(negativeLabel);
+      
+      positiveElectrode = { 
+        element: positive, 
+        x: container.clientWidth * 0.25, 
+        y: container.clientHeight * 0.5 
+      };
+      
+      negativeElectrode = { 
+        element: negative, 
+        x: container.clientWidth * 0.75, 
+        y: container.clientHeight * 0.5 
+      };
+      
+      previousDistance = calculateDistance(positiveElectrode, negativeElectrode);
+    }
+
+    // Create potential grid
+    function createPotentialGrid() {
+      potentialPoints = [];
+      const grid = document.getElementById('potentialGrid');
+      grid.innerHTML = '';
+      
+      const simulation = document.getElementById('simulation');
+      const width = simulation.clientWidth;
+      const height = simulation.clientHeight;
+      
+      // Create grid of potential points
+      for (let x = GRID_SPACING; x < width; x += GRID_SPACING) {
+        for (let y = GRID_SPACING; y < height; y += GRID_SPACING) {
+          const point = document.createElement('div');
+          point.className = 'potential-point';
+          point.style.left = `${x}px`;
+          point.style.top = `${y}px`;
+          grid.appendChild(point);
+          
+          potentialPoints.push({
+            element: point,
+            x: x,
+            y: y,
+            potential: 0
+          });
+        }
+      }
+    }
+
+    // Setup dragging for electrodes
+    function setupDragging() {
+      const simulation = document.getElementById('simulation');
+      
+      simulation.addEventListener('mousedown', (e) => {
+        const rect = simulation.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        
+        // Check if clicked on an electrode
+        if (isPointInElectrode(mouseX, mouseY, positiveElectrode)) {
+          draggedElectrode = positiveElectrode;
+        } else if (isPointInElectrode(mouseX, mouseY, negativeElectrode)) {
+          draggedElectrode = negativeElectrode;
+        }
+      });
+      
+      simulation.addEventListener('mousemove', (e) => {
+        if (draggedElectrode) {
+          const rect = simulation.getBoundingClientRect();
+          const mouseX = e.clientX - rect.left;
+          const mouseY = e.clientY - rect.top;
+          
+          // Update electrode position
+          draggedElectrode.x = mouseX;
+          draggedElectrode.y = mouseY;
+          
+          // Ensure electrode stays within bounds
+          draggedElectrode.x = Math.max(ELECTRODE_WIDTH/2, Math.min(simulation.clientWidth - ELECTRODE_WIDTH/2, draggedElectrode.x));
+          draggedElectrode.y = Math.max(ELECTRODE_HEIGHT/2, Math.min(simulation.clientHeight - ELECTRODE_HEIGHT/2, draggedElectrode.y));
+          
+          // Update electrode element position
+          draggedElectrode.element.style.left = `${draggedElectrode.x}px`;
+          draggedElectrode.element.style.top = `${draggedElectrode.y}px`;
+          
+          // Update label position
+          const labelIndex = draggedElectrode === positiveElectrode ? 0 : 1;
+          const label = document.getElementsByClassName('electrode-label')[labelIndex];
+          label.style.left = `${draggedElectrode.x}px`;
+          
+          // Check distance change for feedback
+          const currentDistance = calculateDistance(positiveElectrode, negativeElectrode);
+          if (Math.abs(currentDistance - previousDistance) > 50) {
+            clearTimeout(distanceMessageTimer);
+            distanceMessageTimer = setTimeout(() => {
+              if (currentDistance < previousDistance) {
+                speakFeedback(voiceFeedback.electrodes.closer);
+              } else {
+                speakFeedback(voiceFeedback.electrodes.further);
+              }
+              previousDistance = currentDistance;
+            }, 500);
+          }
+          
+          updateVisualization();
+        }
+      });
+      
+      document.addEventListener('mouseup', () => {
+        draggedElectrode = null;
+      });
+    }
+
+    // Check if point is inside electrode
+    function isPointInElectrode(x, y, electrode) {
+      const halfWidth = ELECTRODE_WIDTH / 2;
+      const halfHeight = ELECTRODE_HEIGHT / 2;
+      
+      return (
+        x >= electrode.x - halfWidth &&
+        x <= electrode.x + halfWidth &&
+        y >= electrode.y - halfHeight &&
+        y <= electrode.y + halfHeight
+      );
+    }
+
+    // Calculate distance between electrodes
+    function calculateDistance(electrode1, electrode2) {
+      const dx = electrode2.x - electrode1.x;
+      const dy = electrode2.y - electrode1.y;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    // Calculate electric field strength
+    function calculateElectricField() {
+      const distance = calculateDistance(positiveElectrode, negativeElectrode);
+      // E = V/d (simplified)
+      const fieldStrength = voltage / (distance / 100); // Adjust scale for display
+      return fieldStrength;
+    }
+
+    // Calculate potential at a point
+    function calculatePotential(x, y) {
+      // Distance from positive electrode
+      const dx1 = x - positiveElectrode.x;
+      const dy1 = y - positiveElectrode.y;
+      const distPos = Math.sqrt(dx1 * dx1 + dy1 * dy1);
+      
+      // Distance from negative electrode
+      const dx2 = x - negativeElectrode.x;
+      const dy2 = y - negativeElectrode.y;
+      const distNeg = Math.sqrt(dx2 * dx2 + dy2 * dy2);
+      
+      // Calculate potential (simplified model)
+      const posContribution = voltage / (distPos + 1);
+      const negContribution = -voltage / (distNeg + 1);
+      
+      return posContribution + negContribution;
+    }
+
+    // Update the visualization
+    function updateVisualization() {
+      // Update potential field
+      updatePotentialField();
+      
+      // Update equipotential lines
+      updateEquipotentialLines();
+      
+      // Update electric field meter
+      const fieldStrength = calculateElectricField().toFixed(2);
+      document.getElementById('fieldMeter').textContent = `${fieldStrength} V/m`;
+      
+      // Update electrons if current is on
+      if (currentOn) {
+        updateElectrons();
+      }
+    }
+
+    // Update potential field colors
+    function updatePotentialField() {
+      const maxPotential = voltage * 1.5; // Scale for better visualization
+      
+      potentialPoints.forEach(point => {
+        const potential = calculatePotential(point.x, point.y);
+        point.potential = potential;
+        
+        // Normalize potential for color gradient
+        const normalizedPotential = (potential + maxPotential) / (2 * maxPotential);
+        const clampedPotential = Math.max(0, Math.min(1, normalizedPotential));
+        
+        // Color gradient from low to high potential
+        const r = Math.round(136 + (255 - 136) * clampedPotential);
+        const g = Math.round(68 + (158 - 68) * (1 - clampedPotential));
+        const b = Math.round(255 + (255 - 255) * (1 - clampedPotential));
+        
+        // Update point color and opacity
+        point.element.style.background = `rgb(${r}, ${g}, ${b})`;
+        point.element.style.opacity = `${0.2 + clampedPotential * 0.6}`;
+        
+        // Scale point size with potential
+        const size = 6 + clampedPotential * 8;
+        point.element.style.width = `${size}px`;
+        point.element.style.height = `${size}px`;
+        point.element.style.marginLeft = `-${size/2}px`;
+        point.element.style.marginTop = `-${size/2}px`;
+      });
+    }
+
+    // Update equipotential lines
+    function updateEquipotentialLines() {
+      const voltageLine = document.getElementById('voltageLine');
+      voltageLine.innerHTML = '';
+      
+      if (lineCount === 0) return;
+      
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("width", "100%");
+      svg.setAttribute("height", "100%");
+      
+      // Group potential values into bands
+      const allPotentials = potentialPoints.map(p => p.potential);
+      const minPotential = Math.min(...allPotentials);
+      const maxPotential = Math.max(...allPotentials);
+      const range = maxPotential - minPotential;
+      
+      // Create equipotential lines
+      for (let i = 1; i <= lineCount; i++) {
+        const targetPotential = minPotential + (range * i / (lineCount + 1));
+        const points = [];
+        
+        potentialPoints.forEach(point => {
+          if (Math.abs(point.potential - targetPotential) < range / (lineCount * 2)) {
+            points.push({x: point.x, y: point.y});
+          }
+        });
+        
+        if (points.length > 3) {
+          const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+          let d = `M ${points[0].x} ${points[0].y}`;
+          
+          for (let j = 1; j < points.length; j++) {
+            d += ` L ${points[j].x} ${points[j].y}`;
+          }
+          
+          path.setAttribute("d", d);
+          path.setAttribute("stroke", "#fff");
+          path.setAttribute("stroke-width", "2");
+          path.setAttribute("fill", "none");
+          path.setAttribute("stroke-dasharray", "5,5");
+          path.setAttribute("opacity", "0.6");
+          
+          svg.appendChild(path);
+        }
+      }
+      
+      voltageLine.appendChild(svg);
+    }
+
+    // Create and manage electrons
+    function updateElectrons() {
+      // Remove existing electrons
+      document.querySelectorAll('.electron').forEach(el => el.remove());
+      electrons = [];
+      
+      if (!currentOn) return;
+      
+      const simulation = document.getElementById('simulation');
+      const electronCount = Math.min(MAX_ELECTRONS, voltage * 3);
+      
+      // Create electrons near negative electrode
+      for (let i = 0; i < electronCount; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const distance = ELECTRODE_WIDTH/2 + Math.random() * 50;
+        const x = negativeElectrode.x + Math.cos(angle) * distance;
+        const y = negativeElectrode.y + Math.sin(angle) * distance;
+        
+        const electron = document.createElement('div');
+        electron.className = 'electron';
+        electron.style.left = `${x}px`;
+        electron.style.top = `${y}px`;
+        simulation.appendChild(electron);
+        
+        electrons.push({
+          element: electron,
+          x: x,
+          y: y,
+          vx: 0,
+          vy: 0
+        });
+      }
+      
+      // Start electron animation
+      if (animationId) cancelAnimationFrame(animationId);
+      animateElectrons();
+    }
+
+    // Animate electrons
+    function animateElectrons() {
+      if (!currentOn) {
+        if (animationId) cancelAnimationFrame(animationId);
+        return;
+      }
+      
+      electrons.forEach(electron => {
+        // Calculate direction to positive electrode
+        const dx = positiveElectrode.x - electron.x;
+        const dy = positiveElectrode.y - electron.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        
+        // Update velocity (attracted to positive electrode)
+        const speed = Math.min(5, 10 / Math.sqrt(dist)) * (voltage / 6);
+        electron.vx = dx / dist * speed;
+        electron.vy = dy / dist * speed;
+        
+        // Add some randomness
+        electron.vx += (Math.random() - 0.5) * 0.5;
+        electron.vy += (Math.random() - 0.5) * 0.5;
+        
+        // Update position
+        electron.x += electron.vx;
+        electron.y += electron.vy;
+        
+        // Check if electron reached positive electrode
+        if (dist < ELECTRODE_WIDTH) {
+          // Reset position to negative electrode
+          const angle = Math.random() * Math.PI * 2;
+          const distance = ELECTRODE_WIDTH/2 + Math.random() * 30;
+          electron.x = negativeElectrode.x + Math.cos(angle) * distance;
+          electron.y = negativeElectrode.y + Math.sin(angle) * distance;
+        }
+        
+        // Update DOM element
+        electron.element.style.left = `${electron.x}px`;
+        electron.element.style.top = `${electron.y}px`;
+      });
+      
+      animationId = requestAnimationFrame(animateElectrons);
+    }
+
+    // Event Listeners
+    document.getElementById('voltageSlider').addEventListener('input', throttle(e => {
+      voltage = parseInt(e.target.value);
+      document.getElementById('voltageValue').textContent = `${voltage} V`;
+      
+      if (voiceFeedbackEnabled) {
+        if (voltage <= 4) {
+          speakFeedback(voiceFeedback.voltage.low);
+        } else if (voltage <= 8) {
+          speakFeedback(voiceFeedback.voltage.medium);
+        } else {
+          speakFeedback(voiceFeedback.voltage.high);
+        }
+      }
+      
+      updateVisualization();
+    }, 1000));
+
+    document.getElementById('linesSlider').addEventListener('input', throttle(e => {
+      lineCount = parseInt(e.target.value);
+      document.getElementById('linesValue').textContent = lineCount;
+      
+      if (voiceFeedbackEnabled) {
+        if (lineCount <= 3) {
+          speakFeedback(voiceFeedback.lines.few);
+        } else if (lineCount <= 7) {
+          speakFeedback(voiceFeedback.lines.medium);
+        } else {
+          speakFeedback(voiceFeedback.lines.many);
+        }
+      }
+      
+      updateVisualization();
+    }, 1000));
+
+    document.getElementById('current-toggle').addEventListener('click', () => {
+      currentOn = !currentOn;
+      
+      const button = document.getElementById('current-toggle');
+      button.style.background = currentOn ? 'var(--high-voltage)' : 'var(--accent)';
+      button.textContent = currentOn ? 'Current ON' : 'Toggle Current';
+      
+      if (voiceFeedbackEnabled) {
+        speakFeedback(currentOn ? voiceFeedback.current.on : voiceFeedback.current.off);
+      }
+      
+      updateElectrons();
+    });
+
+    // Initialize animation and play voiceover when the page loads
+    window.addEventListener('load', () => {
+      initSimulation();
+      
+      // Play voiceover
+      // Wait for voices to be loaded before playing
+      if (window.speechSynthesis.getVoices().length === 0) {
+        window.speechSynthesis.onvoiceschanged = () => {
+          setTimeout(playVoiceover, 1000);
+        };
+      } else {
+        setTimeout(playVoiceover, 1000);
+      }
+    });
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+        animationId = null;
+      }
+      document.querySelectorAll('.electron').forEach(el => el.remove());
+      initSimulation();
+    });
+
+    // Prevent voice from being interrupted by page visibility changes
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && currentVoice) {
+        window.speechSynthesis.pause();
+      } else if (!document.hidden && currentVoice) {
+        window.speechSynthesis.resume();
+      }
+    });
+  </script>
+</body>
+</html> 
