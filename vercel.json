@@ -41,7 +41,7 @@
   "redirects": [
     {
       "source": "/",
-      "destination": "/new-main.html",
+      "destination": "/index.html",
       "permanent": false
     }
   ]

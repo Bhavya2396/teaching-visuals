@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics Teacher Visuals - Interactive Demos</title>
+    <style>
+        :root {
+            --primary: #1a1a1a;
+            --secondary: #232a36;
+            --accent: #4a9eff;
+            --text: #fff;
+            --glow: #4a9eff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--text);
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #4a9eff, #ffffff, #4a9eff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 50px rgba(74, 158, 255, 0.3);
+        }
+        
+        .header p {
+            font-size: 1.3rem;
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .demos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .demo-card {
+            background: var(--secondary);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(74, 158, 255, 0.1);
+        }
+        
+        .demo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(74, 158, 255, 0.2);
+            border-color: var(--accent);
+        }
+        
+        .demo-card h3 {
+            font-size: 1.5rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .demo-card p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+        
+        .demo-link {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--accent), #2980b9);
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .demo-link:hover {
+            background: linear-gradient(135deg, #ffffff, var(--accent));
+            color: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(74, 158, 255, 0.4);
+        }
+        
+        .featured {
+            background: linear-gradient(135deg, rgba(74, 158, 255, 0.1), rgba(74, 158, 255, 0.05));
+            border: 2px solid var(--accent);
+        }
+        
+        .featured h3 {
+            color: #ffffff;
+        }
+        
+        .section {
+            margin-bottom: 3rem;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+            color: var(--accent);
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .demos-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .demo-card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ Physics Teacher Visuals</h1>
+            <p>Interactive 3D physics experiences that make complex concepts intuitive and engaging</p>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">🎬 Cinematic Experiences</h2>
+            <div class="demos-grid">
+                <div class="demo-card featured">
+                    <h3>⚡ Electric Charge Journey</h3>
+                    <p>Experience the fundamental forces that govern our universe through 8 cinematic sections. Features Coulomb's law visualization, interactive charge behavior, and real-time physics simulations.</p>
+                    <a href="./new-main.html" class="demo-link">Start Journey →</a>
+                </div>
+                
+                <div class="demo-card featured">
+                    <h3>🔋 Electric Current Visualization</h3>
+                    <p>Complete electric current physics with realistic 3D components, animated electron flow, and physics-accurate calculations using CODATA 2018 constants.</p>
+                    <a href="./current-cinematic.html" class="demo-link">Explore Current →</a>
+                </div>
+                
+                <div class="demo-card featured">
+                    <h3>🔬 Enhanced Electrical Concepts</h3>
+                    <p>Comprehensive electrical theory coverage with advanced 3D visualizations, interactive component library, and professional-grade physics accuracy.</p>
+                    <a href="./electrical-concepts-cinematic.html" class="demo-link">Advanced Concepts →</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">🔧 Interactive Demos</h2>
+            <div class="demos-grid">
+                <div class="demo-card">
+                    <h3>⚖️ Ohm's Law</h3>
+                    <p>Interactive 2D circuit with voltage and resistance controls. Features animated electron flow, real-time calculations (I = V/R), and power dissipation visualization.</p>
+                    <a href="./ohms-law.html" class="demo-link">Try Demo →</a>
+                </div>
+                
+                <div class="demo-card">
+                    <h3>⚡ Voltage Concepts</h3>
+                    <p>Explore electric potential and voltage through interactive electrodes. Visualize potential fields, equipotential lines, and electron movement.</p>
+                    <a href="./voltage.html" class="demo-link">Explore Voltage →</a>
+                </div>
+                
+                <div class="demo-card">
+                    <h3>🔀 Resistance Properties</h3>
+                    <p>Understand how resistance affects current flow. Interactive material properties, temperature effects, and realistic component behavior.</p>
+                    <a href="./resistance.html" class="demo-link">Study Resistance →</a>
+                </div>
+                
+                <div class="demo-card">
+                    <h3>🔌 Electric Current</h3>
+                    <p>Visualize current flow mechanisms, drift velocity, and charge carrier movement through different materials and circuit configurations.</p>
+                    <a href="./electric-current.html" class="demo-link">See Current →</a>
+                </div>
+                
+                <div class="demo-card">
+                    <h3>⚡ Electric Power</h3>
+                    <p>Understand power dissipation in circuits. Interactive P = VI calculations, energy transfer visualization, and efficiency analysis.</p>
+                    <a href="./electric-power.html" class="demo-link">Power Analysis →</a>
+                </div>
+                
+                <div class="demo-card">
+                    <h3>🌐 Electric Potential</h3>
+                    <p>Explore potential energy landscapes, work done by electric fields, and the relationship between potential and electric field strength.</p>
+                    <a href="./electric-potential.html" class="demo-link">Potential Fields →</a>
+                </div>
+                
+                <div class="demo-card">
+                    <h3>🔥 Heating Effect</h3>
+                    <p>Joule heating demonstration with temperature visualization. Interactive power controls and real-time thermal effects in conductors.</p>
+                    <a href="./heating-effect.html" class="demo-link">Heat Effects →</a>
+                </div>
+                
+                <div class="demo-card">
+                    <h3>⚡ Charge Fundamentals</h3>
+                    <p>Interactive charge behavior simulation. Explore attraction, repulsion, field lines, and fundamental charge properties.</p>
+                    <a href="./charge.html" class="demo-link">Charge Basics →</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">🔗 Circuit Analysis</h2>
+            <div class="demos-grid">
+                <div class="demo-card">
+                    <h3>🔧 Circuit Components</h3>
+                    <p>Comprehensive library of realistic electrical components. Batteries, resistors, capacitors, and meters with accurate specifications.</p>
+                    <a href="./circuit-components.html" class="demo-link">Component Library →</a>
+                </div>
+                
+                <div class="demo-card">
+                    <h3>🔄 Circuit Configurations</h3>
+                    <p>Series and parallel circuit analysis. Interactive network building, current distribution, and voltage division principles.</p>
+                    <a href="./circuit-configurations.html" class="demo-link">Build Circuits →</a>
+                </div>
+                
+                <div class="demo-card">
+                    <h3>📊 Factors Affecting</h3>
+                    <p>Comprehensive analysis of factors affecting electrical behavior. Temperature, material properties, geometry, and environmental effects.</p>
+                    <a href="./factors-affecting.html" class="demo-link">Analyze Factors →</a>
+                </div>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 3rem; padding: 2rem; background: rgba(74, 158, 255, 0.1); border-radius: 15px;">
+            <h3 style="color: var(--accent); margin-bottom: 1rem;">🎓 Educational Features</h3>
+            <p style="color: rgba(255, 255, 255, 0.8);">
+                All visualizations feature voice narration, mobile responsiveness, 
+                physics-accurate calculations, and accessibility compliance (WCAG 2.1 AA).
+                Built with THREE.js, CODATA 2018 constants, and modern web technologies.
+            </p>
+        </div>
+    </div>
+</body>
+</html> 
