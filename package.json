@@ -1,0 +1,32 @@
+{
+  "name": "physics-teacher-visuals",
+  "version": "1.0.0",
+  "description": "Interactive 3D physics experiences that make complex concepts intuitive and engaging",
+  "main": "new-main.html",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "dev": "python3 -m http.server 8000",
+    "build": "echo 'Static files - no build needed'",
+    "deploy": "vercel --prod"
+  },
+  "keywords": [
+    "physics",
+    "education",
+    "3d",
+    "visualization",
+    "electricity",
+    "interactive",
+    "threejs",
+    "cinematic"
+  ],
+  "author": "Physics Teacher Visuals",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/physics-teacher-visuals.git"
+  },
+  "homepage": "https://physics-teacher-visuals.vercel.app",
+  "engines": {
+    "node": ">=14.0.0"
+  }
+} 
