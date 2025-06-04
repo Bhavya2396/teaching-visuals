@@ -559,6 +559,27 @@
             width: 100%;
             height: calc(100% - 80px);
             border: none;
+            background: white;
+        }
+
+        /* Add responsive iframe styling */
+        @media (max-width: 768px) {
+            .demo-modal-content {
+                width: 95vw;
+                height: 95vh;
+            }
+            
+            .demo-frame {
+                height: calc(100% - 60px);
+            }
+            
+            .demo-modal-header {
+                padding: 0.5rem 1rem;
+            }
+            
+            .demo-modal-title {
+                font-size: 1.2rem;
+            }
         }
 
         /* === COMPLETION MODAL === */
@@ -603,6 +624,11 @@
             0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
             40% { transform: translateY(-10px); }
             60% { transform: translateY(-5px); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .completion-title {
@@ -4867,11 +4893,30 @@
             const titleElement = document.getElementById('demo-modal-title');
             
             titleElement.textContent = title;
-            frame.src = url;
-            modal.classList.add('active');
             
-            // Disable background scrolling
+            // Add loading feedback
+            frame.style.background = 'var(--primary)';
+            frame.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text); font-size: 1.2rem; font-family: Inter, sans-serif;"><div>Loading demo...<div style="margin-top: 1rem; width: 40px; height: 40px; border: 3px solid var(--accent); border-top: 3px solid transparent; border-radius: 50%; animation: spin 1s linear infinite; margin: 1rem auto;"></div></div></div>';
+            
+            // Show modal immediately
+            modal.classList.add('active');
             document.body.style.overflow = 'hidden';
+            
+            // Load content with error handling
+            setTimeout(() => {
+                try {
+                    frame.src = url;
+                    frame.onload = () => {
+                        frame.style.background = 'white';
+                    };
+                    frame.onerror = () => {
+                        frame.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--danger); font-size: 1.2rem; font-family: Inter, sans-serif; text-align: center;"><div>Error loading demo.<br><small>Please check if the file exists: ' + url + '</small></div></div>';
+                    };
+                } catch (error) {
+                    console.error('Error loading demo:', error);
+                    frame.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--danger); font-size: 1.2rem; font-family: Inter, sans-serif;">Error loading demo</div>';
+                }
+            }, 100);
         }
         
         function closeDemoModal() {
@@ -4879,7 +4924,13 @@
             const frame = document.getElementById('demo-frame');
             
             modal.classList.remove('active');
+            
+            // Reset iframe content and styles
             frame.src = '';
+            frame.innerHTML = '';
+            frame.style.background = '';
+            frame.onload = null;
+            frame.onerror = null;
             
             // Re-enable background scrolling
             document.body.style.overflow = 'auto';
