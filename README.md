@@ -4,7 +4,7 @@
 
 ## 🌟 Live Demo
 
-🔗 **[Experience the Physics →](https://your-vercel-url.vercel.app)**
+🔗 **[Experience the Physics →](https://teaching-visuals.vercel.app)**
 
 ## 🎯 Featured Experiences
 
@@ -40,8 +40,8 @@
 ### Local Development
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/physics-teacher-visuals.git
-cd physics-teacher-visuals
+git clone https://github.com/Bhavya2396/teaching-visuals.git
+cd teaching-visuals
 
 # Start local server
 python3 -m http.server 8000
@@ -51,7 +51,7 @@ open http://localhost:8000
 ```
 
 ### Deploy to Vercel
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/physics-teacher-visuals)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Bhavya2396/teaching-visuals)
 
 ## 🎬 Cinematic Experience Features
 

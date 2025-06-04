@@ -23,9 +23,9 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/physics-teacher-visuals.git"
+    "url": "https://github.com/Bhavya2396/teaching-visuals.git"
   },
-  "homepage": "https://physics-teacher-visuals.vercel.app",
+  "homepage": "https://teaching-visuals.vercel.app",
   "engines": {
     "node": ">=14.0.0"
   }
