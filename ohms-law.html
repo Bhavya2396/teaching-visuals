@@ -50,6 +50,14 @@
             flex: 1;
             min-height: 460px;
         }
+        
+        #circuitCanvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            background: var(--primary);
+        }
         .control-panel {
             background: var(--primary);
             border-radius: 10px;
@@ -224,10 +232,15 @@
         };
 
         function resizeCanvas() {
-            const container = canvas.parentElement;
-            canvas.width = container.clientWidth;
-            canvas.height = container.clientHeight;
-            createElectrons();
+            const panel = document.querySelector('.simulation-panel');
+            canvas.width = panel.clientWidth;
+            canvas.height = panel.clientHeight;
+            
+            // Ensure minimum canvas size
+            if (canvas.width < 400) canvas.width = 400;
+            if (canvas.height < 300) canvas.height = 300;
+            
+            // Redraw after resize
             drawCircuit();
         }
 
