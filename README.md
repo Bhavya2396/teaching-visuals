@@ -4,7 +4,7 @@
 
 ## 🌟 Live Demo
 
-🔗 **[Experience the Physics →](https://teaching-visuals.vercel.app)**
+🔗 **[Experience the Physics →](https://physics-teacher-visuals-jqau1v8qq-bhavyas-projects-523e3ed1.vercel.app)**
 
 ## 🎯 Featured Experiences
 

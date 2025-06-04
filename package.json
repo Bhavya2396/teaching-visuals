@@ -25,7 +25,7 @@
     "type": "git",
     "url": "https://github.com/Bhavya2396/teaching-visuals.git"
   },
-  "homepage": "https://teaching-visuals.vercel.app",
+  "homepage": "https://physics-teacher-visuals-jqau1v8qq-bhavyas-projects-523e3ed1.vercel.app",
   "engines": {
     "node": ">=14.0.0"
   }
