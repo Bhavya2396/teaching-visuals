@@ -1,16 +1,9 @@
 {
   "version": 2,
-  "name": "physics-teacher-visuals",
   "builds": [
     {
       "src": "**/*",
       "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
     }
   ],
   "headers": [
