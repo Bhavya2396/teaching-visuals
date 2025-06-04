@@ -865,8 +865,19 @@
             createElectrons();
             animate();
             
-            // Play voice-over after a short delay
-            setTimeout(playVoiceover, 1000);
+            // Check if we're in an iframe and adjust behavior accordingly
+            const isInIframe = window !== window.parent;
+            
+            if (isInIframe) {
+                // We're in an iframe - adjust behavior for modal context
+                console.log('Ohms Law running in iframe mode');
+                
+                // Disable automatic voiceover in iframe to prevent conflicts
+                // User can still enable voice feedback manually
+            } else {
+                // Play voice-over for standalone page after a short delay
+                setTimeout(playVoiceover, 1000);
+            }
         });
 
         window.addEventListener('resize', resizeCanvas);

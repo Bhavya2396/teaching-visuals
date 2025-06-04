@@ -789,13 +789,24 @@
             initSimulation();
       animate();
             
-            // Play voiceover without showing modal
-            if (window.speechSynthesis.getVoices().length === 0) {
-                window.speechSynthesis.onvoiceschanged = () => {
-                    setTimeout(playVoiceover, 1000);
-                };
+            // Check if we're in an iframe and adjust behavior accordingly
+            const isInIframe = window !== window.parent;
+            
+            if (isInIframe) {
+                // We're in an iframe - adjust behavior for modal context
+                console.log('Running in iframe mode');
+                
+                // Disable automatic voiceover in iframe to prevent conflicts
+                // User can still enable voice feedback manually
             } else {
-                setTimeout(playVoiceover, 1000);
+                // Play voiceover for standalone page
+                if (window.speechSynthesis.getVoices().length === 0) {
+                    window.speechSynthesis.onvoiceschanged = () => {
+                        setTimeout(playVoiceover, 1000);
+                    };
+                } else {
+                    setTimeout(playVoiceover, 1000);
+                }
             }
         });
 

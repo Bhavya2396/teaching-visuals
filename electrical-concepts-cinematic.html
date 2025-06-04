@@ -4902,65 +4902,85 @@
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
             
-            // Load content with error handling and fallback
+            // Load content with improved error handling
             setTimeout(() => {
                 try {
-                    frame.src = url;
+                    // Reset iframe completely
+                    frame.src = '';
+                    frame.style.width = '100%';
+                    frame.style.height = 'calc(100% - 80px)';
+                    frame.style.border = 'none';
+                    frame.style.background = 'white';
                     
-                    // Set a timeout to detect if iframe fails to load
+                    let hasLoaded = false;
+                    
+                    // Set a shorter timeout to detect if iframe fails to load
                     const timeoutId = setTimeout(() => {
-                        frame.innerHTML = `
-                            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text); font-size: 1.2rem; font-family: Inter, sans-serif; text-align: center; padding: 2rem;">
-                                <div style="margin-bottom: 2rem;">
-                                    <div style="font-size: 3rem; margin-bottom: 1rem;">🔗</div>
-                                    <div>Demo temporarily unavailable in iframe</div>
-                                    <div style="font-size: 1rem; color: #888; margin-top: 0.5rem;">Open in new tab instead</div>
-                                </div>
-                                <button onclick="window.open(\'${url}\', \'_blank\'); closeDemoModal();" 
-                                        style="background: var(--accent); color: white; border: none; padding: 1rem 2rem; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: all 0.3s;">
-                                    Open ${title} in New Tab
-                                </button>
-                            </div>
-                        `;
-                    }, 5000); // 5 second timeout
+                        if (!hasLoaded) {
+                            showFallbackOption(frame, url, title);
+                        }
+                    }, 3000); // Reduced to 3 seconds
                     
                     frame.onload = () => {
+                        hasLoaded = true;
                         clearTimeout(timeoutId);
                         frame.style.background = 'white';
+                        console.log('Iframe loaded successfully:', url);
                     };
                     
                     frame.onerror = () => {
+                        hasLoaded = true;
                         clearTimeout(timeoutId);
-                        frame.innerHTML = `
-                            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text); font-size: 1.2rem; font-family: Inter, sans-serif; text-align: center; padding: 2rem;">
-                                <div style="margin-bottom: 2rem;">
-                                    <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
-                                    <div>Error loading demo</div>
-                                    <div style="font-size: 1rem; color: #888; margin-top: 0.5rem;">${url}</div>
-                                </div>
-                                <button onclick="window.open(\'${url}\', \'_blank\'); closeDemoModal();" 
-                                        style="background: var(--accent); color: white; border: none; padding: 1rem 2rem; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: all 0.3s;">
-                                    Open ${title} in New Tab
-                                </button>
-                            </div>
-                        `;
+                        showFallbackOption(frame, url, title);
+                        console.error('Iframe failed to load:', url);
                     };
+                    
+                    // Try to load the iframe
+                    frame.src = url;
+                    
+                    // Additional check for iframe content
+                    setTimeout(() => {
+                        try {
+                            if (!hasLoaded && frame.contentDocument === null) {
+                                hasLoaded = true;
+                                clearTimeout(timeoutId);
+                                showFallbackOption(frame, url, title);
+                            }
+                        } catch (e) {
+                            // Cross-origin error is expected, means iframe is loading external content
+                            console.log('Cross-origin iframe detected (normal)');
+                        }
+                    }, 1500);
+                    
                 } catch (error) {
-                    console.error('Error loading demo:', error);
-                    frame.innerHTML = `
-                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text); font-size: 1.2rem; font-family: Inter, sans-serif; text-align: center; padding: 2rem;">
-                            <div style="margin-bottom: 2rem;">
-                                <div style="font-size: 3rem; margin-bottom: 1rem;">❌</div>
-                                <div>Error loading demo</div>
-                            </div>
-                            <button onclick="window.open(\'${url}\', \'_blank\'); closeDemoModal();" 
-                                    style="background: var(--accent); color: white; border: none; padding: 1rem 2rem; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: all 0.3s;">
-                                Open ${title} in New Tab
-                            </button>
-                        </div>
-                    `;
+                    console.error('Error setting up iframe:', error);
+                    showFallbackOption(frame, url, title);
                 }
             }, 100);
+        }
+        
+        function showFallbackOption(frame, url, title) {
+            frame.innerHTML = `
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text); font-size: 1.2rem; font-family: Inter, sans-serif; text-align: center; padding: 2rem;">
+                    <div style="margin-bottom: 2rem;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">🔗</div>
+                        <div>Demo loading in new tab</div>
+                        <div style="font-size: 1rem; color: #888; margin-top: 0.5rem;">Click below to access the interactive demo</div>
+                    </div>
+                    <button onclick="window.open('${url}', '_blank'); closeDemoModal();" 
+                            style="background: var(--accent); color: white; border: none; padding: 1rem 2rem; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: all 0.3s; margin-bottom: 1rem;">
+                        Open ${title} →
+                    </button>
+                    <button onclick="retryIframe('${url}', '${title}')" 
+                            style="background: transparent; color: var(--accent); border: 2px solid var(--accent); padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.9rem; cursor: pointer; transition: all 0.3s;">
+                        Try Again in Modal
+                    </button>
+                </div>
+            `;
+        }
+        
+        function retryIframe(url, title) {
+            openDemoModal(url, title);
         }
         
         function closeDemoModal() {
