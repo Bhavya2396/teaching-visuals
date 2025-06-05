@@ -1,0 +1,1796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electrical Concepts - Interactive Cinematic Journey</title>
+    <link rel="stylesheet" href="parallax-style.css">
+    <style>
+        /* Enhanced CSS Custom Properties */
+        :root {
+            --section-accent: #4a9eff;
+            --particle-intensity: 1;
+            --glow-intensity: 0.3;
+            --transition-speed: 0.5s;
+        }
+
+        /* Interactive Visual Enhancements */
+        .interactive-demo-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+            transition: all 0.5s ease;
+            box-shadow: 0 0 50px rgba(74, 158, 255, 0.1);
+            z-index: 3;
+        }
+
+        .interactive-demo-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: transparent;
+            border-radius: 15px;
+        }
+
+        .cinematic-section .visual-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 2;
+        }
+
+        /* Dynamic Background System */
+        .section-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+            z-index: 1;
+        }
+
+        .cinematic-section.active .section-background {
+            opacity: 1;
+        }
+
+        .bg-charge { background: radial-gradient(ellipse at center, #001a33 0%, #000511 60%, #000204 100%); }
+        .bg-ohms { background: radial-gradient(ellipse at center, #1a0033 0%, #000511 60%, #040002 100%); }
+        .bg-voltage { background: radial-gradient(ellipse at center, #331a00 0%, #110500 60%, #020100 100%); }
+        .bg-current { background: radial-gradient(ellipse at center, #003319 0%, #000511 60%, #000402 100%); }
+        .bg-resistance { background: radial-gradient(ellipse at center, #330019 0%, #110005 60%, #020001 100%); }
+        .bg-power { background: radial-gradient(ellipse at center, #190033 0%, #050011 60%, #010002 100%); }
+        .bg-circuits { background: radial-gradient(ellipse at center, #003333 0%, #001111 60%, #000202 100%); }
+        .bg-heating { background: radial-gradient(ellipse at center, #332200 0%, #110800 60%, #020200 100%); }
+
+        /* Particle System */
+        .particles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #4a9eff;
+            border-radius: 50%;
+            opacity: 0;
+            animation: particleFloat 8s infinite linear;
+            pointer-events: none;
+        }
+
+        .particle.electric { background: #4a9eff; box-shadow: 0 0 10px #4a9eff; }
+        .particle.energy { background: #ffaa4a; box-shadow: 0 0 10px #ffaa4a; }
+        .particle.heat { background: #ff4a4a; box-shadow: 0 0 10px #ff4a4a; }
+
+        @keyframes particleFloat {
+            0% { 
+                opacity: 0; 
+                transform: translateY(100vh) translateX(0) scale(0); 
+            }
+            10% { 
+                opacity: 1; 
+                transform: translateY(90vh) translateX(20px) scale(1); 
+            }
+            90% { 
+                opacity: 1; 
+                transform: translateY(10vh) translateX(-20px) scale(1); 
+            }
+            100% { 
+                opacity: 0; 
+                transform: translateY(0) translateX(0) scale(0); 
+            }
+        }
+
+        /* Enhanced Demo Transition Overlay */
+        .demo-transition-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, transparent 0%, rgba(0, 5, 17, 0.8) 100%);
+            z-index: 4;
+            pointer-events: none;
+            transition: all 0.8s ease;
+        }
+
+        .cinematic-section.active .demo-transition-overlay {
+            opacity: 0.3;
+            background: radial-gradient(circle at center, transparent 20%, rgba(0, 5, 17, 0.6) 100%);
+        }
+
+        /* Interactive Controls Enhancement */
+        .interactive-controls {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            z-index: 20;
+            display: flex;
+            gap: 15px;
+        }
+
+        .control-pill {
+            background: rgba(74, 158, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(74, 158, 255, 0.3);
+            border-radius: 25px;
+            padding: 12px 24px;
+            color: #4a9eff;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+            pointer-events: auto;
+        }
+
+        .control-pill::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .control-pill:hover {
+            background: rgba(74, 158, 255, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(74, 158, 255, 0.4);
+            border-color: rgba(74, 158, 255, 0.6);
+        }
+
+        .control-pill:hover::before {
+            left: 100%;
+        }
+
+        .control-pill:active {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 20px rgba(74, 158, 255, 0.6);
+        }
+
+        /* Enhanced Section Focus Indicator */
+        .section-focus-indicator {
+            position: absolute;
+            top: 50%;
+            left: 20px;
+            transform: translateY(-50%);
+            z-index: 15;
+            opacity: 0;
+            transition: all 0.5s ease;
+            pointer-events: none;
+        }
+
+        .cinematic-section.active .section-focus-indicator {
+            opacity: 1;
+            left: 30px;
+        }
+
+        .focus-pulse {
+            width: 16px;
+            height: 16px;
+            background: #4a9eff;
+            border-radius: 50%;
+            position: relative;
+            animation: focusPulse 2s ease-in-out infinite;
+        }
+
+        .focus-pulse::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            width: 24px;
+            height: 24px;
+            border: 2px solid rgba(74, 158, 255, 0.6);
+            border-radius: 50%;
+            animation: focusRipple 2s ease-in-out infinite;
+        }
+
+        .focus-pulse::after {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: -8px;
+            width: 32px;
+            height: 32px;
+            border: 1px solid rgba(74, 158, 255, 0.3);
+            border-radius: 50%;
+            animation: focusRipple 2s ease-in-out infinite 0.5s;
+        }
+
+        @keyframes focusPulse {
+            0%, 100% { 
+                transform: scale(1); 
+                box-shadow: 0 0 0 0 rgba(74, 158, 255, 0.7); 
+            }
+            50% { 
+                transform: scale(1.3); 
+                box-shadow: 0 0 0 15px rgba(74, 158, 255, 0); 
+            }
+        }
+
+        @keyframes focusRipple {
+            0% { 
+                transform: scale(0.8); 
+                opacity: 1; 
+            }
+            100% { 
+                transform: scale(3); 
+                opacity: 0; 
+            }
+        }
+
+        /* Enhanced Loading Animation */
+        .demo-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+            color: #4a9eff;
+            pointer-events: none;
+            opacity: 1;
+            transition: all 0.5s ease;
+        }
+
+        .demo-loading.hidden {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.8);
+            pointer-events: none;
+        }
+
+        .demo-loading .spinner {
+            width: 80px;
+            height: 80px;
+            border: 4px solid rgba(74, 158, 255, 0.2);
+            border-top: 4px solid #4a9eff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+
+        .demo-loading .spinner::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            right: 8px;
+            bottom: 8px;
+            border: 2px solid rgba(74, 158, 255, 0.1);
+            border-top: 2px solid rgba(74, 158, 255, 0.6);
+            border-radius: 50%;
+            animation: spin 1.5s linear infinite reverse;
+        }
+
+        .demo-loading p {
+            font-size: 1.1rem;
+            font-weight: 500;
+            opacity: 0.8;
+            animation: loadingPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes loadingPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* Section Transition Effects */
+        .section-transition-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #4a9eff, transparent);
+            z-index: 25;
+            opacity: 0;
+            transform: scaleX(0);
+            transition: all 0.8s ease;
+            pointer-events: none;
+        }
+
+        .cinematic-section.active .section-transition-line {
+            opacity: 1;
+            transform: scaleX(1);
+        }
+
+        /* Innovative Adaptive Narrative System */
+        .narrative-overlay {
+            z-index: 12;
+            pointer-events: none;
+            transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .narrative-overlay * {
+            pointer-events: auto;
+        }
+
+        /* Interactive Mode Adaptations */
+        .cinematic-section.interactive-mode .narrative-overlay {
+            transform: translateX(-120%);
+            opacity: 0.3;
+        }
+
+        .cinematic-section.compact-mode .narrative-overlay {
+            transform: translateY(-80%);
+            opacity: 0.8;
+        }
+
+        .cinematic-section.compact-mode .narrative-content {
+            transform: scale(0.7);
+            transform-origin: top left;
+        }
+
+        .cinematic-section.compact-mode .narrative-text {
+            display: none;
+        }
+
+        .cinematic-section.compact-mode .section-indicator {
+            margin-bottom: 10px;
+        }
+
+        /* Floating Info Toggle */
+        .info-toggle {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            z-index: 25;
+            background: rgba(74, 158, 255, 0.2);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(74, 158, 255, 0.3);
+            border-radius: 50px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: scale(0.8);
+            pointer-events: none;
+        }
+
+        .cinematic-section.interactive-mode .info-toggle {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+        }
+
+        .info-toggle:hover {
+            background: rgba(74, 158, 255, 0.4);
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(74, 158, 255, 0.3);
+        }
+
+        .info-toggle::before {
+            content: 'ℹ️';
+            font-size: 1.5rem;
+        }
+
+        /* Floating Info Panel */
+        .floating-info-panel {
+            position: absolute;
+            top: 90px;
+            left: 30px;
+            max-width: 350px;
+            background: rgba(0, 5, 17, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(74, 158, 255, 0.3);
+            border-radius: 20px;
+            padding: 25px;
+            z-index: 24;
+            opacity: 0;
+            transform: translateY(-20px) scale(0.9);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: none;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .floating-info-panel.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
+        .floating-info-panel h3 {
+            color: #4a9eff;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .floating-info-panel p {
+            color: #ffffff;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+
+        .floating-info-panel .equation {
+            background: rgba(74, 158, 255, 0.1);
+            border: 1px solid rgba(74, 158, 255, 0.2);
+            border-radius: 10px;
+            padding: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            color: #4a9eff;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        /* Enhanced Interactive Controls */
+        .interactive-controls {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            z-index: 20;
+            display: flex;
+            gap: 15px;
+            flex-direction: column;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        .control-pill {
+            background: rgba(74, 158, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(74, 158, 255, 0.3);
+            border-radius: 25px;
+            padding: 12px 24px;
+            color: #4a9eff;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+            pointer-events: auto;
+            white-space: nowrap;
+        }
+
+        .control-pill.mode-toggle {
+            background: rgba(255, 170, 74, 0.2);
+            border-color: rgba(255, 170, 74, 0.3);
+            color: #ffaa4a;
+        }
+
+        .control-pill.mode-toggle:hover {
+            background: rgba(255, 170, 74, 0.4);
+            border-color: rgba(255, 170, 74, 0.6);
+            box-shadow: 0 10px 30px rgba(255, 170, 74, 0.4);
+        }
+
+        .control-pill::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .control-pill:hover {
+            background: rgba(74, 158, 255, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(74, 158, 255, 0.4);
+            border-color: rgba(74, 158, 255, 0.6);
+        }
+
+        .control-pill:hover::before {
+            left: 100%;
+        }
+
+        .control-pill:active {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 20px rgba(74, 158, 255, 0.6);
+        }
+
+        /* Quick Access Toolbar */
+        .quick-access-toolbar {
+            position: absolute;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 18;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .cinematic-section.interactive-mode .quick-access-toolbar {
+            opacity: 1;
+        }
+
+        .quick-tool {
+            width: 45px;
+            height: 45px;
+            background: rgba(74, 158, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(74, 158, 255, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.3rem;
+        }
+
+        .quick-tool:hover {
+            background: rgba(74, 158, 255, 0.4);
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(74, 158, 255, 0.3);
+        }
+
+        /* Responsive Adaptive Design */
+        @media (max-width: 768px) {
+            .interactive-controls {
+                bottom: 20px;
+                right: 20px;
+                flex-direction: column;
+                gap: 10px;
+                z-index: 25;
+            }
+
+            .control-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .control-pill {
+                padding: 10px 18px;
+                font-size: 0.8rem;
+            }
+
+            .floating-info-panel {
+                left: 15px;
+                right: 15px;
+                max-width: none;
+            }
+
+            .info-toggle {
+                left: 15px;
+                top: 20px;
+            }
+
+            .quick-access-toolbar {
+                right: 15px;
+            }
+
+            .cinematic-section.interactive-mode .narrative-overlay {
+                transform: translateY(-120%);
+                opacity: 0.2;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .floating-info-panel {
+                padding: 20px;
+                border-radius: 15px;
+            }
+
+            .floating-info-panel h3 {
+                font-size: 1.1rem;
+            }
+
+            .floating-info-panel p {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Ensure proper containment */
+        .cinematic-section {
+            position: relative;
+            contain: layout style paint;
+        }
+
+        /* Prevent unwanted interactions */
+        .fullscreen-canvas {
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Cinematic Experience Container -->
+    <div id="cinematic-experience">
+        
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="active">
+            <div class="loading-content">
+                <div class="atom-spinner">
+                    <div class="nucleus"></div>
+                    <div class="electron-orbit orbit-1">
+                        <div class="electron"></div>
+                    </div>
+                    <div class="electron-orbit orbit-2">
+                        <div class="electron"></div>
+                    </div>
+                    <div class="electron-orbit orbit-3">
+                        <div class="electron"></div>
+                    </div>
+                </div>
+                <h1>Electrical Concepts</h1>
+                <p>Preparing interactive journey...</p>
+                <div class="loading-bar">
+                    <div class="loading-progress"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fixed Elements -->
+        <!-- Scroll Progress Indicator -->
+        <div id="scroll-progress">
+            <div id="progress-fill"></div>
+        </div>
+
+        <!-- Scroll Navigation Hints -->
+        <div id="scroll-hint" class="visible">
+            <div class="scroll-arrow">↓</div>
+            <p>Scroll to explore electrical concepts</p>
+        </div>
+
+        <!-- Audio Control -->
+        <div id="audio-control">
+            <button id="mute-btn" class="control-btn">
+                <span class="unmute-icon">🔊</span>
+                <span class="mute-icon">🔇</span>
+            </button>
+        </div>
+
+        <!-- Interactive Visualization Background -->
+        <div id="visualization-background">
+            <div id="interactive-canvas" class="fullscreen-canvas"></div>
+            <!-- Dynamic Particles System -->
+            <div class="particles-container" id="particles-container"></div>
+        </div>
+
+        <!-- Scrollable Content Container -->
+        <div id="scrollable-content">
+            
+            <!-- Section 1: Electric Charge - Interactive -->
+            <section class="cinematic-section active" data-section="0">
+                <div class="section-background bg-charge"></div>
+                <div class="section-transition-line"></div>
+                <div class="visual-container">
+                    <div class="interactive-demo-container" id="charge-demo">
+                        <iframe src="charge.html" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                    <div class="demo-transition-overlay"></div>
+                </div>
+                
+                <div class="section-focus-indicator">
+                    <div class="focus-pulse"></div>
+                </div>
+
+                <!-- Floating Info Toggle Button -->
+                <div class="info-toggle" onclick="toggleInfoPanel(0)"></div>
+
+                <!-- Floating Info Panel -->
+                <div class="floating-info-panel" id="info-panel-0">
+                    <h3>⚡ Electric Charge</h3>
+                    <p>Experience the invisible world of electric charge through interactive visualization. Watch as charges dance, repel, and attract - creating the electromagnetic forces that power everything from lightning to your beating heart.</p>
+                    <div class="equation">Q = ±e × n</div>
+                </div>
+
+                <!-- Quick Access Toolbar -->
+                <div class="quick-access-toolbar">
+                    <div class="quick-tool" onclick="quickAction('fullscreen', 0)" title="Fullscreen">🔍</div>
+                    <div class="quick-tool" onclick="quickAction('help', 0)" title="Help">❓</div>
+                </div>
+                
+                <div class="narrative-overlay">
+                    <div class="section-indicator">
+                        <span class="section-number">01</span>
+                        <span class="section-title">Electric Charge</span>
+                    </div>
+                    <div class="narrative-content">
+                        <h1>The Fundamental Force</h1>
+                        <p class="narrative-text">
+                            Experience the invisible world of electric charge through interactive visualization. 
+                            Watch as charges dance, repel, and attract - creating the electromagnetic forces 
+                            that power everything from lightning to your beating heart.
+                        </p>
+                        <div class="equation-display">Q = ±e × n</div>
+                    </div>
+                </div>
+                
+                <div class="interactive-controls">
+                    <div class="control-group">
+                        <div class="control-pill mode-toggle" onclick="toggleInteractiveMode(0)">📱 Focus Mode</div>
+                    </div>
+                    <div class="control-group">
+                        <div class="control-pill" onclick="focusDemo('charge')">⚡ Interact</div>
+                        <div class="control-pill" onclick="resetDemo('charge')">🔄 Reset</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2: Ohm's Law - Interactive -->
+            <section class="cinematic-section" data-section="1">
+                <div class="section-background bg-ohms"></div>
+                <div class="section-transition-line"></div>
+                <div class="visual-container">
+                    <div class="interactive-demo-container" id="ohms-demo">
+                        <iframe src="ohms-law.html" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                    <div class="demo-transition-overlay"></div>
+                </div>
+                
+                <div class="section-focus-indicator">
+                    <div class="focus-pulse"></div>
+                </div>
+
+                <div class="info-toggle" onclick="toggleInfoPanel(1)"></div>
+
+                <div class="floating-info-panel" id="info-panel-1">
+                    <h3>🔬 Ohm's Law</h3>
+                    <p>Discover the elegant relationship between voltage, current, and resistance. See how electrons flow through circuits, creating the predictable patterns that make all modern electronics possible.</p>
+                    <div class="equation">V = I × R</div>
+                </div>
+
+                <div class="quick-access-toolbar">
+                    <div class="quick-tool" onclick="quickAction('fullscreen', 1)" title="Fullscreen">🔍</div>
+                    <div class="quick-tool" onclick="quickAction('help', 1)" title="Help">❓</div>
+                </div>
+                
+                <div class="narrative-overlay">
+                    <div class="section-indicator">
+                        <span class="section-number">02</span>
+                        <span class="section-title">Ohm's Law</span>
+                    </div>
+                    <div class="narrative-content">
+                        <h1>The Sacred Relationship</h1>
+                        <p class="narrative-text">
+                            Discover the elegant relationship between voltage, current, and resistance. 
+                            See how electrons flow through circuits, creating the predictable patterns 
+                            that make all modern electronics possible.
+                        </p>
+                        <div class="equation-display">V = I × R</div>
+                    </div>
+                </div>
+                
+                <div class="interactive-controls">
+                    <div class="control-group">
+                        <div class="control-pill mode-toggle" onclick="toggleInteractiveMode(1)">📱 Focus Mode</div>
+                    </div>
+                    <div class="control-group">
+                        <div class="control-pill" onclick="focusDemo('ohms')">🔬 Explore</div>
+                        <div class="control-pill" onclick="resetDemo('ohms')">🔄 Reset</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: Voltage - Interactive -->
+            <section class="cinematic-section" data-section="2">
+                <div class="section-background bg-voltage"></div>
+                <div class="section-transition-line"></div>
+                <div class="visual-container">
+                    <div class="interactive-demo-container" id="voltage-demo">
+                        <iframe src="voltage.html" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                    <div class="demo-transition-overlay"></div>
+                </div>
+                
+                <div class="section-focus-indicator">
+                    <div class="focus-pulse"></div>
+                </div>
+
+                <div class="info-toggle" onclick="toggleInfoPanel(2)"></div>
+
+                <div class="floating-info-panel" id="info-panel-2">
+                    <h3>⚡ Electric Potential</h3>
+                    <p>Voltage is the pressure that pushes electrons through circuits. Experience how potential difference creates the energy that lights our cities and powers our digital world.</p>
+                    <div class="equation">V = W/Q</div>
+                </div>
+
+                <div class="quick-access-toolbar">
+                    <div class="quick-tool" onclick="quickAction('fullscreen', 2)" title="Fullscreen">🔍</div>
+                    <div class="quick-tool" onclick="quickAction('help', 2)" title="Help">❓</div>
+                </div>
+                
+                <div class="narrative-overlay">
+                    <div class="section-indicator">
+                        <span class="section-number">03</span>
+                        <span class="section-title">Electric Potential</span>
+                    </div>
+                    <div class="narrative-content">
+                        <h1>The Driving Force</h1>
+                        <p class="narrative-text">
+                            Voltage is the pressure that pushes electrons through circuits. 
+                            Experience how potential difference creates the energy that lights 
+                            our cities and powers our digital world.
+                        </p>
+                        <div class="equation-display">V = W/Q</div>
+                    </div>
+                </div>
+                
+                <div class="interactive-controls">
+                    <div class="control-group">
+                        <div class="control-pill mode-toggle" onclick="toggleInteractiveMode(2)">📱 Focus Mode</div>
+                    </div>
+                    <div class="control-group">
+                        <div class="control-pill" onclick="focusDemo('voltage')">⚡ Energize</div>
+                        <div class="control-pill" onclick="resetDemo('voltage')">🔄 Reset</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 4: Current - Interactive -->
+            <section class="cinematic-section" data-section="3">
+                <div class="section-background bg-current"></div>
+                <div class="section-transition-line"></div>
+                <div class="visual-container">
+                    <div class="interactive-demo-container" id="current-demo">
+                        <iframe src="electric-current.html" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                    <div class="demo-transition-overlay"></div>
+                </div>
+                
+                <div class="section-focus-indicator">
+                    <div class="focus-pulse"></div>
+                </div>
+
+                <div class="info-toggle" onclick="toggleInfoPanel(3)"></div>
+
+                <div class="floating-info-panel" id="info-panel-3">
+                    <h3>🌊 Electric Current</h3>
+                    <p>Watch billions of electrons dance in perfect synchronization. Current is the river of charge that transforms raw energy into light, heat, motion, and information.</p>
+                    <div class="equation">I = Q/t</div>
+                </div>
+
+                <div class="quick-access-toolbar">
+                    <div class="quick-tool" onclick="quickAction('fullscreen', 3)" title="Fullscreen">🔍</div>
+                    <div class="quick-tool" onclick="quickAction('help', 3)" title="Help">❓</div>
+                </div>
+                
+                <div class="narrative-overlay">
+                    <div class="section-indicator">
+                        <span class="section-number">04</span>
+                        <span class="section-title">Electric Current</span>
+                    </div>
+                    <div class="narrative-content">
+                        <h1>The Flow of Life</h1>
+                        <p class="narrative-text">
+                            Watch billions of electrons dance in perfect synchronization. 
+                            Current is the river of charge that transforms raw energy into 
+                            light, heat, motion, and information.
+                        </p>
+                        <div class="equation-display">I = Q/t</div>
+                    </div>
+                </div>
+                
+                <div class="interactive-controls">
+                    <div class="control-group">
+                        <div class="control-pill mode-toggle" onclick="toggleInteractiveMode(3)">📱 Focus Mode</div>
+                    </div>
+                    <div class="control-group">
+                        <div class="control-pill" onclick="focusDemo('current')">🌊 Flow</div>
+                        <div class="control-pill" onclick="resetDemo('current')">🔄 Reset</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5: Resistance - Interactive -->
+            <section class="cinematic-section" data-section="4">
+                <div class="section-background bg-resistance"></div>
+                <div class="section-transition-line"></div>
+                <div class="visual-container">
+                    <div class="interactive-demo-container" id="resistance-demo">
+                        <iframe src="resistance.html" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                    <div class="demo-transition-overlay"></div>
+                </div>
+                
+                <div class="section-focus-indicator">
+                    <div class="focus-pulse"></div>
+                </div>
+
+                <div class="info-toggle" onclick="toggleInfoPanel(4)"></div>
+
+                <div class="floating-info-panel" id="info-panel-4">
+                    <h3>🛡️ Electrical Resistance</h3>
+                    <p>Resistance shapes and controls the flow of electrons. Experience how materials oppose current, creating heat, light, and the precise control needed for electronics.</p>
+                    <div class="equation">R = ρL/A</div>
+                </div>
+
+                <div class="quick-access-toolbar">
+                    <div class="quick-tool" onclick="quickAction('fullscreen', 4)" title="Fullscreen">🔍</div>
+                    <div class="quick-tool" onclick="quickAction('help', 4)" title="Help">❓</div>
+                </div>
+                
+                <div class="narrative-overlay">
+                    <div class="section-indicator">
+                        <span class="section-number">05</span>
+                        <span class="section-title">Electrical Resistance</span>
+                    </div>
+                    <div class="narrative-content">
+                        <h1>The Noble Opposition</h1>
+                        <p class="narrative-text">
+                            Resistance shapes and controls the flow of electrons. 
+                            Experience how materials oppose current, creating heat, 
+                            light, and the precise control needed for electronics.
+                        </p>
+                        <div class="equation-display">R = ρL/A</div>
+                    </div>
+                </div>
+                
+                <div class="interactive-controls">
+                    <div class="control-group">
+                        <div class="control-pill mode-toggle" onclick="toggleInteractiveMode(4)">📱 Focus Mode</div>
+                    </div>
+                    <div class="control-group">
+                        <div class="control-pill" onclick="focusDemo('resistance')">🛡️ Resist</div>
+                        <div class="control-pill" onclick="resetDemo('resistance')">🔄 Reset</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 6: Power - Interactive -->
+            <section class="cinematic-section" data-section="5">
+                <div class="section-background bg-power"></div>
+                <div class="section-transition-line"></div>
+                <div class="visual-container">
+                    <div class="interactive-demo-container" id="power-demo">
+                        <iframe src="electric-power.html" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                    <div class="demo-transition-overlay"></div>
+                </div>
+                
+                <div class="section-focus-indicator">
+                    <div class="focus-pulse"></div>
+                </div>
+
+                <div class="info-toggle" onclick="toggleInfoPanel(5)"></div>
+
+                <div class="floating-info-panel" id="info-panel-5">
+                    <h3>⚡ Electric Power</h3>
+                    <p>Power is the rate at which electrical energy transforms into light, heat, and motion. See how voltage and current combine to create the energy that powers our modern world.</p>
+                    <div class="equation">P = V × I</div>
+                </div>
+
+                <div class="quick-access-toolbar">
+                    <div class="quick-tool" onclick="quickAction('fullscreen', 5)" title="Fullscreen">🔍</div>
+                    <div class="quick-tool" onclick="quickAction('help', 5)" title="Help">❓</div>
+                </div>
+                
+                <div class="narrative-overlay">
+                    <div class="section-indicator">
+                        <span class="section-number">06</span>
+                        <span class="section-title">Electric Power</span>
+                    </div>
+                    <div class="narrative-content">
+                        <h1>Energy in Motion</h1>
+                        <p class="narrative-text">
+                            Power is the rate at which electrical energy transforms into 
+                            light, heat, and motion. See how voltage and current combine 
+                            to create the energy that powers our modern world.
+                        </p>
+                        <div class="equation-display">P = V × I</div>
+                    </div>
+                </div>
+                
+                <div class="interactive-controls">
+                    <div class="control-group">
+                        <div class="control-pill mode-toggle" onclick="toggleInteractiveMode(5)">📱 Focus Mode</div>
+                    </div>
+                    <div class="control-group">
+                        <div class="control-pill" onclick="focusDemo('power')">⚡ Power Up</div>
+                        <div class="control-pill" onclick="resetDemo('power')">🔄 Reset</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 7: Circuit Configurations - Interactive -->
+            <section class="cinematic-section" data-section="6">
+                <div class="section-background bg-circuits"></div>
+                <div class="section-transition-line"></div>
+                <div class="visual-container">
+                    <div class="interactive-demo-container" id="circuits-demo">
+                        <iframe src="circuit-configurations.html" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                    <div class="demo-transition-overlay"></div>
+                </div>
+                
+                <div class="section-focus-indicator">
+                    <div class="focus-pulse"></div>
+                </div>
+
+                <div class="info-toggle" onclick="toggleInfoPanel(6)"></div>
+
+                <div class="floating-info-panel" id="info-panel-6">
+                    <h3>🔧 Circuit Architecture</h3>
+                    <p>Explore series and parallel circuits - the fundamental architectures that route electrical energy. Build circuits and watch how different configurations change the flow of power.</p>
+                    <div class="equation">R_total = R₁ + R₂ + R₃...</div>
+                </div>
+
+                <div class="quick-access-toolbar">
+                    <div class="quick-tool" onclick="quickAction('fullscreen', 6)" title="Fullscreen">🔍</div>
+                    <div class="quick-tool" onclick="quickAction('help', 6)" title="Help">❓</div>
+                </div>
+                
+                <div class="narrative-overlay">
+                    <div class="section-indicator">
+                        <span class="section-number">07</span>
+                        <span class="section-title">Circuit Architecture</span>
+                    </div>
+                    <div class="narrative-content">
+                        <h1>Pathways of Power</h1>
+                        <p class="narrative-text">
+                            Explore series and parallel circuits - the fundamental architectures 
+                            that route electrical energy. Build circuits and watch how different 
+                            configurations change the flow of power.
+                        </p>
+                        <div class="equation-display">R_total = R₁ + R₂ + R₃...</div>
+                    </div>
+                </div>
+                
+                <div class="interactive-controls">
+                    <div class="control-group">
+                        <div class="control-pill mode-toggle" onclick="toggleInteractiveMode(6)">📱 Focus Mode</div>
+                    </div>
+                    <div class="control-group">
+                        <div class="control-pill" onclick="focusDemo('circuits')">🔧 Build</div>
+                        <div class="control-pill" onclick="resetDemo('circuits')">🔄 Reset</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 8: Universal Applications - Interactive -->
+            <section class="cinematic-section" data-section="7">
+                <div class="section-background bg-heating"></div>
+                <div class="section-transition-line"></div>
+                <div class="visual-container">
+                    <div class="interactive-demo-container" id="heating-demo">
+                        <iframe src="heating-effect.html" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                    <div class="demo-transition-overlay"></div>
+                </div>
+                
+                <div class="section-focus-indicator">
+                    <div class="focus-pulse"></div>
+                </div>
+
+                <div class="info-toggle" onclick="toggleInfoPanel(7)"></div>
+
+                <div class="floating-info-panel" id="info-panel-7">
+                    <h3>🔥 Real-World Impact</h3>
+                    <p>See how electrical principles create heat, light, and motion in everyday applications. From your phone's processor to electric stoves - these forces shape our daily lives.</p>
+                    <div class="equation">H = I²Rt</div>
+                </div>
+
+                <div class="quick-access-toolbar">
+                    <div class="quick-tool" onclick="quickAction('fullscreen', 7)" title="Fullscreen">🔍</div>
+                    <div class="quick-tool" onclick="quickAction('help', 7)" title="Help">❓</div>
+                </div>
+                
+                <div class="narrative-overlay">
+                    <div class="section-indicator">
+                        <span class="section-number">08</span>
+                        <span class="section-title">Real-World Impact</span>
+                    </div>
+                    <div class="narrative-content">
+                        <h1>From Theory to Reality</h1>
+                        <p class="narrative-text">
+                            See how electrical principles create heat, light, and motion in 
+                            everyday applications. From your phone's processor to electric 
+                            stoves - these forces shape our daily lives.
+                        </p>
+                        <div class="equation-display">H = I²Rt</div>
+                    </div>
+                </div>
+                
+                <div class="interactive-controls">
+                    <div class="control-group">
+                        <div class="control-pill mode-toggle" onclick="toggleInteractiveMode(7)">📱 Focus Mode</div>
+                    </div>
+                    <div class="control-group">
+                        <div class="control-pill" onclick="focusDemo('heating')">🔥 Heat Up</div>
+                        <div class="control-pill" onclick="resetDemo('heating')">🔄 Reset</div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Completion Screen -->
+        <div id="completion-screen">
+            <div class="completion-content">
+                <div class="achievement-badge">
+                    <div class="badge-icon">⚡</div>
+                    <h2>Master of Electricity!</h2>
+                    <p>You've mastered the fundamental forces that power our modern world</p>
+                </div>
+                
+                <div class="completion-actions">
+                    <button id="restart-btn" class="action-btn primary">Experience Again</button>
+                    <button id="explore-btn" class="action-btn secondary" onclick="window.location.href='index.html'">Explore More Physics</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Cinematic Script -->
+    <script>
+        // Initialize cinematic experience with enhanced features
+        let currentSection = 0;
+        const totalSections = 8;
+        let isLoading = true;
+        let audioEnabled = true;
+        let particleSystem = null;
+        let soundEffects = {};
+
+        // Section themes for dynamic effects
+        const sectionThemes = {
+            0: { particles: 'electric', color: '#4a9eff', intensity: 'medium' },
+            1: { particles: 'electric', color: '#9a4aff', intensity: 'high' },
+            2: { particles: 'energy', color: '#ffaa4a', intensity: 'medium' },
+            3: { particles: 'electric', color: '#4aff9a', intensity: 'high' },
+            4: { particles: 'heat', color: '#ff4a9a', intensity: 'low' },
+            5: { particles: 'energy', color: '#aa4aff', intensity: 'high' },
+            6: { particles: 'electric', color: '#4affaa', intensity: 'medium' },
+            7: { particles: 'heat', color: '#ffaa4a', intensity: 'high' }
+        };
+
+        // Enhanced loading sequence
+        window.addEventListener('load', () => {
+            initializeAudioSystem();
+            setTimeout(() => {
+                hideLoadingScreen();
+                initializeCinematicExperience();
+            }, 3000);
+        });
+
+        function hideLoadingScreen() {
+            const loadingScreen = document.getElementById('loading-screen');
+            loadingScreen.classList.remove('active');
+            isLoading = false;
+            playSound('welcome');
+        }
+
+        function initializeCinematicExperience() {
+            setupScrollHandling();
+            setupAudioControl();
+            setupInteractiveControls();
+            initializeParticleSystem();
+            preloadNextDemo();
+            startAmbientEffects();
+        }
+
+        // Advanced Particle System
+        function initializeParticleSystem() {
+            particleSystem = {
+                particles: [],
+                container: document.getElementById('particles-container'),
+                isActive: true,
+                
+                create: function(type, x, y) {
+                    const particle = document.createElement('div');
+                    particle.className = `particle ${type}`;
+                    particle.style.left = x + 'px';
+                    particle.style.bottom = y + 'px';
+                    particle.style.animationDuration = (Math.random() * 6 + 4) + 's';
+                    particle.style.animationDelay = (Math.random() * 2) + 's';
+                    
+                    this.container.appendChild(particle);
+                    this.particles.push(particle);
+                    
+                    // Remove particle after animation
+                    setTimeout(() => {
+                        if (particle.parentNode) {
+                            particle.parentNode.removeChild(particle);
+                            this.particles = this.particles.filter(p => p !== particle);
+                        }
+                    }, 8000);
+                },
+                
+                burst: function(count = 5) {
+                    if (!this.isActive) return;
+                    
+                    const theme = sectionThemes[currentSection];
+                    for (let i = 0; i < count; i++) {
+                        setTimeout(() => {
+                            const x = Math.random() * window.innerWidth;
+                            const y = 0;
+                            this.create(theme.particles, x, y);
+                        }, i * 200);
+                    }
+                },
+                
+                continuous: function() {
+                    if (!this.isActive) return;
+                    
+                    const theme = sectionThemes[currentSection];
+                    const intensityMap = { low: 2, medium: 4, high: 6 };
+                    const count = intensityMap[theme.intensity] || 3;
+                    
+                    for (let i = 0; i < count; i++) {
+                        setTimeout(() => {
+                            const x = Math.random() * window.innerWidth;
+                            const y = 0;
+                            this.create(theme.particles, x, y);
+                        }, Math.random() * 3000);
+                    }
+                    
+                    setTimeout(() => this.continuous(), 3000);
+                }
+            };
+            
+            particleSystem.continuous();
+        }
+
+        // Enhanced Audio System
+        function initializeAudioSystem() {
+            soundEffects = {
+                welcome: createOscillatorSound(440, 0.1, 'sine'),
+                transition: createOscillatorSound(660, 0.15, 'triangle'),
+                interact: createOscillatorSound(880, 0.1, 'square'),
+                success: createOscillatorSound(1100, 0.2, 'sine'),
+                ambient: createAmbientSound()
+            };
+        }
+
+        function createOscillatorSound(frequency, duration, type = 'sine') {
+            return function() {
+                if (!audioEnabled) return;
+                
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                oscillator.type = type;
+                
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.01);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
+            };
+        }
+
+        function createAmbientSound() {
+            return function() {
+                if (!audioEnabled) return;
+                // Ambient sound implementation
+            };
+        }
+
+        function playSound(soundName) {
+            if (soundEffects[soundName]) {
+                soundEffects[soundName]();
+            }
+        }
+
+        // Enhanced scroll handling with advanced effects
+        function setupScrollHandling() {
+            let scrollTimeout;
+            let isScrolling = false;
+            
+            window.addEventListener('scroll', (e) => {
+                if (isLoading) return;
+                
+                if (!isScrolling) {
+                    isScrolling = true;
+                    requestAnimationFrame(() => {
+                        updateScrollProgress();
+                        updateActiveSection();
+                        updateScrollHint();
+                        isScrolling = false;
+                    });
+                }
+                
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => {
+                    triggerScrollEffects();
+                }, 100);
+            });
+        }
+
+        function updateScrollProgress() {
+            const scrolled = window.pageYOffset;
+            const maxScroll = document.body.scrollHeight - window.innerHeight;
+            const progress = Math.min(scrolled / maxScroll, 1);
+            
+            document.getElementById('progress-fill').style.width = `${progress * 100}%`;
+        }
+
+        function updateActiveSection() {
+            const scrolled = window.pageYOffset;
+            const sectionHeight = window.innerHeight;
+            const newSection = Math.floor(scrolled / sectionHeight);
+            
+            if (newSection !== currentSection && newSection >= 0 && newSection < totalSections) {
+                const previousSection = currentSection;
+                
+                // Deactivate current section
+                document.querySelector(`.cinematic-section[data-section="${currentSection}"]`)?.classList.remove('active');
+                
+                // Activate new section
+                currentSection = newSection;
+                const activeSection = document.querySelector(`.cinematic-section[data-section="${currentSection}"]`);
+                activeSection?.classList.add('active');
+                
+                // Trigger transition effects
+                triggerSectionTransition(previousSection, currentSection);
+                
+                // Preload next demo
+                preloadNextDemo();
+                
+                // Trigger section-specific interactions
+                triggerSectionInteraction(currentSection);
+            }
+        }
+
+        function triggerSectionTransition(from, to) {
+            playSound('transition');
+            particleSystem.burst(8);
+            
+            // Dynamic color transition
+            const theme = sectionThemes[to];
+            document.documentElement.style.setProperty('--section-accent', theme.color);
+            
+            // Update particle colors
+            updateParticleTheme(theme);
+        }
+
+        function updateParticleTheme(theme) {
+            const style = document.createElement('style');
+            style.textContent = `
+                .particle.${theme.particles} { 
+                    background: ${theme.color}; 
+                    box-shadow: 0 0 10px ${theme.color}; 
+                }
+            `;
+            document.head.appendChild(style);
+            
+            setTimeout(() => document.head.removeChild(style), 1000);
+        }
+
+        function updateScrollHint() {
+            const scrolled = window.pageYOffset;
+            const hint = document.getElementById('scroll-hint');
+            
+            if (scrolled > 100) {
+                hint.classList.remove('visible');
+            } else {
+                hint.classList.add('visible');
+            }
+        }
+
+        function triggerScrollEffects() {
+            // Add subtle particle burst on scroll
+            if (Math.random() > 0.7) {
+                particleSystem.burst(2);
+            }
+        }
+
+        // Interactive demo management
+        function preloadNextDemo() {
+            const nextSection = currentSection + 1;
+            if (nextSection < totalSections) {
+                const nextDemo = document.querySelector(`.cinematic-section[data-section="${nextSection}"] iframe`);
+                if (nextDemo && !nextDemo.src.includes('?preloaded=true')) {
+                    nextDemo.src += '?preloaded=true';
+                }
+            }
+        }
+
+        function triggerSectionInteraction(sectionIndex) {
+            const section = document.querySelector(`.cinematic-section[data-section="${sectionIndex}"]`);
+            const iframe = section?.querySelector('iframe');
+            
+            if (iframe && iframe.contentWindow) {
+                // Send message to iframe to start animations
+                try {
+                    iframe.contentWindow.postMessage({ 
+                        action: 'startAnimation',
+                        theme: sectionThemes[sectionIndex]
+                    }, '*');
+                } catch (e) {
+                    console.log('Animation trigger sent to iframe');
+                }
+            }
+        }
+
+        // Enhanced interactive control functions
+        function focusDemo(demoType) {
+            const currentSectionElement = document.querySelector(`.cinematic-section[data-section="${currentSection}"]`);
+            const iframe = currentSectionElement?.querySelector('iframe');
+            
+            if (iframe) {
+                playSound('interact');
+                particleSystem.burst(3);
+                
+                // Remove overlay temporarily for better interaction
+                const overlay = currentSectionElement.querySelector('.demo-transition-overlay');
+                if (overlay) {
+                    overlay.style.opacity = '0';
+                    overlay.style.transform = 'scale(1.1)';
+                    setTimeout(() => {
+                        overlay.style.opacity = '';
+                        overlay.style.transform = '';
+                    }, 8000);
+                }
+                
+                // Focus the iframe for interaction
+                iframe.focus();
+                
+                // Send focus message to iframe
+                try {
+                    iframe.contentWindow.postMessage({ 
+                        action: 'focus',
+                        enhanced: true 
+                    }, '*');
+                } catch (e) {
+                    console.log('Focus message sent to iframe');
+                }
+            }
+        }
+
+        function resetDemo(demoType) {
+            const currentSectionElement = document.querySelector(`.cinematic-section[data-section="${currentSection}"]`);
+            const iframe = currentSectionElement?.querySelector('iframe');
+            
+            if (iframe) {
+                playSound('transition');
+                
+                // Visual feedback for reset
+                const container = iframe.closest('.interactive-demo-container');
+                container.style.transform = 'scale(0.95)';
+                container.style.opacity = '0.5';
+                
+                setTimeout(() => {
+                    container.style.transform = '';
+                    container.style.opacity = '';
+                }, 300);
+                
+                // Reload the iframe to reset the demo
+                const currentSrc = iframe.src.replace('?preloaded=true', '');
+                iframe.src = '';
+                setTimeout(() => {
+                    iframe.src = currentSrc;
+                }, 200);
+            }
+        }
+
+        // Innovative Adaptive UI Functions
+        function toggleInteractiveMode(sectionIndex) {
+            const section = document.querySelector(`.cinematic-section[data-section="${sectionIndex}"]`);
+            const modeButton = section.querySelector('.mode-toggle');
+            
+            if (section.classList.contains('interactive-mode')) {
+                // Exit interactive mode
+                section.classList.remove('interactive-mode');
+                modeButton.textContent = '📱 Focus Mode';
+                modeButton.style.background = 'rgba(255, 170, 74, 0.2)';
+                modeButton.style.borderColor = 'rgba(255, 170, 74, 0.3)';
+                modeButton.style.color = '#ffaa4a';
+                
+                // Hide any open info panels
+                const infoPanel = section.querySelector('.floating-info-panel');
+                if (infoPanel) {
+                    infoPanel.classList.remove('visible');
+                }
+                
+                playSound('transition');
+                particleSystem.burst(2);
+            } else {
+                // Enter interactive mode
+                section.classList.add('interactive-mode');
+                modeButton.textContent = '👁️ Story Mode';
+                modeButton.style.background = 'rgba(74, 158, 255, 0.2)';
+                modeButton.style.borderColor = 'rgba(74, 158, 255, 0.3)';
+                modeButton.style.color = '#4a9eff';
+                
+                playSound('interact');
+                particleSystem.burst(5);
+            }
+        }
+
+        function toggleInfoPanel(sectionIndex) {
+            const section = document.querySelector(`.cinematic-section[data-section="${sectionIndex}"]`);
+            const infoPanel = section.querySelector('.floating-info-panel');
+            const infoToggle = section.querySelector('.info-toggle');
+            
+            if (infoPanel.classList.contains('visible')) {
+                // Hide info panel
+                infoPanel.classList.remove('visible');
+                infoToggle.style.background = 'rgba(74, 158, 255, 0.2)';
+                playSound('transition');
+            } else {
+                // Show info panel
+                infoPanel.classList.add('visible');
+                infoToggle.style.background = 'rgba(74, 158, 255, 0.4)';
+                playSound('success');
+                particleSystem.burst(3);
+            }
+        }
+
+        function quickAction(action, sectionIndex) {
+            const section = document.querySelector(`.cinematic-section[data-section="${sectionIndex}"]`);
+            const iframe = section.querySelector('iframe');
+            
+            switch(action) {
+                case 'fullscreen':
+                    if (iframe) {
+                        if (iframe.requestFullscreen) {
+                            iframe.requestFullscreen();
+                        } else if (iframe.webkitRequestFullscreen) {
+                            iframe.webkitRequestFullscreen();
+                        } else if (iframe.mozRequestFullScreen) {
+                            iframe.mozRequestFullScreen();
+                        }
+                        playSound('success');
+                        particleSystem.burst(5);
+                    }
+                    break;
+                    
+                case 'help':
+                    // Toggle info panel
+                    toggleInfoPanel(sectionIndex);
+                    break;
+                    
+                case 'compact':
+                    // Toggle compact mode
+                    if (section.classList.contains('compact-mode')) {
+                        section.classList.remove('compact-mode');
+                    } else {
+                        section.classList.add('compact-mode');
+                    }
+                    playSound('transition');
+                    break;
+            }
+        }
+
+        // Enhanced iframe loading management
+        function setupInteractiveControls() {
+            // Handle iframe loading with enhanced feedback
+            document.querySelectorAll('iframe').forEach((iframe, index) => {
+                // Show loading immediately
+                const container = iframe.closest('.interactive-demo-container');
+                const loadingElement = document.createElement('div');
+                loadingElement.className = 'demo-loading';
+                loadingElement.innerHTML = `
+                    <div class="spinner"></div>
+                    <p>Loading Interactive Demo...</p>
+                `;
+                container.appendChild(loadingElement);
+                
+                iframe.addEventListener('load', () => {
+                    // Hide loading with smooth transition
+                    if (loadingElement) {
+                        loadingElement.classList.add('hidden');
+                        setTimeout(() => {
+                            if (loadingElement.parentNode) {
+                                loadingElement.parentNode.removeChild(loadingElement);
+                            }
+                        }, 500);
+                        
+                        // Success effect
+                        playSound('success');
+                        particleSystem.burst(2);
+                    }
+                });
+                
+                iframe.addEventListener('error', () => {
+                    console.log('Demo loading error for iframe', index);
+                    if (loadingElement) {
+                        loadingElement.innerHTML = `
+                            <div class="spinner"></div>
+                            <p>Demo temporarily unavailable. Please try again.</p>
+                        `;
+                    }
+                });
+            });
+        }
+
+        // Audio control enhancement
+        function setupAudioControl() {
+            const muteBtn = document.getElementById('mute-btn');
+            muteBtn.addEventListener('click', toggleAudio);
+        }
+
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            const muteBtn = document.getElementById('mute-btn');
+            
+            if (audioEnabled) {
+                muteBtn.classList.remove('muted');
+                playSound('success');
+            } else {
+                muteBtn.classList.add('muted');
+            }
+            
+            // Send audio control to all iframes
+            document.querySelectorAll('iframe').forEach(iframe => {
+                try {
+                    iframe.contentWindow.postMessage({ 
+                        action: 'toggleAudio', 
+                        enabled: audioEnabled 
+                    }, '*');
+                } catch (e) {
+                    console.log('Audio control sent to iframe');
+                }
+            });
+        }
+
+        // Ambient effects system
+        function startAmbientEffects() {
+            // Subtle background animations
+            setInterval(() => {
+                if (!isLoading && Math.random() > 0.8) {
+                    const focusElement = document.querySelector('.cinematic-section.active .focus-pulse');
+                    if (focusElement) {
+                        focusElement.style.animationDuration = (Math.random() * 1 + 1.5) + 's';
+                    }
+                }
+            }, 3000);
+            
+            // Dynamic text glow effects
+            setInterval(() => {
+                const equations = document.querySelectorAll('.equation-display');
+                equations.forEach(eq => {
+                    if (Math.random() > 0.9) {
+                        eq.style.textShadow = `0 0 20px ${sectionThemes[currentSection].color}`;
+                        setTimeout(() => eq.style.textShadow = '', 1000);
+                    }
+                });
+            }, 5000);
+        }
+
+        // Completion screen enhancement
+        function showCompletionScreen() {
+            const completionScreen = document.getElementById('completion-screen');
+            completionScreen.classList.add('active');
+            playSound('success');
+            particleSystem.burst(15);
+        }
+
+        // Enhanced event listeners
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const maxScroll = document.body.scrollHeight - window.innerHeight;
+            
+            if (scrolled >= maxScroll - 100) {
+                setTimeout(showCompletionScreen, 1000);
+            }
+        });
+
+        // Restart functionality
+        document.getElementById('restart-btn')?.addEventListener('click', () => {
+            document.getElementById('completion-screen').classList.remove('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            currentSection = 0;
+            
+            // Reset all sections
+            document.querySelectorAll('.cinematic-section').forEach((section, index) => {
+                section.classList.toggle('active', index === 0);
+            });
+            
+            playSound('welcome');
+        });
+
+        // Enhanced keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                const nextSectionY = (currentSection + 1) * window.innerHeight;
+                window.scrollTo({ top: nextSectionY, behavior: 'smooth' });
+                playSound('transition');
+            }
+            
+            if (e.code === 'KeyR') {
+                resetDemo('current');
+            }
+            
+            if (e.code === 'KeyF') {
+                focusDemo('current');
+            }
+            
+            if (e.code === 'KeyM') {
+                toggleAudio();
+            }
+            
+            if (e.code === 'KeyP') {
+                particleSystem.burst(5);
+            }
+        });
+
+        // Enhanced message handling from iframes
+        window.addEventListener('message', (event) => {
+            if (event.data.action === 'demoReady') {
+                console.log('Demo ready:', event.data.demo);
+                playSound('success');
+            }
+            
+            if (event.data.action === 'userInteraction') {
+                particleSystem.burst(2);
+                playSound('interact');
+            }
+        });
+
+        // Performance optimization
+        let rafId;
+        function optimizePerformance() {
+            // Reduce particle count on slower devices
+            if (window.devicePixelRatio > 2 || window.innerWidth < 768) {
+                Object.keys(sectionThemes).forEach(key => {
+                    if (sectionThemes[key].intensity === 'high') {
+                        sectionThemes[key].intensity = 'medium';
+                    }
+                });
+            }
+        }
+
+        // Initialize performance optimizations
+        optimizePerformance();
+    </script>
+</body>
+</html> 

@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -161,6 +161,24 @@
             .visualization-container { padding: 12px; }
             .animation-container { width: 98vw; min-width: 0; }
             .conductor { width: 90vw; min-width: 0; left: 5vw; }
+            .formula { width: 95vw !important; }
+            .meter-panel { 
+                flex-direction: column; 
+                gap: 15px !important; 
+                align-items: center;
+            }
+            .meter { 
+                min-width: 200px;
+                margin: 0 auto;
+            }
+            .control-panel {
+                flex-direction: column;
+                gap: 16px;
+                align-items: center;
+            }
+            .control-group {
+                min-width: 200px;
+            }
         }
     </style>
 </head>
@@ -168,19 +186,31 @@
     <div class="container">
         <div class="visualization-container">
             <div class="animation-container" id="currentAnimation"></div>
-            <div class="formula" style="margin: 24px auto 0 auto; background: var(--secondary); border-radius: 8px; text-align: center; padding: 14px 0 10px 0; width: 340px; box-shadow: 0 0 18px 2px #222a;">
-                <span style="font-family: 'Courier New', monospace; font-size: 20px; color: var(--accent);">I = Q / t</span>
+            <div class="formula" style="margin: 24px auto 0 auto; background: var(--secondary); border-radius: 8px; text-align: center; padding: 14px 0 10px 0; width: 540px; box-shadow: 0 0 18px 2px #222a;">
+                <div style="font-family: 'Courier New', monospace; font-size: 18px; color: var(--accent); margin-bottom: 8px;">I = Q / t</div>
+                <div style="font-family: 'Courier New', monospace; font-size: 16px; color: var(--text); opacity: 0.8;">Number of electrons = Q / e</div>
+                <div style="font-size: 12px; color: var(--text); opacity: 0.6; margin-top: 4px;">where e = 1.602 × 10⁻¹⁹ C</div>
             </div>
             <div class="control-panel">
                 <div class="control-group">
-                    <div class="control-label">Current Flow Rate</div>
-                    <input type="range" class="control-slider" id="currentRate" min="1" max="100" value="50">
-                    <div class="control-value" id="currentRateValue">50 electrons/s</div>
+                    <div class="control-label">Current (Amperes)</div>
+                    <input type="range" class="control-slider" id="currentRate" min="0.01" max="5.00" step="0.01" value="1.00">
+                    <div class="control-value" id="currentRateValue">1.00 A</div>
                 </div>
             </div>
-            <div class="meter">
-                <div>Current</div>
-                <div class="meter-value" id="currentMeter">0.00 A</div>
+            <div class="meter-panel" style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                <div class="meter">
+                    <div>Current (I)</div>
+                    <div class="meter-value" id="currentMeter">1.00 A</div>
+                </div>
+                <div class="meter">
+                    <div>Charge per Second (Q)</div>
+                    <div class="meter-value" id="chargeMeter" style="font-size: 18px;">1.00 C/s</div>
+                </div>
+                <div class="meter">
+                    <div>Electrons per Second</div>
+                    <div class="meter-value" id="electronMeter" style="font-size: 16px;">6.24 × 10¹⁸</div>
+                </div>
             </div>
         </div>
     </div>
@@ -189,11 +219,15 @@
         // Add voice feedback messages
         const voiceFeedback = {
             currentRate: {
-                low: "Low current flow rate - electrons move slowly through the conductor, creating minimal current.",
-                medium: "Medium current flow rate - electrons move at a moderate pace, generating a balanced current.",
-                high: "High current flow rate - electrons move rapidly, creating a strong current through the conductor."
+                low: "Low current flow - fewer electrons crossing the conductor per second, resulting in lower current.",
+                medium: "Medium current flow - moderate number of electrons per second, creating balanced current.",
+                high: "High current flow - many electrons per second, generating strong current through the conductor."
             }
         };
+
+        // Physics Constants
+        const ELEMENTARY_CHARGE = 1.602e-19; // Coulombs per electron
+        const ELECTRONS_PER_COULOMB = 1 / ELEMENTARY_CHARGE; // ≈ 6.241 × 10^18 electrons/coulomb
 
         // --- Voiceover State Management (streamlined like electric-power.html) ---
         let currentVoice = null;
@@ -239,6 +273,23 @@
             window.speechSynthesis.speak(utter);
         }
 
+        // Helper function to format large numbers
+        function formatElectronCount(count) {
+            if (count >= 1e18) {
+                return (count / 1e18).toFixed(2) + ' × 10¹⁸';
+            } else if (count >= 1e15) {
+                return (count / 1e15).toFixed(2) + ' × 10¹⁵';
+            } else if (count >= 1e12) {
+                return (count / 1e12).toFixed(2) + ' × 10¹²';
+            } else if (count >= 1e9) {
+                return (count / 1e9).toFixed(2) + ' × 10⁹';
+            } else if (count >= 1e6) {
+                return (count / 1e6).toFixed(2) + ' × 10⁶';
+            } else {
+                return count.toFixed(0);
+            }
+        }
+
         // Add voice toggle button
         document.querySelector('.control-panel').insertAdjacentHTML('afterbegin', `
             <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
@@ -275,8 +326,8 @@
                 this.container = container;
                 this.electrons = [];
                 this.isRunning = false;
-                this.currentRate = 50;
-                this.lanes = 6;
+                this.currentRate = 1.00; // Current in amperes
+                this.lanes = 8;
                 this.initialize();
             }
             
@@ -291,12 +342,12 @@
             
             setupEventListeners() {
                 document.getElementById('currentRate').addEventListener('input', throttle((e) => {
-                    this.currentRate = parseInt(e.target.value);
+                    this.currentRate = parseFloat(e.target.value);
                     this.updateDisplay();
                     if (voiceFeedbackEnabled && !currentVoice) {
-                        if (this.currentRate <= 30) {
+                        if (this.currentRate <= 1.0) {
                             speakFeedback(voiceFeedback.currentRate.low);
-                        } else if (this.currentRate <= 70) {
+                        } else if (this.currentRate <= 3.0) {
                             speakFeedback(voiceFeedback.currentRate.medium);
                         } else {
                             speakFeedback(voiceFeedback.currentRate.high);
@@ -309,32 +360,41 @@
                 const electron = document.createElement('div');
                 electron.className = 'electron';
                 electron.style.left = '0px';
-                electron.style.top = `${16 + lane * 6}px`;
+                electron.style.top = `${12 + lane * 4}px`;
                 this.conductor.appendChild(electron);
                 return {
                     element: electron,
                     position: 0,
-                    speed: 2.5 + this.currentRate / 40,
+                    speed: 1.5 + (this.currentRate * 0.8), // Speed based on current
                     lane: lane
                 };
             }
             
             updateElectrons() {
+                // Remove electrons that have crossed the conductor
                 this.electrons = this.electrons.filter(electron => {
-                    if (electron.position > 600) {
+                    if (electron.position > 620) {
                         this.conductor.removeChild(electron.element);
                         return false;
                     }
                     return true;
                 });
-                const lanes = this.lanes;
-                const electronsPerFrame = Math.max(1, Math.floor(this.currentRate / 20));
-                for (let i = 0; i < electronsPerFrame; i++) {
-                    if (Math.random() < this.currentRate / 100) {
-                        const lane = i % lanes;
+                
+                // Calculate electrons per second based on physics formula
+                const electronsPerSecond = this.currentRate * ELECTRONS_PER_COULOMB;
+                
+                // Scale down for visualization (show representative sample)
+                const visualElectronsPerFrame = Math.max(1, Math.floor((electronsPerSecond / (60 * 1e16)) * this.lanes));
+                
+                // Create new electrons based on current flow
+                for (let i = 0; i < visualElectronsPerFrame; i++) {
+                    if (Math.random() < (this.currentRate / 5.0)) { // Probability based on current
+                        const lane = Math.floor(Math.random() * this.lanes);
                         this.electrons.push(this.createElectron(lane));
                     }
                 }
+                
+                // Update electron positions
                 this.electrons.forEach(electron => {
                     electron.position += electron.speed;
                     electron.element.style.left = `${electron.position}px`;
@@ -342,10 +402,21 @@
             }
             
             updateDisplay() {
-                // 1 electron/s = 0.01A
-                const current = this.currentRate * 0.01;
+                // Current in amperes
+                const current = this.currentRate;
+                
+                // Charge per second (Q/t) - same as current in coulombs per second
+                const chargePerSecond = current;
+                
+                // Calculate number of electrons per second using physics formula
+                // Number of electrons = Total charge / Elementary charge
+                const electronsPerSecond = current * ELECTRONS_PER_COULOMB;
+                
+                // Update displays
                 document.getElementById('currentMeter').textContent = `${current.toFixed(2)} A`;
-                document.getElementById('currentRateValue').textContent = `${this.currentRate} electrons/s`;
+                document.getElementById('chargeMeter').textContent = `${chargePerSecond.toFixed(2)} C/s`;
+                document.getElementById('electronMeter').textContent = formatElectronCount(electronsPerSecond);
+                document.getElementById('currentRateValue').textContent = `${current.toFixed(2)} A`;
             }
             
             animate() {
@@ -356,7 +427,7 @@
         }
 
         // Voice-over functionality
-        const voiceoverText = `Welcome to the Electric Current visualization! Here you can explore how electric current is created by the flow of electrons. Adjust the current flow rate to see how it affects electron movement and current strength. Watch how electrons flow through multiple lanes in the conductor, and observe how current is measured in amperes. Try different flow rates to understand the relationship between electron movement and electric current!`;
+        const voiceoverText = `Welcome to the Electric Current visualization! Here you can explore the fundamental physics of electric current. Current is measured in amperes, which represents coulombs of charge per second. Using the formula: Number of electrons equals total charge divided by elementary charge, we can calculate that one ampere equals approximately 6.24 times 10 to the 18th electrons per second! Adjust the current to see how it affects the electron flow rate, charge transfer, and the actual number of electrons crossing the conductor. Watch the realistic relationship between current, charge, and electron count based on fundamental physics constants!`;
 
         window.addEventListener('load', () => {
             const container = document.getElementById('currentAnimation');
