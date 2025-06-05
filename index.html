@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-Frame-Options" content="ALLOWALL">
+    <meta http-equiv="Content-Security-Policy" content="frame-ancestors *">
     <title>Physics Teacher Visuals - Interactive Learning Platform</title>
     <link rel="stylesheet" href="parallax-style.css">
     <style>
@@ -280,15 +282,15 @@
         <!-- Hero Section -->
         <div class="hero-section fade-in">
             <h1 class="hero-title">Physics Teacher Visuals</h1>
-            <p class="hero-subtitle">Master Electrical Physics in 5 Steps</p>
+            <p class="hero-subtitle">Master Electrical Physics in 6 Steps</p>
             <p class="hero-description">
                 A complete interactive learning journey through electrical physics fundamentals. 
-                Follow our carefully designed progression from basic charge concepts to mastering Ohm's Law.
+                Follow our carefully designed progression from basic charge concepts to advanced current types.
             </p>
             
             <div class="stats-section">
                 <div class="stat-card">
-                    <div class="stat-number">5</div>
+                    <div class="stat-number">6</div>
                     <div class="stat-label">Core Concepts</div>
                 </div>
                 <div class="stat-card">
@@ -309,7 +311,7 @@
             <div class="learning-path-guide">
                 <h4 style="color: #2ecc71; margin-bottom: 15px; font-size: 1.2rem;">🎯 Optimal Learning Sequence</h4>
                 <p style="color: #bbb; margin: 0; font-size: 1.1rem;">
-                    <strong>Charge → Current → Voltage → Resistance → Ohm's Law</strong>
+                    <strong>Charge → Current → Voltage → Resistance → Ohm's Law → DC vs AC</strong>
                     <br><br>
                     Each concept builds perfectly on the previous one for maximum understanding!
                 </p>
@@ -320,7 +322,7 @@
         <div class="category-section fade-in animate-delay-1">
             <h2 class="category-title">⚡ Complete Electrical Physics Journey</h2>
             <p style="text-align: center; color: #bbb; margin-bottom: 30px; font-size: 1.1rem;">
-                Master electrical physics through this expertly designed 5-step progression
+                Master electrical physics through this expertly designed 6-step progression
             </p>
             
             <div class="demos-grid">
@@ -418,13 +420,32 @@
                     </p>
                     <button class="demo-button" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">Complete Your Journey</button>
                 </div>
+
+                <!-- Step 6: DC vs AC - Advanced Application -->
+                <div class="demo-card" onclick="window.open('dc-vs-ac.html', '_blank')">
+                    <span class="demo-icon">⚡</span>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                        <div class="step-number" style="background: #34495e;">6</div>
+                        <h3 class="demo-title" style="margin: 0;">DC vs AC Current Types</h3>
+                    </div>
+                    <div class="demo-features">
+                        <span class="badge new-badge">NEW</span>
+                        <span class="badge">Advanced</span>
+                        <span class="badge">Current Wars</span>
+                    </div>
+                    <p class="demo-description">
+                        <strong>Advanced application!</strong> Discover the two fundamental types of electrical current. 
+                        Compare Direct Current (DC) and Alternating Current (AC) with interactive waveforms, animations, and real-world applications.
+                    </p>
+                    <button class="demo-button" style="background: linear-gradient(135deg, #34495e, #2c3e50);">Explore Current Types</button>
+                </div>
             </div>
 
             <!-- Success Path -->
             <div style="background: rgba(74, 158, 255, 0.1); border: 2px solid rgba(74, 158, 255, 0.3); border-radius: 15px; padding: 25px; margin: 40px 0; text-align: center;">
                 <h4 style="color: #4a9eff; margin-bottom: 15px; font-size: 1.3rem;">🚀 Your Path to Electrical Physics Mastery</h4>
                 <p style="color: #bbb; margin: 0; font-size: 1rem; line-height: 1.6;">
-                    <strong>1. Charge</strong> (Foundation) → <strong>2. Current</strong> (Motion) → <strong>3. Voltage</strong> (Energy) → <strong>4. Resistance</strong> (Opposition) → <strong>5. Ohm's Law</strong> (Integration)
+                    <strong>1. Charge</strong> (Foundation) → <strong>2. Current</strong> (Motion) → <strong>3. Voltage</strong> (Energy) → <strong>4. Resistance</strong> (Opposition) → <strong>5. Ohm's Law</strong> (Integration) → <strong>6. DC vs AC</strong> (Advanced Application)
                     <br><br>
                     🎯 Follow this sequence to build a complete understanding of electrical physics!<br>
                     💡 Each concept perfectly prepares you for the next one.<br>
