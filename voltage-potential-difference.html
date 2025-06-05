@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voltage and Potential Difference</title>
+    <link rel="stylesheet" href="parallax-style.css">
+    <style>
+        /* Enhanced Educational Illustration Styles */
+        :root {
+            --high-voltage-color: #e74c3c;
+            --low-voltage-color: #3498db;
+            --positive-color: #e17055;
+            --negative-color: #74b9ff;
+            --energy-color: #f39c12;
+            --ground-color: #95a5a6;
+        }
+
+        .illustration-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            color: white;
+        }
+
+        .concept-section {
+            margin: 60px 0;
+            background: rgba(0, 5, 17, 0.8);
+            border-radius: 20px;
+            padding: 40px;
+            border: 2px solid rgba(74, 158, 255, 0.3);
+            backdrop-filter: blur(15px);
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            color: #4a9eff;
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #4a9eff, #74b9ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Voltage Visualization */
+        .voltage-container {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            margin: 30px 0;
+            background: linear-gradient(90deg, 
+                rgba(52, 152, 219, 0.1) 0%, 
+                rgba(231, 76, 60, 0.1) 100%);
+            border-radius: 20px;
+            border: 3px solid rgba(74, 158, 255, 0.5);
+            overflow: hidden;
+        }
+
+        .potential-hill {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(231, 76, 60, 0.3) 20%, 
+                rgba(231, 76, 60, 0.8) 50%, 
+                rgba(52, 152, 219, 0.3) 80%, 
+                transparent 100%);
+            clip-path: polygon(0% 100%, 20% 40%, 50% 20%, 80% 60%, 100% 100%);
+        }
+
+        .voltage-label {
+            position: absolute;
+            background: rgba(231, 76, 60, 0.9);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 15px;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .high-voltage {
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .low-voltage {
+            bottom: 30px;
+            left: 20%;
+            background: rgba(52, 152, 219, 0.9);
+        }
+
+        /* Energy Ball Animation */
+        .energy-ball {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, var(--energy-color), #e67e22);
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(243, 156, 18, 0.8);
+            animation: energyFlow 6s ease-in-out infinite;
+        }
+
+        @keyframes energyFlow {
+            0% { left: 10px; top: 40%; }
+            25% { left: 25%; top: 20%; }
+            50% { left: 50%; top: 10%; }
+            75% { left: 75%; top: 30%; }
+            100% { left: 90%; top: 60%; }
+        }
+
+        /* Battery Visualization */
+        .battery-demo {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 40px 0;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+        }
+
+        .battery-cell {
+            position: relative;
+            text-align: center;
+        }
+
+        .battery-visual {
+            width: 120px;
+            height: 60px;
+            background: linear-gradient(90deg, #2c3e50, #34495e);
+            border-radius: 10px;
+            position: relative;
+            margin: 0 auto 20px;
+            border: 3px solid #3498db;
+        }
+
+        .battery-visual::before {
+            content: '+';
+            position: absolute;
+            right: -30px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5rem;
+            color: var(--positive-color);
+            font-weight: bold;
+        }
+
+        .battery-visual::after {
+            content: '−';
+            position: absolute;
+            left: -30px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5rem;
+            color: var(--negative-color);
+            font-weight: bold;
+        }
+
+        .battery-voltage {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .voltage-9v .battery-voltage { color: var(--high-voltage-color); }
+        .voltage-15v .battery-voltage { color: #e74c3c; }
+        .voltage-3v .battery-voltage { color: var(--low-voltage-color); }
+
+        /* Circuit with Variable Voltage */
+        .variable-circuit {
+            position: relative;
+            width: 700px;
+            height: 350px;
+            margin: 30px auto;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid rgba(74, 158, 255, 0.3);
+        }
+
+        .circuit-wire {
+            position: absolute;
+            background: #ffeaa7;
+            border-radius: 3px;
+            box-shadow: 0 0 10px rgba(255, 234, 167, 0.5);
+        }
+
+        .wire-h { height: 8px; }
+        .wire-v { width: 8px; }
+
+        /* Main circuit wires positioned to form a complete loop */
+        .wire-top { 
+            width: 400px; 
+            height: 8px;
+            top: 80px; 
+            left: 150px; 
+        }
+        
+        .wire-bottom { 
+            width: 400px; 
+            height: 8px;
+            top: 230px; 
+            left: 150px; 
+        }
+        
+        .wire-left { 
+            width: 8px; 
+            height: 150px;
+            left: 150px; 
+            top: 80px; 
+        }
+        
+        .wire-right { 
+            width: 8px; 
+            height: 150px;
+            right: 150px; 
+            top: 80px; 
+        }
+
+        .variable-battery {
+            position: absolute;
+            width: 100px;
+            height: 50px;
+            background: linear-gradient(90deg, #2c3e50, #34495e);
+            border-radius: 10px;
+            left: 60px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 4px solid;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .variable-battery::before {
+            content: '+';
+            position: absolute;
+            right: -40px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2rem;
+            color: var(--positive-color);
+            font-weight: bold;
+            background: rgba(225, 112, 85, 0.2);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .variable-battery::after {
+            content: '-';
+            position: absolute;
+            left: -40px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2rem;
+            color: var(--negative-color);
+            font-weight: bold;
+            background: rgba(116, 185, 255, 0.2);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .circuit-resistor {
+            position: absolute;
+            width: 80px;
+            height: 20px;
+            background: repeating-linear-gradient(
+                45deg,
+                #8b4513,
+                #8b4513 10px,
+                #daa520 10px,
+                #daa520 20px
+            );
+            right: 80px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-radius: 5px;
+            border: 2px solid #8b4513;
+        }
+
+        .resistor-label {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ddd;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        .volt-meter {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, #2c3e50, #34495e);
+            border-radius: 50%;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 4px solid #e74c3c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #e74c3c;
+            font-weight: bold;
+            font-size: 1rem;
+            box-shadow: 0 0 20px rgba(231, 76, 60, 0.3);
+        }
+
+        /* Electron Flow Animation */
+        .electron {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: radial-gradient(circle, #74b9ff, #0984e3);
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(116, 185, 255, 0.8);
+            opacity: 0.9;
+        }
+
+        /* Electron paths for different wire segments */
+        .electron-top {
+            animation: electronFlowTop var(--flow-speed, 4s) linear infinite;
+        }
+
+        .electron-right {
+            animation: electronFlowRight var(--flow-speed, 4s) linear infinite;
+        }
+
+        .electron-bottom {
+            animation: electronFlowBottom var(--flow-speed, 4s) linear infinite;
+        }
+
+        .electron-left {
+            animation: electronFlowLeft var(--flow-speed, 4s) linear infinite;
+        }
+
+        @keyframes electronFlowTop {
+            0% { left: 150px; top: 76px; }
+            100% { left: 550px; top: 76px; }
+        }
+
+        @keyframes electronFlowRight {
+            0% { left: 546px; top: 80px; }
+            100% { left: 546px; top: 230px; }
+        }
+
+        @keyframes electronFlowBottom {
+            0% { left: 550px; top: 226px; }
+            100% { left: 150px; top: 226px; }
+        }
+
+        @keyframes electronFlowLeft {
+            0% { left: 146px; top: 230px; }
+            100% { left: 146px; top: 80px; }
+        }
+
+        /* Current flow indicator */
+        .current-arrow {
+            position: absolute;
+            color: #f39c12;
+            font-size: 1.5rem;
+            font-weight: bold;
+            opacity: 0.8;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .arrow-top {
+            top: 55px;
+            left: 350px;
+        }
+
+        .arrow-right {
+            top: 155px;
+            right: 120px;
+            transform: rotate(90deg);
+        }
+
+        .arrow-bottom {
+            bottom: 55px;
+            left: 350px;
+            transform: rotate(180deg);
+        }
+
+        .arrow-left {
+            top: 155px;
+            left: 120px;
+            transform: rotate(270deg);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* Circuit labels */
+        .circuit-label {
+            position: absolute;
+            background: rgba(74, 158, 255, 0.9);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .battery-label {
+            top: 120px;
+            left: 80px;
+        }
+
+        .resistor-label-pos {
+            top: 120px;
+            right: 100px;
+        }
+
+        .voltage-display-big {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(231, 76, 60, 0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            box-shadow: 0 0 20px rgba(231, 76, 60, 0.3);
+        }
+
+        /* Voltage Control Slider */
+        .voltage-control {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(231, 76, 60, 0.1);
+            border-radius: 15px;
+            border: 2px solid rgba(231, 76, 60, 0.3);
+        }
+
+        .voltage-slider {
+            width: 400px;
+            height: 12px;
+            background: linear-gradient(90deg, var(--low-voltage-color), var(--high-voltage-color));
+            border-radius: 6px;
+            margin: 20px auto;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .voltage-thumb {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: grab;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+            border: 3px solid #e74c3c;
+        }
+
+        /* Water Analogy */
+        .water-analogy {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .water-tank {
+            position: relative;
+            width: 150px;
+            height: 200px;
+            border: 4px solid #3498db;
+            border-radius: 10px;
+            margin: 0 auto;
+            background: linear-gradient(to top, 
+                rgba(52, 152, 219, 0.8) 0%, 
+                rgba(52, 152, 219, 0.8) var(--water-level, 50%), 
+                transparent var(--water-level, 50%), 
+                transparent 100%);
+        }
+
+        .tank-high { --water-level: 80%; }
+        .tank-low { --water-level: 30%; }
+
+        .water-flow {
+            position: absolute;
+            bottom: 20px;
+            right: -20px;
+            width: 30px;
+            height: 6px;
+            background: #3498db;
+            border-radius: 3px;
+        }
+
+        .flow-strong { 
+            animation: strongFlow 1s ease-in-out infinite;
+            width: 50px;
+        }
+
+        .flow-weak { 
+            animation: weakFlow 2s ease-in-out infinite;
+            width: 20px;
+        }
+
+        @keyframes strongFlow {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes weakFlow {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Animation Controls */
+        .animation-controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .animate-btn {
+            background: linear-gradient(135deg, #4a9eff, #74b9ff);
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(74, 158, 255, 0.3);
+        }
+
+        .animate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(74, 158, 255, 0.4);
+        }
+
+        /* Formula Display */
+        .formula-box {
+            background: rgba(74, 158, 255, 0.1);
+            border: 2px solid rgba(74, 158, 255, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .formula-title {
+            font-size: 1.3rem;
+            color: #4a9eff;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .formula-equation {
+            font-family: 'Courier New', monospace;
+            font-size: 1.8rem;
+            color: #74b9ff;
+            margin: 15px 0;
+            text-shadow: 0 0 10px rgba(116, 185, 255, 0.3);
+        }
+
+        .formula-explanation {
+            font-size: 1rem;
+            color: #ddd;
+            margin-top: 15px;
+            line-height: 1.6;
+        }
+
+        /* Audio Indicator */
+        .audio-indicator {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: rgba(74, 158, 255, 0.9);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            z-index: 1001;
+            opacity: 0;
+            transform: translateX(100px);
+            transition: all 0.3s ease;
+        }
+
+        .audio-indicator.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .audio-indicator::before {
+            content: '🔊';
+            margin-right: 8px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .concept-section {
+                padding: 20px;
+                margin: 30px 0;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .battery-demo {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .variable-circuit {
+                width: 100%;
+                max-width: 500px;
+                height: 250px;
+            }
+            
+            .voltage-slider {
+                width: 300px;
+            }
+            
+            .water-analogy {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        /* Animation Enhancements */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-delay-1 { animation-delay: 0.2s; }
+        .animate-delay-2 { animation-delay: 0.4s; }
+        .animate-delay-3 { animation-delay: 0.6s; }
+    </style>
+</head>
+<body>
+    <!-- Cinematic Experience Container -->
+    <div id="cinematic-experience">
+        
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="active">
+            <div class="loading-content">
+                <div class="atom-spinner">
+                    <div class="nucleus"></div>
+                    <div class="electron-orbit orbit-1">
+                        <div class="electron"></div>
+                    </div>
+                    <div class="electron-orbit orbit-2">
+                        <div class="electron"></div>
+                    </div>
+                    <div class="electron-orbit orbit-3">
+                        <div class="electron"></div>
+                    </div>
+                </div>
+                <h1>Voltage & Potential Difference</h1>
+                <p>Loading electrical potential visualization...</p>
+                <div class="loading-bar">
+                    <div class="loading-progress"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fixed Elements -->
+        <!-- Audio Control -->
+        <div id="audio-control">
+            <button id="mute-btn" class="control-btn">
+                <span class="unmute-icon">🔊</span>
+                <span class="mute-icon">🔇</span>
+            </button>
+        </div>
+
+        <!-- Audio Indicator -->
+        <div id="audio-indicator" class="audio-indicator">
+            <span id="audio-text">Narrating...</span>
+        </div>
+
+        <!-- Interactive Visualization Background -->
+        <div id="visualization-background">
+            <div id="interactive-canvas" class="fullscreen-canvas"></div>
+        </div>
+
+        <!-- Main Content Container -->
+        <div id="main-content">
+            
+            <!-- Hero Section -->
+            <section class="cinematic-section active" style="min-height: 100vh; display: flex; align-items: center; justify-content: center;">
+                <div class="section-background" style="background: radial-gradient(ellipse at center, #1e3d59 0%, #000511 60%, #000204 100%); opacity: 1;"></div>
+                
+                <div class="narrative-overlay" style="position: relative; z-index: 10; text-align: center;">
+                    <div class="section-indicator" style="margin-bottom: 30px;">
+                        <span class="section-number">⚡</span>
+                        <span class="section-title">Voltage & Potential Difference</span>
+                    </div>
+                    <div class="narrative-content">
+                        <h1 style="font-size: 3.5rem; margin-bottom: 30px; background: linear-gradient(45deg, #e74c3c, #3498db); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Electrical Potential Energy</h1>
+                        <p class="narrative-text" style="font-size: 1.3rem; max-width: 800px; margin: 0 auto 40px;">
+                            Voltage is the electrical potential difference that drives current through circuits. 
+                            Let's explore how electrical potential energy creates the "push" that moves electrons.
+                        </p>
+                        <div class="equation-display" style="font-size: 1.5rem; color: #e74c3c;">V = W/Q</div>
+                    </div>
+                </div>
+
+                <div class="scroll-hint" style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); text-align: center; color: #e74c3c; animation: bounce 2s infinite;">
+                    <div style="font-size: 2rem; margin-bottom: 10px;">↓</div>
+                    <p>Scroll to explore voltage and potential difference</p>
+                </div>
+            </section>
+
+            <!-- Main Educational Content -->
+            <div class="illustration-container">
+
+                <!-- Section 1: What is Voltage? -->
+                <div class="concept-section fade-in">
+                    <h2 class="section-title">What is Voltage?</h2>
+                    
+                    <p style="font-size: 1.2rem; line-height: 1.8; margin-bottom: 30px; text-align: center;">
+                        Voltage is the electrical potential difference between two points. 
+                        It's the "electrical pressure" that pushes current through a circuit.
+                    </p>
+
+                    <div class="formula-box">
+                        <div class="formula-title">Voltage Formula</div>
+                        <div class="formula-equation">V = W/Q</div>
+                        <div class="formula-explanation">
+                            Voltage (V) = Work (W) ÷ Charge (Q)
+                            <br>• Voltage is measured in Volts (V)
+                            <br>• Work/Energy is measured in Joules (J)
+                            <br>• Charge is measured in Coulombs (C)
+                            <br>• 1 Volt = 1 Joule per Coulomb
+                        </div>
+                    </div>
+
+                    <div class="voltage-container">
+                        <div class="potential-hill"></div>
+                        <div class="voltage-label high-voltage">High Potential (+)</div>
+                        <div class="voltage-label low-voltage">Low Potential (−)</div>
+                        <div class="energy-ball"></div>
+                    </div>
+
+                    <div class="animation-controls">
+                        <button class="animate-btn" onclick="startPotentialFlow()">▶ Show Potential Energy Flow</button>
+                        <button class="animate-btn" onclick="stopPotentialFlow()">⏹ Stop Animation</button>
+                    </div>
+
+                    <p style="text-align: center; color: #ddd; margin-top: 20px; font-style: italic;">
+                        Watch the energy ball roll from high potential to low potential, representing voltage
+                    </p>
+                </div>
+
+                <!-- Section 2: Battery Voltages -->
+                <div class="concept-section fade-in animate-delay-1">
+                    <h2 class="section-title">Different Battery Voltages</h2>
+                    
+                    <p style="font-size: 1.2rem; line-height: 1.8; margin-bottom: 30px; text-align: center;">
+                        Different batteries provide different voltages, which determines how much "electrical pressure" they can provide.
+                    </p>
+
+                    <div class="battery-demo">
+                        <div class="battery-cell voltage-15v">
+                            <div class="battery-visual" style="border-color: #e74c3c;"></div>
+                            <div class="battery-voltage">1.5V</div>
+                            <p style="color: #ddd; font-size: 0.9rem;">AA Battery</p>
+                        </div>
+                        
+                        <div class="battery-cell voltage-9v">
+                            <div class="battery-visual" style="border-color: #f39c12; width: 100px; height: 80px;"></div>
+                            <div class="battery-voltage">9V</div>
+                            <p style="color: #ddd; font-size: 0.9rem;">9V Battery</p>
+                        </div>
+                        
+                        <div class="battery-cell voltage-3v">
+                            <div class="battery-visual" style="border-color: #3498db; width: 80px; height: 40px;"></div>
+                            <div class="battery-voltage">3V</div>
+                            <p style="color: #ddd; font-size: 0.9rem;">Watch Battery</p>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(241, 196, 15, 0.1); border: 2px solid rgba(241, 196, 15, 0.3); border-radius: 10px; padding: 20px; margin: 20px 0; text-align: center;">
+                        <h4 style="color: #f1c40f; margin-bottom: 10px;">Key Point:</h4>
+                        <p style="margin: 0; color: #ddd;">
+                            Higher voltage means more electrical potential energy per charge. 
+                            This creates stronger "electrical pressure" to push current through circuits.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Section 3: Water Analogy -->
+                <div class="concept-section fade-in animate-delay-2">
+                    <h2 class="section-title">Water Tank Analogy</h2>
+                    
+                    <p style="font-size: 1.2rem; line-height: 1.8; margin-bottom: 30px; text-align: center;">
+                        Voltage is like water pressure in a tank. Higher water level creates more pressure, just like higher voltage creates more electrical pressure.
+                    </p>
+
+                    <div class="water-analogy">
+                        <div style="text-align: center;">
+                            <h4 style="color: #e74c3c; margin-bottom: 20px;">High Voltage (High Pressure)</h4>
+                            <div class="water-tank tank-high">
+                                <div class="water-flow flow-strong"></div>
+                            </div>
+                            <p style="color: #ddd; margin-top: 15px; font-size: 0.9rem;">
+                                High water level = High pressure = Strong flow
+                            </p>
+                        </div>
+                        
+                        <div style="text-align: center;">
+                            <h4 style="color: #3498db; margin-bottom: 20px;">Low Voltage (Low Pressure)</h4>
+                            <div class="water-tank tank-low">
+                                <div class="water-flow flow-weak"></div>
+                            </div>
+                            <p style="color: #ddd; margin-top: 15px; font-size: 0.9rem;">
+                                Low water level = Low pressure = Weak flow
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="formula-box">
+                        <div class="formula-title">Ohm's Law</div>
+                        <div class="formula-equation">V = I × R</div>
+                        <div class="formula-explanation">
+                            Voltage (V) = Current (I) × Resistance (R)
+                            <br>• More voltage → More current (if resistance stays same)
+                            <br>• Voltage is the "driving force" for current
+                            <br>• Without voltage difference, no current flows
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4: Interactive Voltage Control -->
+                <div class="concept-section fade-in animate-delay-3">
+                    <h2 class="section-title">Voltage Control Demonstration</h2>
+                    
+                    <p style="font-size: 1.2rem; line-height: 1.8; margin-bottom: 30px; text-align: center;">
+                        Adjust the voltage to see how it affects the circuit. Higher voltage creates more current through the same resistance.
+                    </p>
+
+                    <div class="voltage-control">
+                        <h4 style="color: #e74c3c; margin-bottom: 20px;">Adjust Circuit Voltage</h4>
+                        <div class="voltage-slider" onclick="adjustVoltage(event)">
+                            <div class="voltage-thumb" id="voltage-thumb"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 10px; color: #ddd;">
+                            <span>1V (Low)</span>
+                            <span>12V (High)</span>
+                        </div>
+                        <div id="voltage-display" style="font-size: 1.2rem; color: #e74c3c; margin-top: 15px; font-weight: 600;">
+                            Voltage: 6V
+                        </div>
+                    </div>
+
+                    <div class="variable-circuit">
+                        <!-- Circuit wires forming a complete loop -->
+                        <div class="circuit-wire wire-top"></div>
+                        <div class="circuit-wire wire-bottom"></div>
+                        <div class="circuit-wire wire-left"></div>
+                        <div class="circuit-wire wire-right"></div>
+                        
+                        <!-- Variable battery with terminal symbols -->
+                        <div class="variable-battery" id="demo-battery">
+                            <span id="battery-voltage-display">6V</span>
+                        </div>
+                        
+                        <!-- Circuit resistor -->
+                        <div class="circuit-resistor">
+                            <div class="resistor-label">12Ω Resistor</div>
+                        </div>
+                        
+                        <!-- Volt meter -->
+                        <div class="volt-meter" id="volt-display">6V</div>
+                        
+                        <!-- Circuit labels -->
+                        <div class="circuit-label battery-label">Battery</div>
+                        <div class="circuit-label resistor-label-pos">Load</div>
+                        
+                        <!-- Current flow arrows -->
+                        <div class="current-arrow arrow-top" id="arrow-1">→</div>
+                        <div class="current-arrow arrow-right" id="arrow-2">→</div>
+                        <div class="current-arrow arrow-bottom" id="arrow-3">→</div>
+                        <div class="current-arrow arrow-left" id="arrow-4">→</div>
+                        
+                        <!-- Animated electrons -->
+                        <div class="electron electron-top" id="electron-1" style="animation-delay: 0s;"></div>
+                        <div class="electron electron-top" id="electron-2" style="animation-delay: 1s;"></div>
+                        <div class="electron electron-right" id="electron-3" style="animation-delay: 2s;"></div>
+                        <div class="electron electron-bottom" id="electron-4" style="animation-delay: 3s;"></div>
+                        <div class="electron electron-left" id="electron-5" style="animation-delay: 0.5s;"></div>
+                        <div class="electron electron-left" id="electron-6" style="animation-delay: 1.5s;"></div>
+                        
+                        <!-- Voltage and current display -->
+                        <div class="voltage-display-big" id="circuit-display">
+                            Voltage: 6V | Current: 0.50A | Power: 3.0W
+                        </div>
+                    </div>
+
+                    <div class="animation-controls">
+                        <button class="animate-btn" onclick="demonstrateVoltage()">▶ Auto Voltage Demo</button>
+                        <button class="animate-btn" onclick="startElectronFlow()">⚡ Start Electron Flow</button>
+                        <button class="animate-btn" onclick="stopElectronFlow()">⏹ Stop Electrons</button>
+                        <button class="animate-btn" onclick="resetDemo()">↻ Reset Demo</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Script -->
+    <script>
+        // Initialize the experience
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                hideLoadingScreen();
+                initializeAnimations();
+                initializeAudio();
+                setupVoltageControl();
+            }, 2000);
+        });
+
+        // Audio Control Variables
+        let audioEnabled = true;
+        let currentAudio = null;
+        let speechSynthesis = window.speechSynthesis;
+        let currentVoltage = 6;
+
+        // Audio Content Scripts
+        const audioScripts = {
+            intro: "Welcome to understanding voltage and potential difference. Voltage is the electrical potential difference that drives current through circuits. It's the electrical pressure that pushes electrons.",
+            voltage: "Voltage is measured in volts and represents the amount of energy per unit charge. One volt equals one joule of energy per coulomb of charge. Higher voltage means more electrical pressure.",
+            batteries: "Different batteries provide different voltages. A 1.5 volt AA battery provides less electrical pressure than a 9 volt battery. This affects how much current can flow through a circuit.",
+            waterAnalogy: "Voltage is like water pressure in a tank. High water level creates high pressure and strong flow. Similarly, high voltage creates high electrical pressure and more current flow.",
+            control: "By adjusting voltage, you can control current in a circuit. According to Ohm's law, voltage equals current times resistance. More voltage means more current through the same resistance."
+        };
+
+        function initializeAudio() {
+            const audioObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && audioEnabled) {
+                        const section = entry.target;
+                        playAudioForSection(section);
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            const sections = document.querySelectorAll('.concept-section');
+            sections.forEach(section => audioObserver.observe(section));
+
+            setTimeout(() => {
+                if (audioEnabled) {
+                    speakText(audioScripts.intro);
+                }
+            }, 3000);
+        }
+
+        function playAudioForSection(section) {
+            const sectionTitle = section.querySelector('.section-title');
+            if (!sectionTitle) return;
+
+            const title = sectionTitle.textContent;
+            stopCurrentAudio();
+
+            if (title.includes('What is Voltage')) {
+                speakText(audioScripts.voltage);
+            } else if (title.includes('Battery Voltages')) {
+                speakText(audioScripts.batteries);
+            } else if (title.includes('Water Tank Analogy')) {
+                speakText(audioScripts.waterAnalogy);
+            } else if (title.includes('Voltage Control')) {
+                speakText(audioScripts.control);
+            }
+        }
+
+        function speakText(text) {
+            if (!audioEnabled || !speechSynthesis) return;
+
+            stopCurrentAudio();
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.9;
+            utterance.pitch = 1.0;
+            utterance.volume = 0.8;
+            
+            let voices = speechSynthesis.getVoices();
+            if (voices.length === 0) {
+                speechSynthesis.addEventListener('voiceschanged', () => {
+                    voices = speechSynthesis.getVoices();
+                    setVoiceAndSpeak(utterance, voices, text);
+                });
+            } else {
+                setVoiceAndSpeak(utterance, voices, text);
+            }
+        }
+
+        function setVoiceAndSpeak(utterance, voices, text) {
+            const preferredVoice = voices.find(voice => 
+                voice.name.includes('Samantha') || 
+                voice.name.includes('Karen') || 
+                voice.name.includes('Susan') ||
+                voice.name.includes('Alex') ||
+                (voice.lang.startsWith('en-') && voice.name.includes('Female'))
+            ) || voices.find(voice => voice.lang.startsWith('en-')) || voices[0];
+            
+            if (preferredVoice) {
+                utterance.voice = preferredVoice;
+            }
+
+            utterance.onstart = () => showAudioIndicator(text);
+            utterance.onend = () => {
+                hideAudioIndicator();
+                currentAudio = null;
+            };
+            utterance.onerror = () => {
+                hideAudioIndicator();
+                currentAudio = null;
+            };
+
+            currentAudio = utterance;
+            speechSynthesis.speak(utterance);
+        }
+
+        function showAudioIndicator(text) {
+            const indicator = document.getElementById('audio-indicator');
+            const textElement = document.getElementById('audio-text');
+            
+            if (indicator && textElement) {
+                const shortText = text.length > 50 ? text.substring(0, 50) + '...' : text;
+                textElement.textContent = shortText;
+                indicator.classList.add('active');
+            }
+        }
+
+        function hideAudioIndicator() {
+            const indicator = document.getElementById('audio-indicator');
+            if (indicator) {
+                indicator.classList.remove('active');
+            }
+        }
+
+        function stopCurrentAudio() {
+            if (speechSynthesis.speaking) {
+                speechSynthesis.cancel();
+            }
+            hideAudioIndicator();
+            currentAudio = null;
+        }
+
+        function hideLoadingScreen() {
+            const loadingScreen = document.getElementById('loading-screen');
+            loadingScreen.classList.remove('active');
+        }
+
+        function initializeAnimations() {
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.animationPlayState = 'running';
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.fade-in').forEach(el => {
+                el.style.animationPlayState = 'paused';
+                observer.observe(el);
+            });
+        }
+
+        // Animation Controls
+        function startPotentialFlow() {
+            const energyBall = document.querySelector('.energy-ball');
+            if (energyBall) {
+                energyBall.style.animationPlayState = 'running';
+            }
+
+            if (audioEnabled) {
+                speakText("Watch the energy ball move from high potential to low potential. This represents how voltage creates a driving force for electrical energy flow.");
+            }
+        }
+
+        function stopPotentialFlow() {
+            const energyBall = document.querySelector('.energy-ball');
+            if (energyBall) {
+                energyBall.style.animationPlayState = 'paused';
+            }
+        }
+
+        // Voltage Control
+        function setupVoltageControl() {
+            const slider = document.querySelector('.voltage-slider');
+            const thumb = document.getElementById('voltage-thumb');
+            let isDragging = false;
+
+            thumb.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                document.addEventListener('mousemove', handleDrag);
+                document.addEventListener('mouseup', () => {
+                    isDragging = false;
+                    document.removeEventListener('mousemove', handleDrag);
+                });
+            });
+
+            function handleDrag(e) {
+                if (!isDragging) return;
+                
+                const rect = slider.getBoundingClientRect();
+                let percentage = (e.clientX - rect.left) / rect.width;
+                percentage = Math.max(0, Math.min(1, percentage));
+                
+                thumb.style.left = `${percentage * 100}%`;
+                updateVoltageDisplay(percentage);
+                updateCircuitVisuals(percentage);
+            }
+        }
+
+        function adjustVoltage(event) {
+            const slider = event.currentTarget;
+            const rect = slider.getBoundingClientRect();
+            const percentage = (event.clientX - rect.left) / rect.width;
+            const clampedPercentage = Math.max(0, Math.min(1, percentage));
+            
+            const thumb = document.getElementById('voltage-thumb');
+            thumb.style.left = `${clampedPercentage * 100}%`;
+            updateVoltageDisplay(clampedPercentage);
+            updateCircuitVisuals(clampedPercentage);
+        }
+
+        function updateVoltageDisplay(percentage) {
+            currentVoltage = (1 + (11 * percentage)).toFixed(1);
+            document.getElementById('voltage-display').textContent = `Voltage: ${currentVoltage}V`;
+        }
+
+        function updateCircuitVisuals(percentage) {
+            const battery = document.getElementById('demo-battery');
+            const voltDisplay = document.getElementById('volt-display');
+            const batteryVoltageDisplay = document.getElementById('battery-voltage-display');
+            const circuitDisplay = document.getElementById('circuit-display');
+            
+            // Update battery color based on voltage
+            const hue = 240 - (percentage * 60); // Blue to red
+            battery.style.borderColor = `hsl(${hue}, 70%, 60%)`;
+            
+            // Calculate electrical values using Ohm's law (12Ω resistance)
+            const current = (currentVoltage / 12).toFixed(2);
+            const power = (current * currentVoltage).toFixed(1);
+            
+            // Update all displays
+            voltDisplay.textContent = `${currentVoltage}V`;
+            batteryVoltageDisplay.textContent = `${currentVoltage}V`;
+            circuitDisplay.textContent = `Voltage: ${currentVoltage}V | Current: ${current}A | Power: ${power}W`;
+            
+            // Update electron flow speed based on current
+            updateElectronFlow(current);
+            
+            // Update current arrows opacity based on current
+            updateCurrentArrows(current);
+        }
+        
+        function updateElectronFlow(current) {
+            const electrons = document.querySelectorAll('.electron');
+            const flowSpeed = Math.max(1, 6 - (current * 4)); // Faster flow = lower duration
+            
+            electrons.forEach((electron, index) => {
+                electron.style.setProperty('--flow-speed', `${flowSpeed}s`);
+                
+                // Restart animation by removing and re-adding class
+                const animationClass = electron.className.split(' ').find(cls => cls.includes('electron-'));
+                electron.classList.remove(animationClass);
+                
+                setTimeout(() => {
+                    electron.classList.add(animationClass);
+                }, 10);
+            });
+        }
+        
+        function updateCurrentArrows(current) {
+            const arrows = document.querySelectorAll('.current-arrow');
+            const opacity = Math.min(1, current * 2); // Higher current = more visible arrows
+            
+            arrows.forEach(arrow => {
+                arrow.style.opacity = opacity;
+                arrow.style.animationDuration = `${Math.max(0.5, 2 - current)}s`;
+            });
+        }
+
+        function demonstrateVoltage() {
+            // Demonstrate different voltage levels
+            const voltages = [2, 6, 10];
+            let currentIndex = 0;
+            
+            function showNextVoltage() {
+                if (currentIndex < voltages.length) {
+                    const voltage = voltages[currentIndex];
+                    const percentage = (voltage - 1) / 11; // Convert to slider percentage
+                    
+                    // Update slider position
+                    const thumb = document.getElementById('voltage-thumb');
+                    thumb.style.left = `${percentage * 100}%`;
+                    
+                    // Update displays
+                    updateVoltageDisplay(percentage);
+                    updateCircuitVisuals(percentage);
+                    
+                    if (audioEnabled) {
+                        const current = (voltage / 12).toFixed(2);
+                        speakText(`At ${voltage} volts, the current is ${current} amperes. Notice how the electron flow speed changes with voltage.`);
+                    }
+                    
+                    currentIndex++;
+                    setTimeout(showNextVoltage, 3000);
+                }
+            }
+            
+            showNextVoltage();
+        }
+        
+        function startElectronFlow() {
+            const electrons = document.querySelectorAll('.electron');
+            electrons.forEach(electron => {
+                electron.style.animationPlayState = 'running';
+            });
+            
+            if (audioEnabled) {
+                speakText("Watch the electrons flow through the circuit. Higher voltage creates faster electron movement and more current.");
+            }
+        }
+        
+        function stopElectronFlow() {
+            const electrons = document.querySelectorAll('.electron');
+            electrons.forEach(electron => {
+                electron.style.animationPlayState = 'paused';
+            });
+        }
+
+        function resetDemo() {
+            const thumb = document.getElementById('voltage-thumb');
+            thumb.style.left = '50%';
+            updateVoltageDisplay(0.5);
+            updateCircuitVisuals(0.5);
+        }
+
+        // Audio control
+        document.getElementById('mute-btn')?.addEventListener('click', function() {
+            this.classList.toggle('muted');
+            audioEnabled = !audioEnabled;
+            
+            if (!audioEnabled) {
+                stopCurrentAudio();
+            }
+        });
+
+        // Smooth scrolling
+        document.addEventListener('wheel', (e) => {
+            if (Math.abs(e.deltaY) > 50) {
+                e.preventDefault();
+                const scrollAmount = e.deltaY > 0 ? 100 : -100;
+                window.scrollBy({
+                    top: scrollAmount,
+                    behavior: 'smooth'
+                });
+            }
+        });
+
+        // Bounce animation for scroll hint
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes bounce {
+                0%, 100% { transform: translateX(-50%) translateY(0); }
+                50% { transform: translateX(-50%) translateY(-10px); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html> 

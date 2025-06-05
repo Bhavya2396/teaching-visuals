@@ -800,12 +800,12 @@
                 // User can still enable voice feedback manually
             } else {
                 // Play voiceover for standalone page
-                if (window.speechSynthesis.getVoices().length === 0) {
-                    window.speechSynthesis.onvoiceschanged = () => {
-                        setTimeout(playVoiceover, 1000);
-                    };
-                } else {
+            if (window.speechSynthesis.getVoices().length === 0) {
+                window.speechSynthesis.onvoiceschanged = () => {
                     setTimeout(playVoiceover, 1000);
+                };
+            } else {
+                setTimeout(playVoiceover, 1000);
                 }
             }
         });

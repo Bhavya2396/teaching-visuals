@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electrical Resistance - Interactive Physics</title>
+    <link rel="stylesheet" href="parallax-style.css">
+    <style>
+        /* Enhanced Resistance Visualization Styles */
+        :root {
+            --resistance-low-color: #2ecc71;
+            --resistance-medium-color: #f39c12;
+            --resistance-high-color: #e74c3c;
+            --conductor-color: #3498db;
+            --insulator-color: #9b59b6;
+            --current-color: #f1c40f;
+        }
+
+        .illustration-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            color: white;
+        }
+
+        .concept-section {
+            margin: 60px 0;
+            background: rgba(0, 5, 17, 0.8);
+            border-radius: 20px;
+            padding: 40px;
+            border: 2px solid rgba(74, 158, 255, 0.3);
+            backdrop-filter: blur(15px);
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            color: #4a9eff;
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #4a9eff, #74b9ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Wire Resistance Visualization */
+        .wire-demo {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .wire-container {
+            position: relative;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 30px;
+            border: 2px solid rgba(116, 185, 255, 0.3);
+        }
+
+        .wire-visual {
+            position: relative;
+            height: 60px;
+            background: linear-gradient(90deg, #34495e, #2c3e50);
+            border-radius: 30px;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            overflow: hidden;
+        }
+
+        .wire-thin {
+            width: 400px;
+            height: 20px;
+            background: var(--resistance-high-color);
+        }
+
+        .wire-thick {
+            width: 400px;
+            height: 60px;
+            background: var(--resistance-low-color);
+        }
+
+        .wire-long {
+            width: 600px;
+            height: 40px;
+            background: var(--resistance-medium-color);
+        }
+
+        .wire-short {
+            width: 200px;
+            height: 40px;
+            background: var(--resistance-low-color);
+        }
+
+        .electron-flow {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: radial-gradient(circle, #74b9ff, #0984e3);
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(116, 185, 255, 0.8);
+            animation: flowThroughWire var(--flow-speed, 3s) linear infinite;
+        }
+
+        @keyframes flowThroughWire {
+            0% { left: 10px; opacity: 1; }
+            100% { left: calc(100% - 30px); opacity: 0.3; }
+        }
+
+        .resistance-label {
+            text-align: center;
+            margin-top: 15px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .low-resistance { color: var(--resistance-low-color); }
+        .medium-resistance { color: var(--resistance-medium-color); }
+        .high-resistance { color: var(--resistance-high-color); }
+
+        /* Material Comparison */
+        .material-demo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+
+        .material-sample {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 3px solid;
+            transition: all 0.3s ease;
+        }
+
+        .conductor {
+            border-color: var(--conductor-color);
+            background: rgba(52, 152, 219, 0.1);
+        }
+
+        .semiconductor {
+            border-color: var(--resistance-medium-color);
+            background: rgba(243, 156, 18, 0.1);
+        }
+
+        .insulator {
+            border-color: var(--insulator-color);
+            background: rgba(155, 89, 182, 0.1);
+        }
+
+        .material-visual {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 15px;
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        .resistor-demo {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 350px;
+            margin: 30px auto;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid rgba(74, 158, 255, 0.3);
+        }
+
+        .resistor-visual {
+            position: absolute;
+            width: 160px;
+            height: 50px;
+            background: repeating-linear-gradient(
+                45deg,
+                #8b4513,
+                #8b4513 8px,
+                #daa520 8px,
+                #daa520 16px
+            );
+            border-radius: 15px;
+            border: 3px solid #654321;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .color-band {
+            position: absolute;
+            width: 12px;
+            height: 56px;
+            top: -3px;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+        }
+
+        .band-1 { left: 25px; }
+        .band-2 { left: 45px; }
+        .band-3 { left: 65px; }
+        .band-4 { right: 25px; }
+
+        .color-band.highlight {
+            transform: scale(1.3);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+            z-index: 10;
+        }
+
+        .resistance-value {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(231, 76, 60, 0.9);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 20px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            min-width: 200px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        /* Color Code Chart */
+        .color-chart {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid rgba(74, 158, 255, 0.2);
+        }
+
+        .color-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .color-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .color-sample {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .color-info {
+            flex: 1;
+            font-size: 0.9rem;
+        }
+
+        .color-name {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .color-value {
+            color: #bbb;
+            font-size: 0.8rem;
+        }
+
+        /* Resistor Value Selector */
+        .value-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .value-btn {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            border: 2px solid rgba(74, 158, 255, 0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .value-btn:hover {
+            background: linear-gradient(135deg, #4a9eff, #74b9ff);
+            border-color: #4a9eff;
+            transform: translateY(-2px);
+        }
+
+        .value-btn.active {
+            background: linear-gradient(135deg, #4a9eff, #74b9ff);
+            border-color: #4a9eff;
+        }
+
+        /* Band Explanation */
+        .band-explanation {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(74, 158, 255, 0.9);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: all 0.3s ease;
+            max-width: 200px;
+        }
+
+        .band-explanation.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Interactive Controls */
+        .interactive-control {
+            background: rgba(74, 158, 255, 0.1);
+            border: 2px solid rgba(74, 158, 255, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+
+        .control-slider {
+            width: 100%;
+            max-width: 400px;
+            height: 12px;
+            background: linear-gradient(90deg, var(--resistance-low-color), var(--resistance-high-color));
+            border-radius: 6px;
+            margin: 20px auto;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .control-thumb {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: grab;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+            border: 3px solid #e74c3c;
+        }
+
+        .formula-box {
+            background: rgba(74, 158, 255, 0.1);
+            border: 2px solid rgba(74, 158, 255, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .formula-title {
+            font-size: 1.3rem;
+            color: #4a9eff;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .formula-equation {
+            font-family: 'Courier New', monospace;
+            font-size: 1.8rem;
+            color: #74b9ff;
+            margin: 15px 0;
+            text-shadow: 0 0 10px rgba(116, 185, 255, 0.3);
+        }
+
+        .formula-explanation {
+            font-size: 1rem;
+            color: #ddd;
+            margin-top: 15px;
+            line-height: 1.6;
+        }
+
+        .animate-btn {
+            background: linear-gradient(135deg, #4a9eff, #74b9ff);
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(74, 158, 255, 0.3);
+        }
+
+        .animate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(74, 158, 255, 0.4);
+        }
+
+        .audio-indicator {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: rgba(74, 158, 255, 0.9);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            z-index: 1001;
+            opacity: 0;
+            transform: translateX(100px);
+            transition: all 0.3s ease;
+        }
+
+        .audio-indicator.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .audio-indicator::before {
+            content: '🔊';
+            margin-right: 8px;
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-delay-1 { animation-delay: 0.2s; }
+        .animate-delay-2 { animation-delay: 0.4s; }
+        .animate-delay-3 { animation-delay: 0.6s; }
+
+        @media (max-width: 768px) {
+            .concept-section {
+                padding: 20px;
+                margin: 30px 0;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .material-demo {
+                grid-template-columns: 1fr;
+            }
+            
+            .wire-visual {
+                width: 90%;
+            }
+            
+            .control-slider {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Cinematic Experience Container -->
+    <div id="cinematic-experience">
+        
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="active">
+            <div class="loading-content">
+                <div class="atom-spinner">
+                    <div class="nucleus"></div>
+                    <div class="electron-orbit orbit-1">
+                        <div class="electron"></div>
+                    </div>
+                    <div class="electron-orbit orbit-2">
+                        <div class="electron"></div>
+                    </div>
+                    <div class="electron-orbit orbit-3">
+                        <div class="electron"></div>
+                    </div>
+                </div>
+                <h1>Electrical Resistance</h1>
+                <p>Loading resistance visualization...</p>
+                <div class="loading-bar">
+                    <div class="loading-progress"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fixed Elements -->
+        <!-- Audio Control -->
+        <div id="audio-control">
+            <button id="mute-btn" class="control-btn">
+                <span class="unmute-icon">🔊</span>
+                <span class="mute-icon">🔇</span>
+            </button>
+        </div>
+
+        <!-- Audio Indicator -->
+        <div id="audio-indicator" class="audio-indicator">
+            <span id="audio-text">Narrating...</span>
+        </div>
+
+        <!-- Interactive Visualization Background -->
+        <div id="visualization-background">
+            <div id="interactive-canvas" class="fullscreen-canvas"></div>
+        </div>
+
+        <!-- Main Content Container -->
+        <div id="main-content">
+            
+            <!-- Hero Section -->
+            <section class="cinematic-section active" style="min-height: 100vh; display: flex; align-items: center; justify-content: center;">
+                <div class="section-background" style="background: radial-gradient(ellipse at center, #2c3e50 0%, #000511 60%, #000204 100%); opacity: 1;"></div>
+                
+                <div class="narrative-overlay" style="position: relative; z-index: 10; text-align: center;">
+                    <div class="section-indicator" style="margin-bottom: 30px;">
+                        <span class="section-number">⚡</span>
+                        <span class="section-title">Electrical Resistance</span>
+                    </div>
+                    <div class="narrative-content">
+                        <h1 style="font-size: 3.5rem; margin-bottom: 30px; background: linear-gradient(45deg, #e74c3c, #f39c12); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Opposition to Current Flow</h1>
+                        <p class="narrative-text" style="font-size: 1.3rem; max-width: 800px; margin: 0 auto 40px;">
+                            Electrical resistance is the opposition to the flow of electric current. 
+                            Understanding resistance is crucial for designing circuits and controlling electrical flow.
+                        </p>
+                        <div class="equation-display" style="font-size: 1.5rem; color: #e74c3c;">R = V/I</div>
+                    </div>
+                </div>
+
+                <div class="scroll-hint" style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); text-align: center; color: #e74c3c; animation: bounce 2s infinite;">
+                    <div style="font-size: 2rem; margin-bottom: 10px;">↓</div>
+                    <p>Scroll to explore electrical resistance</p>
+                </div>
+            </section>
+
+            <!-- Main Educational Content -->
+            <div class="illustration-container">
+
+                <!-- Section 1: What is Resistance? -->
+                <div class="concept-section fade-in">
+                    <h2 class="section-title">What is Electrical Resistance?</h2>
+                    
+                    <p style="font-size: 1.2rem; line-height: 1.8; margin-bottom: 30px; text-align: center;">
+                        Electrical resistance is the opposition to the flow of electric current through a material. 
+                        It determines how much current will flow for a given voltage.
+                    </p>
+
+                    <div class="formula-box">
+                        <div class="formula-title">Ohm's Law - Resistance Form</div>
+                        <div class="formula-equation">R = V/I</div>
+                        <div class="formula-explanation">
+                            Resistance (R) = Voltage (V) ÷ Current (I)
+                            <br>• Resistance is measured in Ohms (Ω)
+                            <br>• Higher resistance = Less current for same voltage
+                            <br>• Lower resistance = More current for same voltage
+                            <br>• 1 Ohm = 1 Volt per Ampere
+                        </div>
+                    </div>
+
+                    <div class="wire-demo">
+                        <div class="wire-container">
+                            <h4 style="text-align: center; color: #4a9eff; margin-bottom: 20px;">Wire Thickness Effect</h4>
+                            
+                            <div class="wire-visual wire-thin">
+                                <div class="electron-flow" style="--flow-speed: 6s;"></div>
+                                <div class="electron-flow" style="--flow-speed: 6s; animation-delay: 2s;"></div>
+                            </div>
+                            <div class="resistance-label high-resistance">Thin Wire - High Resistance - Slow Current</div>
+                            
+                            <div class="wire-visual wire-thick">
+                                <div class="electron-flow" style="--flow-speed: 2s;"></div>
+                                <div class="electron-flow" style="--flow-speed: 2s; animation-delay: 0.5s;"></div>
+                                <div class="electron-flow" style="--flow-speed: 2s; animation-delay: 1s;"></div>
+                            </div>
+                            <div class="resistance-label low-resistance">Thick Wire - Low Resistance - Fast Current</div>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(241, 196, 15, 0.1); border: 2px solid rgba(241, 196, 15, 0.3); border-radius: 10px; padding: 20px; margin: 20px 0; text-align: center;">
+                        <h4 style="color: #f1c40f; margin-bottom: 10px;">Key Analogy:</h4>
+                        <p style="margin: 0; color: #ddd;">
+                            Think of resistance like a narrow pipe restricting water flow. 
+                            A thicker pipe (lower resistance) allows more water (current) to flow.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Section 2: Factors Affecting Resistance -->
+                <div class="concept-section fade-in animate-delay-1">
+                    <h2 class="section-title">Factors Affecting Resistance</h2>
+                    
+                    <p style="font-size: 1.2rem; line-height: 1.8; margin-bottom: 30px; text-align: center;">
+                        Four main factors determine the resistance of a conductor: 
+                        length, cross-sectional area, material, and temperature.
+                    </p>
+
+                    <div class="formula-box">
+                        <div class="formula-title">Resistance Formula</div>
+                        <div class="formula-equation">R = ρL/A</div>
+                        <div class="formula-explanation">
+                            R = Resistance, ρ = Resistivity, L = Length, A = Cross-sectional Area
+                            <br>• Longer wire → Higher resistance
+                            <br>• Thicker wire → Lower resistance  
+                            <br>• Different materials → Different resistivity
+                            <br>• Higher temperature → Usually higher resistance
+                        </div>
+                    </div>
+
+                    <div class="wire-demo">
+                        <div class="wire-container">
+                            <h4 style="text-align: center; color: #4a9eff; margin-bottom: 20px;">Length Effect</h4>
+                            
+                            <div class="wire-visual wire-short">
+                                <div class="electron-flow" style="--flow-speed: 2s;"></div>
+                                <div class="electron-flow" style="--flow-speed: 2s; animation-delay: 1s;"></div>
+                            </div>
+                            <div class="resistance-label low-resistance">Short Wire - Low Resistance</div>
+                            
+                            <div class="wire-visual wire-long">
+                                <div class="electron-flow" style="--flow-speed: 5s;"></div>
+                                <div class="electron-flow" style="--flow-speed: 5s; animation-delay: 2.5s;"></div>
+                            </div>
+                            <div class="resistance-label medium-resistance">Long Wire - Higher Resistance</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Materials and Resistance -->
+                <div class="concept-section fade-in animate-delay-2">
+                    <h2 class="section-title">Materials and Their Resistance</h2>
+                    
+                    <p style="font-size: 1.2rem; line-height: 1.8; margin-bottom: 30px; text-align: center;">
+                        Different materials have vastly different resistance properties, 
+                        from excellent conductors to perfect insulators.
+                    </p>
+
+                    <div class="material-demo">
+                        <div class="material-sample conductor">
+                            <div class="material-visual" style="background: linear-gradient(45deg, #3498db, #2980b9);">
+                                🔌
+                            </div>
+                            <h4>Conductors</h4>
+                            <p style="font-size: 0.9rem; margin: 10px 0;">Very Low Resistance</p>
+                            <p style="font-size: 0.8rem; color: #bbb;">
+                                Copper, Silver, Gold<br>
+                                Resistivity: ~10⁻⁸ Ω·m
+                            </p>
+                        </div>
+                        
+                        <div class="material-sample semiconductor">
+                            <div class="material-visual" style="background: linear-gradient(45deg, #f39c12, #e67e22);">
+                                💎
+                            </div>
+                            <h4>Semiconductors</h4>
+                            <p style="font-size: 0.9rem; margin: 10px 0;">Variable Resistance</p>
+                            <p style="font-size: 0.8rem; color: #bbb;">
+                                Silicon, Germanium<br>
+                                Resistivity: ~10⁻⁴ to 10⁶ Ω·m
+                            </p>
+                        </div>
+                        
+                        <div class="material-sample insulator">
+                            <div class="material-visual" style="background: linear-gradient(45deg, #9b59b6, #8e44ad);">
+                                🛡️
+                            </div>
+                            <h4>Insulators</h4>
+                            <p style="font-size: 0.9rem; margin: 10px 0;">Very High Resistance</p>
+                            <p style="font-size: 0.8rem; color: #bbb;">
+                                Rubber, Glass, Ceramic<br>
+                                Resistivity: >10¹² Ω·m
+                            </p>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(52, 152, 219, 0.1); border: 2px solid rgba(52, 152, 219, 0.3); border-radius: 10px; padding: 20px; margin: 30px 0; text-align: center;">
+                        <h4 style="color: #3498db; margin-bottom: 10px;">Fun Fact:</h4>
+                        <p style="margin: 0; color: #ddd;">
+                            The difference in resistivity between the best conductor (silver) and a good insulator (glass) 
+                            is about 20 orders of magnitude - that's 100,000,000,000,000,000,000 times!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Section 4: Resistor Color Codes -->
+                <div class="concept-section fade-in animate-delay-3">
+                    <h2 class="section-title">Resistor Color Codes</h2>
+                    
+                    <p style="font-size: 1.2rem; line-height: 1.8; margin-bottom: 30px; text-align: center;">
+                        Resistors use color bands to indicate their resistance value. 
+                        Learn to read these codes to identify resistance values.
+                    </p>
+
+                    <div class="resistor-demo">
+                        <div class="resistor-visual">
+                            <div class="color-band band-1" id="band-1"></div>
+                            <div class="color-band band-2" id="band-2"></div>
+                            <div class="color-band band-3" id="band-3"></div>
+                            <div class="color-band band-4" id="band-4"></div>
+                        </div>
+                        <div class="resistance-value" id="resistor-value">220Ω ±5%</div>
+                        <div class="band-explanation" id="band-explanation">
+                            Click on a color band to learn more!
+                        </div>
+                    </div>
+
+                    <div class="value-selector">
+                        <button class="value-btn" onclick="setResistorValue(220, 5)">220Ω</button>
+                        <button class="value-btn active" onclick="setResistorValue(1000, 5)">1kΩ</button>
+                        <button class="value-btn" onclick="setResistorValue(4700, 5)">4.7kΩ</button>
+                        <button class="value-btn" onclick="setResistorValue(10000, 5)">10kΩ</button>
+                        <button class="value-btn" onclick="setResistorValue(47000, 10)">47kΩ</button>
+                        <button class="value-btn" onclick="setResistorValue(100000, 5)">100kΩ</button>
+                        <button class="value-btn" onclick="setResistorValue(470000, 5)">470kΩ</button>
+                        <button class="value-btn" onclick="setResistorValue(1000000, 20)">1MΩ</button>
+                    </div>
+
+                    <div class="color-chart">
+                        <div class="color-item">
+                            <div class="color-sample" style="background: #000000;"></div>
+                            <div class="color-info">
+                                <div class="color-name">Black</div>
+                                <div class="color-value">0</div>
+                            </div>
+                        </div>
+                        <div class="color-item">
+                            <div class="color-sample" style="background: #8B4513;"></div>
+                            <div class="color-info">
+                                <div class="color-name">Brown</div>
+                                <div class="color-value">1</div>
+                            </div>
+                        </div>
+                        <div class="color-item">
+                            <div class="color-sample" style="background: #FF0000;"></div>
+                            <div class="color-info">
+                                <div class="color-name">Red</div>
+                                <div class="color-value">2</div>
+                            </div>
+                        </div>
+                        <div class="color-item">
+                            <div class="color-sample" style="background: #FFA500;"></div>
+                            <div class="color-info">
+                                <div class="color-name">Orange</div>
+                                <div class="color-value">3</div>
+                            </div>
+                        </div>
+                        <div class="color-item">
+                            <div class="color-sample" style="background: #FFFF00;"></div>
+                            <div class="color-info">
+                                <div class="color-name">Yellow</div>
+                                <div class="color-value">4</div>
+                            </div>
+                        </div>
+                        <div class="color-item">
+                            <div class="color-sample" style="background: #008000;"></div>
+                            <div class="color-info">
+                                <div class="color-name">Green</div>
+                                <div class="color-value">5</div>
+                            </div>
+                        </div>
+                        <div class="color-item">
+                            <div class="color-sample" style="background: #0000FF;"></div>
+                            <div class="color-info">
+                                <div class="color-name">Blue</div>
+                                <div class="color-value">6</div>
+                            </div>
+                        </div>
+                        <div class="color-item">
+                            <div class="color-sample" style="background: #8A2BE2;"></div>
+                            <div class="color-info">
+                                <div class="color-name">Violet</div>
+                                <div class="color-value">7</div>
+                            </div>
+                        </div>
+                        <div class="color-item">
+                            <div class="color-sample" style="background: #808080;"></div>
+                            <div class="color-info">
+                                <div class="color-name">Gray</div>
+                                <div class="color-value">8</div>
+                            </div>
+                        </div>
+                        <div class="color-item">
+                            <div class="color-sample" style="background: #FFFFFF; border-color: #333;"></div>
+                            <div class="color-info">
+                                <div class="color-name">White</div>
+                                <div class="color-value">9</div>
+                            </div>
+                        </div>
+                        <div class="color-item">
+                            <div class="color-sample" style="background: #FFD700;"></div>
+                            <div class="color-info">
+                                <div class="color-name">Gold</div>
+                                <div class="color-value">±5%</div>
+                            </div>
+                        </div>
+                        <div class="color-item">
+                            <div class="color-sample" style="background: #C0C0C0;"></div>
+                            <div class="color-info">
+                                <div class="color-name">Silver</div>
+                                <div class="color-value">±10%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; margin: 30px 0;">
+                        <button class="animate-btn" onclick="demonstrateResistance()">▶ Auto Resistance Demo</button>
+                        <button class="animate-btn" onclick="showColorCode()">🎨 Color Code Guide</button>
+                        <button class="animate-btn" onclick="animateColorBands()">🌈 Animate Bands</button>
+                        <button class="animate-btn" onclick="resetResistorDemo()">↻ Reset Demo</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Script -->
+    <script>
+        // Initialize the experience
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                hideLoadingScreen();
+                initializeAnimations();
+                initializeAudio();
+                setupResistanceControl();
+            }, 2000);
+        });
+
+        // Audio Control Variables
+        let audioEnabled = true;
+        let currentAudio = null;
+        let speechSynthesis = window.speechSynthesis;
+        let currentResistance = 100;
+        let currentResistorValue = 1000;
+        let currentTolerance = 5;
+
+        // Color Code System
+        const colorValues = {
+            '#000000': { name: 'Black', value: 0 },
+            '#8B4513': { name: 'Brown', value: 1 },
+            '#FF0000': { name: 'Red', value: 2 },
+            '#FFA500': { name: 'Orange', value: 3 },
+            '#FFFF00': { name: 'Yellow', value: 4 },
+            '#008000': { name: 'Green', value: 5 },
+            '#0000FF': { name: 'Blue', value: 6 },
+            '#8A2BE2': { name: 'Violet', value: 7 },
+            '#808080': { name: 'Gray', value: 8 },
+            '#FFFFFF': { name: 'White', value: 9 }
+        };
+
+        const toleranceColors = {
+            '#8B4513': { name: 'Brown', value: 1 }, // ±1%
+            '#FF0000': { name: 'Red', value: 2 },   // ±2%
+            '#FFD700': { name: 'Gold', value: 5 },  // ±5%
+            '#C0C0C0': { name: 'Silver', value: 10 } // ±10%
+        };
+
+        function getColorFromValue(value) {
+            for (const [color, data] of Object.entries(colorValues)) {
+                if (data.value === value) return color;
+            }
+            return '#000000';
+        }
+
+        function getToleranceColor(tolerance) {
+            for (const [color, data] of Object.entries(toleranceColors)) {
+                if (data.value === tolerance) return color;
+            }
+            return '#FFD700'; // Default to gold (5%)
+        }
+
+        function calculateColorBands(resistance, tolerance) {
+            let resistanceStr = resistance.toString();
+            
+            // Handle values less than 10
+            if (resistance < 10) {
+                resistanceStr = resistance.toString() + '0';
+            }
+            
+            // Get first two significant digits
+            let firstDigit = parseInt(resistanceStr[0]);
+            let secondDigit = parseInt(resistanceStr[1] || '0');
+            
+            // Calculate multiplier (number of zeros after first two digits)
+            let multiplier = resistanceStr.length - 2;
+            if (resistance < 10) multiplier = 0;
+            
+            // Get colors
+            const band1Color = getColorFromValue(firstDigit);
+            const band2Color = getColorFromValue(secondDigit);
+            const band3Color = getColorFromValue(multiplier);
+            const band4Color = getToleranceColor(tolerance);
+            
+            return {
+                band1: { color: band1Color, value: firstDigit, name: colorValues[band1Color].name },
+                band2: { color: band2Color, value: secondDigit, name: colorValues[band2Color].name },
+                band3: { color: band3Color, value: multiplier, name: colorValues[band3Color].name },
+                band4: { color: band4Color, tolerance: tolerance, name: toleranceColors[band4Color].name }
+            };
+        }
+
+        function setResistorValue(resistance, tolerance = 5) {
+            currentResistorValue = resistance;
+            currentTolerance = tolerance;
+            
+            // Update active button - find the clicked button
+            document.querySelectorAll('.value-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.includes(formatResistanceValue(resistance))) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Calculate and display color bands
+            const bands = calculateColorBands(resistance, tolerance);
+            updateColorBands(bands);
+            
+            // Update resistance display
+            updateResistanceValueDisplay(resistance, tolerance);
+            
+            if (audioEnabled) {
+                const resistanceText = formatResistanceValue(resistance);
+                speakText(`Resistor value set to ${resistanceText} with ${tolerance} percent tolerance.`);
+            }
+        }
+
+        function updateColorBands(bands) {
+            const band1 = document.getElementById('band-1');
+            const band2 = document.getElementById('band-2');
+            const band3 = document.getElementById('band-3');
+            const band4 = document.getElementById('band-4');
+            
+            // Animate band color changes
+            animateBandColorChange(band1, bands.band1.color);
+            animateBandColorChange(band2, bands.band2.color);
+            animateBandColorChange(band3, bands.band3.color);
+            animateBandColorChange(band4, bands.band4.color);
+            
+            // Add click listeners for explanations
+            setupBandClickListeners(bands);
+        }
+
+        function animateBandColorChange(bandElement, newColor) {
+            // Fade out
+            bandElement.style.opacity = '0';
+            bandElement.style.transform = 'scale(0.8)';
+            
+            setTimeout(() => {
+                bandElement.style.backgroundColor = newColor;
+                // Fade in
+                bandElement.style.opacity = '1';
+                bandElement.style.transform = 'scale(1)';
+            }, 150);
+        }
+
+        function setupBandClickListeners(bands) {
+            const explanationElement = document.getElementById('band-explanation');
+            
+            document.getElementById('band-1').onclick = () => {
+                showBandExplanation(`1st Digit: ${bands.band1.name} = ${bands.band1.value}`);
+            };
+            
+            document.getElementById('band-2').onclick = () => {
+                showBandExplanation(`2nd Digit: ${bands.band2.name} = ${bands.band2.value}`);
+            };
+            
+            document.getElementById('band-3').onclick = () => {
+                const multiplierText = bands.band3.value === 0 ? '×1' : `×10^${bands.band3.value}`;
+                showBandExplanation(`Multiplier: ${bands.band3.name} = ${multiplierText}`);
+            };
+            
+            document.getElementById('band-4').onclick = () => {
+                showBandExplanation(`Tolerance: ${bands.band4.name} = ±${bands.band4.tolerance}%`);
+            };
+        }
+
+        function showBandExplanation(text) {
+            const explanationElement = document.getElementById('band-explanation');
+            explanationElement.textContent = text;
+            explanationElement.classList.add('active');
+            
+            setTimeout(() => {
+                explanationElement.classList.remove('active');
+            }, 3000);
+        }
+
+        function updateResistanceValueDisplay(resistance, tolerance) {
+            const formattedValue = formatResistanceValue(resistance);
+            document.getElementById('resistor-value').textContent = `${formattedValue} ±${tolerance}%`;
+        }
+
+        function formatResistanceValue(resistance) {
+            if (resistance >= 1000000) {
+                return `${(resistance / 1000000).toFixed(1)}MΩ`;
+            } else if (resistance >= 1000) {
+                return `${(resistance / 1000).toFixed(1)}kΩ`;
+            } else {
+                return `${resistance}Ω`;
+            }
+        }
+
+        function animateColorBands() {
+            const bands = [
+                document.getElementById('band-1'),
+                document.getElementById('band-2'),
+                document.getElementById('band-3'),
+                document.getElementById('band-4')
+            ];
+            
+            bands.forEach((band, index) => {
+                setTimeout(() => {
+                    band.classList.add('highlight');
+                    setTimeout(() => {
+                        band.classList.remove('highlight');
+                    }, 800);
+                }, index * 300);
+            });
+            
+            if (audioEnabled) {
+                setTimeout(() => {
+                    speakText("Color bands represent digits and multipliers. The first two bands are significant digits, the third is the multiplier, and the fourth shows tolerance.");
+                }, 1200);
+            }
+        }
+
+        // Audio Content Scripts
+        const audioScripts = {
+            intro: "Welcome to understanding electrical resistance. Resistance is the opposition to electric current flow through materials. It determines how much current flows for a given voltage.",
+            resistance: "Resistance is measured in ohms. According to Ohm's law, resistance equals voltage divided by current. Higher resistance means less current flow for the same voltage.",
+            factors: "Four factors affect resistance: length, cross-sectional area, material type, and temperature. Longer wires have more resistance. Thicker wires have less resistance. Different materials have different resistivity values.",
+            materials: "Materials are classified as conductors, semiconductors, or insulators based on their resistance. Conductors like copper have very low resistance. Insulators like rubber have extremely high resistance.",
+            colorCodes: "Resistors use color bands to show their value. Each color represents a number. The first two bands are digits, the third is a multiplier, and the fourth shows tolerance."
+        };
+
+        function initializeAudio() {
+            const audioObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && audioEnabled) {
+                        const section = entry.target;
+                        playAudioForSection(section);
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            const sections = document.querySelectorAll('.concept-section');
+            sections.forEach(section => audioObserver.observe(section));
+
+            setTimeout(() => {
+                if (audioEnabled) {
+                    speakText(audioScripts.intro);
+                }
+            }, 3000);
+
+            // Initialize with default resistor value
+            setTimeout(() => {
+                const bands = calculateColorBands(currentResistorValue, currentTolerance);
+                updateColorBands(bands);
+                updateResistanceValueDisplay(currentResistorValue, currentTolerance);
+            }, 100);
+        }
+
+        function playAudioForSection(section) {
+            const sectionTitle = section.querySelector('.section-title');
+            if (!sectionTitle) return;
+
+            const title = sectionTitle.textContent;
+            stopCurrentAudio();
+
+            if (title.includes('What is')) {
+                speakText(audioScripts.resistance);
+            } else if (title.includes('Factors')) {
+                speakText(audioScripts.factors);
+            } else if (title.includes('Materials')) {
+                speakText(audioScripts.materials);
+            } else if (title.includes('Color')) {
+                speakText(audioScripts.colorCodes);
+            }
+        }
+
+        function speakText(text) {
+            if (!audioEnabled || !speechSynthesis) return;
+
+            stopCurrentAudio();
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.9;
+            utterance.pitch = 1.0;
+            utterance.volume = 0.8;
+            
+            let voices = speechSynthesis.getVoices();
+            if (voices.length === 0) {
+                speechSynthesis.addEventListener('voiceschanged', () => {
+                    voices = speechSynthesis.getVoices();
+                    setVoiceAndSpeak(utterance, voices, text);
+                });
+            } else {
+                setVoiceAndSpeak(utterance, voices, text);
+            }
+        }
+
+        function setVoiceAndSpeak(utterance, voices, text) {
+            const preferredVoice = voices.find(voice => 
+                voice.name.includes('Samantha') || 
+                voice.name.includes('Karen') || 
+                voice.name.includes('Susan') ||
+                voice.name.includes('Alex') ||
+                (voice.lang.startsWith('en-') && voice.name.includes('Female'))
+            ) || voices.find(voice => voice.lang.startsWith('en-')) || voices[0];
+            
+            if (preferredVoice) {
+                utterance.voice = preferredVoice;
+            }
+
+            utterance.onstart = () => showAudioIndicator(text);
+            utterance.onend = () => {
+                hideAudioIndicator();
+                currentAudio = null;
+            };
+            utterance.onerror = () => {
+                hideAudioIndicator();
+                currentAudio = null;
+            };
+
+            currentAudio = utterance;
+            speechSynthesis.speak(utterance);
+        }
+
+        function showAudioIndicator(text) {
+            const indicator = document.getElementById('audio-indicator');
+            const textElement = document.getElementById('audio-text');
+            
+            if (indicator && textElement) {
+                const shortText = text.length > 50 ? text.substring(0, 50) + '...' : text;
+                textElement.textContent = shortText;
+                indicator.classList.add('active');
+            }
+        }
+
+        function hideAudioIndicator() {
+            const indicator = document.getElementById('audio-indicator');
+            if (indicator) {
+                indicator.classList.remove('active');
+            }
+        }
+
+        function stopCurrentAudio() {
+            if (speechSynthesis.speaking) {
+                speechSynthesis.cancel();
+            }
+            hideAudioIndicator();
+            currentAudio = null;
+        }
+
+        function hideLoadingScreen() {
+            const loadingScreen = document.getElementById('loading-screen');
+            loadingScreen.classList.remove('active');
+        }
+
+        function initializeAnimations() {
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.animationPlayState = 'running';
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.fade-in').forEach(el => {
+                el.style.animationPlayState = 'paused';
+                observer.observe(el);
+            });
+        }
+
+        // Resistance Control
+        function setupResistanceControl() {
+            // Initialize with default resistor value
+            const bands = calculateColorBands(currentResistorValue, currentTolerance);
+            updateColorBands(bands);
+            updateResistanceValueDisplay(currentResistorValue, currentTolerance);
+        }
+
+        function demonstrateResistance() {
+            // Demonstrate different resistance values using the preset buttons
+            const resistanceValues = [220, 1000, 4700, 10000, 47000, 100000];
+            let currentIndex = 0;
+            
+            function showNextResistance() {
+                if (currentIndex < resistanceValues.length) {
+                    const resistance = resistanceValues[currentIndex];
+                    const tolerance = resistance === 47000 ? 10 : 5;
+                    
+                    // Update resistor value
+                    setResistorValue(resistance, tolerance);
+                    
+                    if (audioEnabled) {
+                        const resistanceText = formatResistanceValue(resistance);
+                        const bands = calculateColorBands(resistance, tolerance);
+                        speakText(`Resistor value: ${resistanceText}. Color bands are ${bands.band1.name}, ${bands.band2.name}, ${bands.band3.name}, and ${bands.band4.name} for tolerance.`);
+                    }
+                    
+                    currentIndex++;
+                    setTimeout(showNextResistance, 4000);
+                }
+            }
+            
+            showNextResistance();
+        }
+
+        function resetResistorDemo() {
+            // Reset to default 1kΩ resistor
+            setResistorValue(1000, 5);
+        }
+
+        function showColorCode() {
+            if (audioEnabled) {
+                const bands = calculateColorBands(currentResistorValue, currentTolerance);
+                const resistanceText = formatResistanceValue(currentResistorValue);
+                speakText(`This ${resistanceText} resistor has ${bands.band1.name} for the first digit, ${bands.band2.name} for the second digit, ${bands.band3.name} for the multiplier, and ${bands.band4.name} for ${currentTolerance} percent tolerance.`);
+            }
+            
+            // Animate color bands with detailed explanations
+            animateColorBands();
+        }
+
+        // Audio control
+        document.getElementById('mute-btn')?.addEventListener('click', function() {
+            this.classList.toggle('muted');
+            audioEnabled = !audioEnabled;
+            
+            if (!audioEnabled) {
+                stopCurrentAudio();
+            }
+        });
+
+        // Smooth scrolling
+        document.addEventListener('wheel', (e) => {
+            if (Math.abs(e.deltaY) > 50) {
+                e.preventDefault();
+                const scrollAmount = e.deltaY > 0 ? 100 : -100;
+                window.scrollBy({
+                    top: scrollAmount,
+                    behavior: 'smooth'
+                });
+            }
+        });
+
+        // Bounce animation for scroll hint
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes bounce {
+                0%, 100% { transform: translateX(-50%) translateY(0); }
+                50% { transform: translateX(-50%) translateY(-10px); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html> 
