@@ -25,20 +25,42 @@ const CARTESIA_CONFIG = {
     
     // Playback Settings
     volume: 0.8,
-    fallbackEnabled: true // Use browser TTS if Cartesia fails
+    fallbackEnabled: false // DISABLED: Only use Cartesia, no browser TTS
 };
 
-// Enhanced Cartesia TTS Integration
+// Enhanced Cartesia TTS Integration - NO BROWSER TTS FALLBACK
 class CartesiaTTS {
     constructor(config = CARTESIA_CONFIG) {
         this.config = config;
         this.currentAudioElement = null;
         this.isEnabled = true;
+        this.isCartesiaAvailable = true;
         
         // Check API key configuration
         if (this.config.apiKey === 'YOUR_API_KEY_HERE') {
-            console.warn('⚠️ Cartesia API key not configured. Using fallback browser TTS.');
+            console.warn('⚠️ Cartesia API key not configured. Audio disabled.');
             console.info('💡 Get your API key at: https://cartesia.ai');
+            this.isCartesiaAvailable = false;
+        }
+        
+        // Completely disable browser TTS to prevent conflicts
+        this.disableBrowserTTS();
+    }
+    
+    disableBrowserTTS() {
+        // Override browser speechSynthesis to prevent conflicts
+        if (window.speechSynthesis) {
+            // Cancel any existing browser TTS
+            window.speechSynthesis.cancel();
+            
+            // Override speak function to prevent browser TTS
+            const originalSpeak = window.speechSynthesis.speak;
+            window.speechSynthesis.speak = function() {
+                console.log('🚫 Browser TTS blocked - using Cartesia only');
+                return;
+            };
+            
+            console.log('✅ Browser TTS disabled - Cartesia voice only');
         }
     }
     
@@ -48,17 +70,16 @@ class CartesiaTTS {
             return;
         }
         
-        if (!this.config.apiKey || this.config.apiKey === 'YOUR_API_KEY_HERE') {
-            console.log('🔄 Using fallback TTS (API key not configured)');
-            this.fallbackToWebSpeech(text);
+        if (!this.isCartesiaAvailable || !this.config.apiKey || this.config.apiKey === 'YOUR_API_KEY_HERE') {
+            console.log('❌ Cartesia not available - audio disabled');
             return;
         }
         
         try {
-            // Stop any currently playing audio
+            // ALWAYS stop any existing audio first
             this.stop();
             
-            // Show loading indicator (optional)
+            // Show loading indicator
             this.showLoadingIndicator();
             
             // Prepare API request
@@ -96,94 +117,50 @@ class CartesiaTTS {
             
             // Set up event listeners
             this.currentAudioElement.addEventListener('loadstart', () => {
-                console.log('🎵 Audio loading...');
+                console.log('🎵 Cartesia audio loading...');
                 this.hideLoadingIndicator();
             });
             
             this.currentAudioElement.addEventListener('canplay', () => {
-                console.log('✅ Audio ready to play');
+                console.log('✅ Cartesia audio ready to play');
             });
             
             this.currentAudioElement.addEventListener('ended', () => {
-                console.log('🏁 Audio playback finished');
+                console.log('🏁 Cartesia audio finished');
                 URL.revokeObjectURL(audioUrl);
                 this.currentAudioElement = null;
             });
             
             this.currentAudioElement.addEventListener('error', (e) => {
-                console.error('❌ Audio playback error:', e);
+                console.error('❌ Cartesia audio error:', e);
                 URL.revokeObjectURL(audioUrl);
                 this.currentAudioElement = null;
-                
-                if (this.config.fallbackEnabled) {
-                    console.log('🔄 Falling back to browser TTS');
-                    this.fallbackToWebSpeech(text);
-                }
             });
             
             // Start playback
             await this.currentAudioElement.play();
-            console.log('▶️ Playing Cartesia-generated audio');
+            console.log('▶️ Playing Cartesia voice');
             
         } catch (error) {
             console.error('❌ Cartesia TTS error:', error);
             this.hideLoadingIndicator();
-            
-            if (this.config.fallbackEnabled) {
-                console.log('🔄 Falling back to browser TTS');
-                this.fallbackToWebSpeech(text);
-            }
+            // NO FALLBACK - just fail silently
         }
-    }
-    
-    fallbackToWebSpeech(text) {
-        if (!this.isEnabled) return;
-        
-        // Cancel any existing speech
-        if (window.speechSynthesis.speaking) {
-            window.speechSynthesis.cancel();
-        }
-        
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 0.9;
-        utterance.pitch = 1.0;
-        utterance.volume = this.config.volume;
-        
-        // Try to use a high-quality voice
-        const voices = window.speechSynthesis.getVoices();
-        const preferredVoice = voices.find(voice => 
-            voice.name.includes('Google') || 
-            voice.name.includes('Microsoft') || 
-            voice.name.includes('Alex') ||
-            voice.name.includes('Samantha') ||
-            voice.name.includes('Daniel') ||
-            voice.lang.includes('en-US')
-        );
-        
-        if (preferredVoice) {
-            utterance.voice = preferredVoice;
-            console.log(`🎭 Using voice: ${preferredVoice.name}`);
-        }
-        
-        utterance.onstart = () => console.log('▶️ Browser TTS started');
-        utterance.onend = () => console.log('🏁 Browser TTS finished');
-        utterance.onerror = (e) => console.error('❌ Browser TTS error:', e);
-        
-        window.speechSynthesis.speak(utterance);
     }
     
     stop() {
         // Stop Cartesia audio
         if (this.currentAudioElement) {
             this.currentAudioElement.pause();
+            this.currentAudioElement.currentTime = 0;
             this.currentAudioElement = null;
             console.log('⏹️ Stopped Cartesia audio');
         }
         
-        // Stop browser TTS
+        // Also stop any browser TTS that might have slipped through
         if (window.speechSynthesis && window.speechSynthesis.speaking) {
             window.speechSynthesis.cancel();
-            console.log('⏹️ Stopped browser TTS');
+            console.log('⏹️ Stopped any browser TTS');
         }
         
         this.hideLoadingIndicator();
@@ -191,7 +168,7 @@ class CartesiaTTS {
     
     toggle() {
         this.isEnabled = !this.isEnabled;
-        console.log(`🔊 Audio ${this.isEnabled ? 'enabled' : 'disabled'}`);
+        console.log(`🔊 Cartesia audio ${this.isEnabled ? 'enabled' : 'disabled'}`);
         
         if (!this.isEnabled) {
             this.stop();
@@ -201,39 +178,65 @@ class CartesiaTTS {
     }
     
     showLoadingIndicator() {
-        // Add visual loading indicator if needed
-        const existingIndicator = document.getElementById('tts-loading');
-        if (!existingIndicator) {
-            const indicator = document.createElement('div');
-            indicator.id = 'tts-loading';
-            indicator.innerHTML = '🎤 Generating speech...';
-            indicator.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: rgba(74, 158, 255, 0.9);
-                color: white;
-                padding: 10px 15px;
-                border-radius: 20px;
-                font-size: 0.9rem;
-                z-index: 9999;
-                backdrop-filter: blur(10px);
-                box-shadow: 0 4px 15px rgba(74, 158, 255, 0.3);
-            `;
-            document.body.appendChild(indicator);
-        }
+        // Remove any existing indicator first
+        this.hideLoadingIndicator();
+        
+        const indicator = document.createElement('div');
+        indicator.id = 'cartesia-loading';
+        indicator.innerHTML = '🎤 Generating Cartesia voice...';
+        indicator.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(74, 158, 255, 0.95);
+            color: white;
+            padding: 12px 18px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            z-index: 9999;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(74, 158, 255, 0.4);
+            border: 2px solid rgba(74, 158, 255, 0.6);
+            animation: cartesiaPulse 1.5s ease-in-out infinite;
+        `;
+        
+        // Add pulsing animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes cartesiaPulse {
+                0%, 100% { opacity: 0.8; transform: scale(1); }
+                50% { opacity: 1; transform: scale(1.05); }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        document.body.appendChild(indicator);
     }
     
     hideLoadingIndicator() {
-        const indicator = document.getElementById('tts-loading');
+        const indicator = document.getElementById('cartesia-loading');
         if (indicator) {
             indicator.remove();
         }
     }
 }
 
-// Create global TTS instance
+// Create global TTS instance - CARTESIA ONLY
 window.cartesiaTTS = new CartesiaTTS();
+
+// Override any existing TTS functions to use Cartesia only
+window.speakText = function(text) {
+    if (window.cartesiaTTS) {
+        window.cartesiaTTS.speak(text);
+    }
+};
+
+window.stopCurrentAudio = function() {
+    if (window.cartesiaTTS) {
+        window.cartesiaTTS.stop();
+    }
+};
 
 // Enhanced audio scripts for educational content
 const PHYSICS_AUDIO_SCRIPTS = {
