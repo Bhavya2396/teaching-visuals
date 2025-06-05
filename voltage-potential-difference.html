@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Voltage & Potential Difference - Interactive Physics</title>
     <link rel="stylesheet" href="parallax-style.css">
+    <script src="cartesia-config.js"></script>
     <style>
         /* Enhanced Educational Illustration Styles */
         :root {
@@ -1002,77 +1003,31 @@
         }
 
         function speakText(text) {
-            if (!audioEnabled || !speechSynthesis) return;
+            if (!audioEnabled) return;
 
-            stopCurrentAudio();
-
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 0.9;
-            utterance.pitch = 1.0;
-            utterance.volume = 0.8;
-            
-            let voices = speechSynthesis.getVoices();
-            if (voices.length === 0) {
-                speechSynthesis.addEventListener('voiceschanged', () => {
-                    voices = speechSynthesis.getVoices();
-                    setVoiceAndSpeak(utterance, voices, text);
-                });
-            } else {
-                setVoiceAndSpeak(utterance, voices, text);
-            }
-        }
-
-        function setVoiceAndSpeak(utterance, voices, text) {
-            const preferredVoice = voices.find(voice => 
-                voice.name.includes('Samantha') || 
-                voice.name.includes('Karen') || 
-                voice.name.includes('Susan') ||
-                voice.name.includes('Alex') ||
-                (voice.lang.startsWith('en-') && voice.name.includes('Female'))
-            ) || voices.find(voice => voice.lang.startsWith('en-')) || voices[0];
-            
-            if (preferredVoice) {
-                utterance.voice = preferredVoice;
-            }
-
-            utterance.onstart = () => showAudioIndicator(text);
-            utterance.onend = () => {
-                hideAudioIndicator();
-                currentAudio = null;
-            };
-            utterance.onerror = () => {
-                hideAudioIndicator();
-                currentAudio = null;
-            };
-
-            currentAudio = utterance;
-            speechSynthesis.speak(utterance);
-        }
-
-        function showAudioIndicator(text) {
-            const indicator = document.getElementById('audio-indicator');
-            const textElement = document.getElementById('audio-text');
-            
-            if (indicator && textElement) {
-                const shortText = text.length > 50 ? text.substring(0, 50) + '...' : text;
-                textElement.textContent = shortText;
-                indicator.classList.add('active');
-            }
-        }
-
-        function hideAudioIndicator() {
-            const indicator = document.getElementById('audio-indicator');
-            if (indicator) {
-                indicator.classList.remove('active');
+            // Use Cartesia TTS if available, otherwise fallback to browser TTS
+            if (window.cartesiaTTS) {
+                window.cartesiaTTS.speak(text);
             }
         }
 
         function stopCurrentAudio() {
-            if (speechSynthesis.speaking) {
-                speechSynthesis.cancel();
+            if (window.cartesiaTTS) {
+                window.cartesiaTTS.stop();
+            } else if (window.speechSynthesis && window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
             }
             hideAudioIndicator();
-            currentAudio = null;
+        }
+
+        function showAudioIndicator(text) {
+            // Optional: Add visual indicator for audio playback
+            console.log('🎵 Playing:', text.substring(0, 50) + '...');
+        }
+
+        function hideAudioIndicator() {
+            // Optional: Hide visual indicator
+            console.log('🔇 Audio finished');
         }
 
         function hideLoadingScreen() {

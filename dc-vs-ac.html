@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DC vs AC - Interactive Physics</title>
     <link rel="stylesheet" href="parallax-style.css">
+    <script src="cartesia-config.js"></script>
     <style>
         /* Enhanced DC vs AC Visualization Styles */
         :root {
@@ -236,32 +237,36 @@
 
         .control-buttons {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-            max-width: 600px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+            max-width: 900px;
             margin-left: auto;
             margin-right: auto;
+            padding: 0 20px;
         }
 
         .control-btn {
             background: linear-gradient(135deg, #4a9eff, #74b9ff);
             border: none;
             color: white;
-            padding: 14px 20px;
-            border-radius: 25px;
-            font-size: 0.95rem;
+            padding: 24px 32px;
+            border-radius: 30px;
+            font-size: 1.3rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(74, 158, 255, 0.3);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            min-height: 48px;
+            box-shadow: 0 6px 20px rgba(74, 158, 255, 0.3);
+            white-space: normal;
+            word-wrap: break-word;
+            hyphens: auto;
+            min-height: 80px;
             display: flex;
             align-items: center;
             justify-content: center;
+            text-align: center;
+            line-height: 1.5;
+            letter-spacing: 0.5px;
         }
 
         .control-btn:hover {
@@ -395,14 +400,18 @@
             
             .control-buttons {
                 grid-template-columns: 1fr;
-                gap: 12px;
-                max-width: 300px;
+                gap: 20px;
+                max-width: 100%;
+                padding: 0 15px;
+                margin: 25px 0;
             }
             
             .control-btn {
-                font-size: 0.9rem;
-                padding: 12px 16px;
-                min-height: 44px;
+                font-size: 1.2rem;
+                padding: 20px 28px;
+                min-height: 70px;
+                border-radius: 25px;
+                letter-spacing: 0.3px;
             }
             
             .hero-title {
@@ -430,12 +439,16 @@
         @media (max-width: 480px) {
             .control-buttons {
                 max-width: 100%;
+                padding: 0 10px;
+                gap: 18px;
             }
             
             .control-btn {
-                font-size: 0.85rem;
-                padding: 10px 14px;
-                min-height: 42px;
+                font-size: 1.1rem;
+                padding: 18px 24px;
+                min-height: 65px;
+                border-radius: 22px;
+                letter-spacing: 0.2px;
             }
             
             .interactive-controls {
@@ -448,6 +461,22 @@
             
             .current-type {
                 padding: 20px 15px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .control-buttons {
+                grid-template-columns: 1fr;
+                gap: 15px;
+                padding: 0 5px;
+            }
+            
+            .control-btn {
+                font-size: 1rem;
+                padding: 16px 20px;
+                min-height: 60px;
+                border-radius: 20px;
+                letter-spacing: 0.1px;
             }
         }
 
@@ -778,31 +807,30 @@
         </div>
     </div>
 
-    <!-- Enhanced Script -->
+    <!-- Enhanced Script with Cartesia Voice Integration -->
     <script>
         // Initialize the experience
         window.addEventListener('load', () => {
             setTimeout(() => {
                 hideLoadingScreen();
                 initializeAnimations();
-                initializeAudio();
+                initializeCartesiaAudio();
                 initializeWaveforms();
             }, 2000);
         });
 
         // Audio Control Variables
         let audioEnabled = true;
-        let speechSynthesis = window.speechSynthesis;
         let waveformAnimationId = null;
         let currentWaveformType = 'both';
 
-        // Audio Content Scripts
+        // Audio Content Scripts for DC vs AC
         const audioScripts = {
-            intro: "Welcome to understanding Direct Current versus Alternating Current. These are the two fundamental types of electrical current. DC flows in one direction continuously, while AC changes direction periodically.",
-            dc: "Direct Current flows steadily in one direction, like water flowing down a river. DC is produced by batteries and solar panels. It's used in electronics, phones, computers, and electric vehicles.",
-            ac: "Alternating Current changes direction periodically, typically 50 to 60 times per second. AC is used in household power because it can be easily transformed to different voltages and transmitted over long distances efficiently.",
-            comparison: "The key differences are direction, transmission, and applications. DC flows one way and is great for electronics and storage. AC alternates direction and excels at power transmission and household applications.",
-            history: "The Current Wars of the 1880s saw Edison promoting DC while Tesla championed AC. Tesla's AC system won for power grids due to efficient long-distance transmission, but today we use both types for different applications."
+            intro: PHYSICS_AUDIO_SCRIPTS.dc_vs_ac_intro,
+            dc: "Direct Current flows steadily in one direction, making it perfect for electronic devices and energy storage. DC is produced by batteries, solar panels, and fuel cells. You'll find DC powering your smartphone, laptop, electric vehicles, and LED lights. The consistent flow makes it ideal for precise electronic components.",
+            ac: "Alternating Current changes direction periodically, typically 50 to 60 times per second. This alternating nature allows AC to be easily transformed to different voltages using transformers. AC dominates household power because it can travel long distances efficiently and be stepped up or down in voltage as needed.",
+            comparison: "The key differences lie in their flow patterns, transmission capabilities, and applications. DC excels at powering electronics and energy storage, while AC dominates power transmission and household applications. Each has unique advantages that make them irreplaceable in modern electrical systems.",
+            history: PHYSICS_AUDIO_SCRIPTS.current_wars
         };
 
         function hideLoadingScreen() {
@@ -830,26 +858,12 @@
             });
         }
 
-        function initializeAudio() {
+        function initializeCartesiaAudio() {
             setTimeout(() => {
-                if (audioEnabled) {
-                    speakText(audioScripts.intro);
+                if (audioEnabled && window.cartesiaTTS) {
+                    window.cartesiaTTS.speak(audioScripts.intro);
                 }
             }, 3000);
-        }
-
-        function speakText(text) {
-            if (!audioEnabled || !speechSynthesis) return;
-
-            if (speechSynthesis.speaking) {
-                speechSynthesis.cancel();
-            }
-
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 0.9;
-            utterance.pitch = 1.0;
-            utterance.volume = 0.8;
-            speechSynthesis.speak(utterance);
         }
 
         // Waveform Functions
@@ -863,24 +877,24 @@
         function showDCWaveform() {
             currentWaveformType = 'dc';
             drawWaveforms();
-            if (audioEnabled) {
-                speakText(audioScripts.dc);
+            if (audioEnabled && window.cartesiaTTS) {
+                window.cartesiaTTS.speak(audioScripts.dc);
             }
         }
 
         function showACWaveform() {
             currentWaveformType = 'ac';
             drawWaveforms();
-            if (audioEnabled) {
-                speakText(audioScripts.ac);
+            if (audioEnabled && window.cartesiaTTS) {
+                window.cartesiaTTS.speak(audioScripts.ac);
             }
         }
 
         function showBothWaveforms() {
             currentWaveformType = 'both';
             drawWaveforms();
-            if (audioEnabled) {
-                speakText(audioScripts.comparison);
+            if (audioEnabled && window.cartesiaTTS) {
+                window.cartesiaTTS.speak(audioScripts.comparison);
             }
         }
 
@@ -1007,8 +1021,8 @@
                 electron.style.animationPlayState = 'running';
             });
             
-            if (audioEnabled) {
-                speakText("DC electrons flow steadily in one direction, like water flowing down a river. This consistent flow makes DC ideal for electronic devices and energy storage.");
+            if (audioEnabled && window.cartesiaTTS) {
+                window.cartesiaTTS.speak("DC electrons flow steadily in one direction, like water flowing down a river. This consistent flow makes DC ideal for electronic devices and energy storage in batteries and solar panels.");
             }
         }
 
@@ -1017,8 +1031,8 @@
                 electron.style.animationPlayState = 'running';
             });
             
-            if (audioEnabled) {
-                speakText("AC electrons alternate direction, typically 50 to 60 times per second. This alternating motion allows efficient voltage transformation and long-distance transmission.");
+            if (audioEnabled && window.cartesiaTTS) {
+                window.cartesiaTTS.speak("AC electrons alternate direction, typically 50 to 60 times per second. This alternating motion allows efficient voltage transformation and long-distance power transmission through the electrical grid.");
             }
         }
 
@@ -1026,6 +1040,10 @@
             document.querySelectorAll('.electron').forEach(electron => {
                 electron.style.animationPlayState = 'paused';
             });
+            
+            if (window.cartesiaTTS) {
+                window.cartesiaTTS.stop();
+            }
         }
 
         // Audio control
@@ -1033,8 +1051,8 @@
             this.classList.toggle('muted');
             audioEnabled = !audioEnabled;
             
-            if (!audioEnabled && speechSynthesis.speaking) {
-                speechSynthesis.cancel();
+            if (window.cartesiaTTS) {
+                window.cartesiaTTS.toggle();
             }
         });
 

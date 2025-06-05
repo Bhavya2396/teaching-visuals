@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ohm's Law - Interactive Physics</title>
     <link rel="stylesheet" href="parallax-style.css">
+    <script src="cartesia-config.js"></script>
     <style>
         /* Enhanced Ohm's Law Visualization Styles */
         :root {
@@ -661,17 +662,12 @@
         }
 
         function speakText(text) {
-            if (!audioEnabled || !speechSynthesis) return;
+            if (!audioEnabled) return;
 
-            if (speechSynthesis.speaking) {
-                speechSynthesis.cancel();
+            // Use Cartesia TTS if available, otherwise fallback to browser TTS
+            if (window.cartesiaTTS) {
+                window.cartesiaTTS.speak(text);
             }
-
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 0.9;
-            utterance.pitch = 1.0;
-            utterance.volume = 0.8;
-            speechSynthesis.speak(utterance);
         }
 
         function setupCalculator() {
