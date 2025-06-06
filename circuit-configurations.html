@@ -201,6 +201,9 @@
       .controls { flex-direction: column; gap: 18px; }
     }
   </style>
+
+    <!-- Cartesia Voice Integration -->
+    <script src="cartesia-config.js"></script>
 </head>
 <body>
   <div class="container">
@@ -1243,7 +1246,7 @@
 
     function speakFeedback(text) {
       if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
+        // speechSynthesis.cancel removed - using Cartesia only
         const utter = new window.SpeechSynthesisUtterance(text);
         utter.rate = 1.03;
         utter.pitch = 1.05;
@@ -1252,7 +1255,7 @@
         const voices = window.speechSynthesis.getVoices();
         const preferred = voices.find(v => v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('natural'));
         if (preferred) utter.voice = preferred;
-        window.speechSynthesis.speak(utter);
+        // Old browser TTS removed - using Cartesia only
       }
     }
 
@@ -1262,7 +1265,7 @@
       this.innerHTML = voiceFeedbackEnabled ? '🔊 Enabled' : '🔇 Disabled';
       this.style.background = voiceFeedbackEnabled ? 'var(--accent)' : '#666';
       if (!voiceFeedbackEnabled) {
-        window.speechSynthesis.cancel();
+        // speechSynthesis.cancel removed - using Cartesia only
       }
     });
 
@@ -1270,7 +1273,7 @@
     const voiceoverText = voiceFeedback.welcome;
     function playVoiceover() {
       if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
+        // speechSynthesis.cancel removed - using Cartesia only
         const utter = new window.SpeechSynthesisUtterance(voiceoverText);
         utter.rate = 1.03;
         utter.pitch = 1.05;
@@ -1279,7 +1282,7 @@
         const voices = window.speechSynthesis.getVoices();
         const preferred = voices.find(v => v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('natural'));
         if (preferred) utter.voice = preferred;
-        window.speechSynthesis.speak(utter);
+        // Old browser TTS removed - using Cartesia only
       }
     }
 

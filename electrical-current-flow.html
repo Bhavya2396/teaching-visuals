@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Electric Current Flow - Interactive Physics</title>
+    <title>Electric Current Flow - Physics Visualization</title>
     <link rel="stylesheet" href="parallax-style.css">
-    <script src="cartesia-config.js"></script>
     <style>
         /* Enhanced Educational Illustration Styles */
         :root {
@@ -689,50 +688,227 @@
 
     <!-- Enhanced Script -->
     <script>
+        // Standardized Humanistic Voice System
+        class HumanisticVoice {
+            constructor() {
+                this.isEnabled = true;
+                this.currentUtterance = null;
+                this.preferredVoice = null;
+                this.settings = {
+                    rate: 0.85,        // Slightly slower for better comprehension
+                    pitch: 1.0,        // Natural pitch
+                    volume: 0.9        // Clear but not overwhelming
+                };
+                this.initializeVoices();
+            }
+
+            initializeVoices() {
+                // Wait for voices to load
+                if (speechSynthesis.getVoices().length === 0) {
+                    speechSynthesis.onvoiceschanged = () => {
+                        this.selectPreferredVoice();
+                    };
+                } else {
+                    this.selectPreferredVoice();
+                }
+            }
+
+            selectPreferredVoice() {
+                const voices = speechSynthesis.getVoices();
+                
+                // Priority order for premium British female voices (most natural sounding)
+                const preferredVoiceNames = [
+                    'Serena',                    // Premium British English female
+                    'Kate',                      // High-quality British English
+                    'Stephanie',                 // British English female
+                    'Emma',                      // British English female  
+                    'Amy',                       // British English female
+                    'British English Female',    // Generic British female
+                    'English (UK) Female',       // UK female variant
+                    'Google UK English Female',  // Google's British voice
+                    'Microsoft Hazel',           // Microsoft UK voice
+                    'Daniel (Enhanced)',         // Enhanced British male as backup
+                    'Moira',                     // Irish English (close alternative)
+                    'Fiona',                     // Scottish English female
+                    'Samantha',                  // macOS natural voice (backup)
+                    'Karen',                     // Natural sounding (backup)
+                    'Alex',                      // Good for education (backup)
+                    'Google US English',         // Google's neural voice (backup)
+                    'Microsoft Zira',            // Microsoft natural voice (backup)
+                    'Microsoft David'            // Final backup option
+                ];
+
+                // Try to find preferred voices first - prioritizing British female voices
+                for (const voiceName of preferredVoiceNames) {
+                    const voice = voices.find(v => 
+                        v.name.toLowerCase().includes(voiceName.toLowerCase()) && 
+                        (v.lang.includes('en-GB') || v.lang.includes('en-UK') || v.lang.includes('en'))
+                    );
+                    if (voice) {
+                        this.preferredVoice = voice;
+                        console.log(`🎤 Selected premium voice: ${voice.name} (${voice.lang})`);
+                        return;
+                    }
+                }
+
+                // Enhanced fallback to any high-quality English voice with British preference
+                this.preferredVoice = voices.find(voice => {
+                    const name = voice.name.toLowerCase();
+                    const lang = voice.lang.toLowerCase();
+                    return (lang.includes('en-gb') || lang.includes('en-uk')) && 
+                           (name.includes('female') || name.includes('woman') || 
+                            name.includes('premium') || name.includes('enhanced') || 
+                            name.includes('natural') || !name.includes('compact'));
+                }) || voices.find(voice => {
+                    const name = voice.name.toLowerCase();
+                    return voice.lang.includes('en') && 
+                           (name.includes('premium') || name.includes('enhanced') || 
+                            name.includes('natural') || name.includes('female') ||
+                            !name.includes('compact'));
+                }) || voices.find(voice => voice.lang.includes('en')) || voices[0];
+
+                if (this.preferredVoice) {
+                    console.log(`🎤 Using voice: ${this.preferredVoice.name} (${this.preferredVoice.lang})`);
+                }
+            }
+
+            speak(text, options = {}) {
+                if (!this.isEnabled || !text || !('speechSynthesis' in window)) {
+                    return;
+                }
+
+                // Stop any current speech
+                this.stop();
+
+                // Create utterance with humanistic settings
+                const utterance = new SpeechSynthesisUtterance(text);
+                
+                // Apply settings
+                utterance.rate = options.rate || this.settings.rate;
+                utterance.pitch = options.pitch || this.settings.pitch;
+                utterance.volume = options.volume || this.settings.volume;
+                
+                // Set preferred voice
+                if (this.preferredVoice) {
+                    utterance.voice = this.preferredVoice;
+                }
+
+                // Event handlers for better user experience
+                utterance.onstart = () => {
+                    console.log('🎤 Speaking:', text.substring(0, 50) + '...');
+                    this.showAudioIndicator();
+                };
+
+                utterance.onend = () => {
+                    this.currentUtterance = null;
+                    this.hideAudioIndicator();
+                };
+
+                utterance.onerror = (event) => {
+                    console.error('Speech synthesis error:', event.error);
+                    this.currentUtterance = null;
+                    this.hideAudioIndicator();
+                };
+
+                // Store current utterance and speak
+                this.currentUtterance = utterance;
+                speechSynthesis.speak(utterance);
+
+                return utterance;
+            }
+
+            stop() {
+                if (speechSynthesis.speaking || speechSynthesis.pending) {
+                    speechSynthesis.cancel();
+                }
+                this.currentUtterance = null;
+                this.hideAudioIndicator();
+            }
+
+            toggle() {
+                this.isEnabled = !this.isEnabled;
+                if (!this.isEnabled) {
+                    this.stop();
+                }
+                return this.isEnabled;
+            }
+
+            setEnabled(enabled) {
+                this.isEnabled = enabled;
+                if (!enabled) {
+                    this.stop();
+                }
+            }
+
+            showAudioIndicator() {
+                const indicator = document.getElementById('audio-indicator');
+                if (indicator) {
+                    indicator.style.opacity = '1';
+                    indicator.style.transform = 'translateX(0)';
+                }
+            }
+
+            hideAudioIndicator() {
+                const indicator = document.getElementById('audio-indicator');
+                if (indicator) {
+                    indicator.style.opacity = '0';
+                    indicator.style.transform = 'translateX(100px)';
+                }
+            }
+        }
+
+        // Initialize global voice system
+        let humanVoice = null;
+        let audioEnabled = true;
+
+        // Audio content for Electrical Current
+        const audioContent = {
+            intro: "Welcome to understanding electrical current, the flow of electric charge through conductors. Current is what makes electricity useful, powering everything from light bulbs to computers. Let's visualize how electrons move to create this essential phenomenon.",
+            basicCurrent: "Electrical current is the flow of electric charge through a material. In most circuits, this means electrons moving through a conductor like copper wire. Current is measured in amperes, which represents the amount of charge flowing per second.",
+            currentVsElectron: "There's an important distinction between conventional current and actual electron flow. Conventional current flows from positive to negative, which is the direction we use for calculations. However, electrons actually move from negative to positive terminal, opposite to conventional current.",
+            circuit: "In this circuit, electrons flow from the negative terminal of the battery, through the resistor and wires, then back to the positive terminal. This complete path allows continuous current flow. The battery provides the energy that pushes electrons through the circuit.",
+            intensity: "Current intensity determines how many electrons flow per second. Higher current means more electrons moving through the conductor. This requires either higher voltage to push more electrons, or lower resistance to allow easier flow. Current intensity affects the power and brightness of electrical devices."
+        };
+
         // Initialize the experience
         window.addEventListener('load', () => {
             setTimeout(() => {
                 hideLoadingScreen();
                 initializeAnimations();
-                initializeAudio();
+                initializeVoiceSystem();
                 setupIntensityControl();
             }, 2000);
         });
 
-        // Audio Control Variables
-        let audioEnabled = true;
-        let currentAudio = null;
-        let speechSynthesis = window.speechSynthesis;
-        let currentFlowActive = false;
-        let circuitFlowActive = false;
-
-        // Audio Content Scripts
-        const audioScripts = {
-            intro: "Welcome to understanding electrical current. Current is the flow of electric charge through a conductor. We'll visualize how electrons move through wires to create electricity.",
-            basicCurrent: "Electrical current is measured in amperes and represents the amount of charge flowing per second. One ampere equals one coulomb of charge flowing per second.",
-            currentVsElectron: "There's an important distinction between conventional current and electron flow. Conventional current flows from positive to negative, while electrons actually move from negative to positive.",
-            circuit: "In a complete circuit, electrons flow from the battery through wires and components, then return to the battery. The battery provides energy to push electrons through the circuit.",
-            intensity: "Current intensity determines how many electrons flow per second. Higher current means more electrons moving through the conductor, which requires more voltage or less resistance."
-        };
-
-        function initializeAudio() {
+        function initializeVoiceSystem() {
+            humanVoice = new HumanisticVoice();
+            
+            // Enhanced intersection observer with better timing
             const audioObserver = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting && audioEnabled) {
                         const section = entry.target;
-                        playAudioForSection(section);
+                        // Add delay to prevent rapid-fire audio changes
+                        setTimeout(() => {
+                            if (entry.isIntersecting) { // Double-check still in view
+                                playAudioForSection(section);
+                            }
+                        }, 300);
                     }
                 });
-            }, { threshold: 0.5 });
+            }, { 
+                threshold: 0.4, // Lower threshold to catch sections earlier
+                rootMargin: '0px 0px -100px 0px' // Better margin for triggering
+            });
 
             const sections = document.querySelectorAll('.concept-section');
             sections.forEach(section => audioObserver.observe(section));
 
             setTimeout(() => {
                 if (audioEnabled) {
-                    speakText(audioScripts.intro);
+                    humanVoice.speak(audioContent.intro);
                 }
-            }, 3000);
+            }, 1500);
         }
 
         function playAudioForSection(section) {
@@ -740,45 +916,50 @@
             if (!sectionTitle) return;
 
             const title = sectionTitle.textContent;
-            stopCurrentAudio();
-
-            if (title.includes('What is Electrical Current')) {
-                speakText(audioScripts.basicCurrent);
-            } else if (title.includes('Conventional Current vs Electron Flow')) {
-                speakText(audioScripts.currentVsElectron);
-            } else if (title.includes('Current in a Simple Circuit')) {
-                speakText(audioScripts.circuit);
-            } else if (title.includes('Current Intensity')) {
-                speakText(audioScripts.intensity);
+            if (humanVoice) {
+                humanVoice.stop();
             }
+
+            // Brief pause to prevent audio overlap
+            setTimeout(() => {
+                if (!audioEnabled) return;
+                
+                if (title.includes('What is Electrical Current')) {
+                    humanVoice.speak(audioContent.basicCurrent);
+                } else if (title.includes('Conventional Current vs Electron Flow')) {
+                    humanVoice.speak(audioContent.currentVsElectron);
+                } else if (title.includes('Current in a Simple Circuit')) {
+                    humanVoice.speak(audioContent.circuit);
+                } else if (title.includes('Current Intensity')) {
+                    humanVoice.speak(audioContent.intensity);
+                }
+            }, 200);
         }
 
         function speakText(text) {
-            if (!audioEnabled) return;
-
-            // Use Cartesia TTS if available, otherwise fallback to browser TTS
-            if (window.cartesiaTTS) {
-                window.cartesiaTTS.speak(text);
+            if (humanVoice && audioEnabled) {
+                humanVoice.speak(text);
             }
         }
 
         function stopCurrentAudio() {
-            if (window.cartesiaTTS) {
-                window.cartesiaTTS.stop();
-            } else if (window.speechSynthesis && window.speechSynthesis.speaking) {
-                window.speechSynthesis.cancel();
+            if (humanVoice) {
+                humanVoice.stop();
             }
-            hideAudioIndicator();
         }
 
-        function showAudioIndicator(text) {
-            // Optional: Add visual indicator for audio playback
-            console.log('🎵 Playing:', text.substring(0, 50) + '...');
+        function toggleAudio() {
+            if (humanVoice) {
+                audioEnabled = humanVoice.toggle();
+                updateAudioButton();
+            }
         }
 
-        function hideAudioIndicator() {
-            // Optional: Hide visual indicator
-            console.log('🔇 Audio finished');
+        function updateAudioButton() {
+            const muteBtn = document.getElementById('mute-btn');
+            if (muteBtn) {
+                muteBtn.classList.toggle('muted', !audioEnabled);
+            }
         }
 
         function hideLoadingScreen() {
@@ -806,17 +987,23 @@
             });
         }
 
-        // Current Flow Animation Controls
+        // Current Flow Animation Controls with Synchronized Voice
         function startCurrentFlow() {
             currentFlowActive = true;
-            const electrons = document.querySelectorAll('#basic-wire .electron');
-            electrons.forEach(electron => {
-                electron.style.animationPlayState = 'running';
-            });
-
-            if (audioEnabled) {
-                speakText("Watch the electrons flowing through the conductor from left to right. This represents electrical current - the movement of electric charge through a material.");
+            
+            // Start voice narration first
+            if (audioEnabled && humanVoice) {
+                humanVoice.speak("Watch as electrons flow through the conductor. This movement of electric charge creates electrical current, measured in amperes.");
             }
+            
+            // Start animation after brief delay to sync with voice
+            setTimeout(() => {
+                const electrons = document.querySelectorAll('#basic-wire .electron');
+                electrons.forEach(electron => {
+                    electron.style.animationPlayState = 'running';
+                    electron.style.animationDuration = '4s'; // Slower animation to match voice
+                });
+            }, 800);
         }
 
         function stopCurrentFlow() {
@@ -825,18 +1012,29 @@
             electrons.forEach(electron => {
                 electron.style.animationPlayState = 'paused';
             });
+            
+            // Stop any current audio
+            if (humanVoice) {
+                humanVoice.stop();
+            }
         }
 
         function startCircuitFlow() {
             circuitFlowActive = true;
-            const circuitElectrons = document.querySelectorAll('.circuit-electron');
-            circuitElectrons.forEach(electron => {
-                electron.style.animationPlayState = 'running';
-            });
-
-            if (audioEnabled) {
-                speakText("In this circuit, electrons flow from the negative terminal of the battery, through the resistor and wires, and back to the positive terminal, completing the circuit.");
+            
+            // Start voice narration first
+            if (audioEnabled && humanVoice) {
+                humanVoice.speak("In a complete circuit, electrons flow from the negative terminal, through the circuit components, and back to the positive terminal. The battery provides the energy to maintain this continuous flow.");
             }
+            
+            // Start animation after brief delay to sync with voice
+            setTimeout(() => {
+                const circuitElectrons = document.querySelectorAll('.circuit-electron');
+                circuitElectrons.forEach(electron => {
+                    electron.style.animationPlayState = 'running';
+                    electron.style.animationDuration = '5s'; // Slower animation for better visualization
+                });
+            }, 1000);
         }
 
         function stopCircuitFlow() {
@@ -845,7 +1043,17 @@
             circuitElectrons.forEach(electron => {
                 electron.style.animationPlayState = 'paused';
             });
+            
+            // Stop any current audio
+            if (humanVoice) {
+                humanVoice.stop();
+            }
         }
+
+        // Audio control
+        document.getElementById('mute-btn')?.addEventListener('click', function() {
+            toggleAudio();
+        });
 
         // Current Intensity Control
         function setupIntensityControl() {
@@ -910,16 +1118,6 @@
                 intensityWire.appendChild(electron);
             }
         }
-
-        // Audio control
-        document.getElementById('mute-btn')?.addEventListener('click', function() {
-            this.classList.toggle('muted');
-            audioEnabled = !audioEnabled;
-            
-            if (!audioEnabled) {
-                stopCurrentAudio();
-            }
-        });
 
         // Smooth scrolling
         document.addEventListener('wheel', (e) => {

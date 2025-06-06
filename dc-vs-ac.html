@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DC vs AC - Interactive Physics</title>
     <link rel="stylesheet" href="parallax-style.css">
-    <script src="cartesia-config.js"></script>
     <style>
         /* Enhanced DC vs AC Visualization Styles */
         :root {
@@ -25,41 +24,47 @@
         }
 
         .concept-section {
-            margin: 60px 0;
-            background: rgba(0, 5, 17, 0.8);
-            border-radius: 20px;
-            padding: 40px;
-            border: 2px solid rgba(74, 158, 255, 0.3);
-            backdrop-filter: blur(15px);
+            margin: 50px 0;
+            background: rgba(0, 5, 17, 0.85);
+            border-radius: 25px;
+            padding: 40px 35px;
+            border: 2px solid rgba(74, 158, 255, 0.25);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
         }
 
         .section-title {
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             color: #4a9eff;
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             background: linear-gradient(45deg, #4a9eff, #74b9ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            font-weight: 700;
         }
 
-        /* Waveform Visualization */
+        /* Waveform Visualization - ENHANCED */
         .waveform-container {
             position: relative;
             width: 100%;
-            height: 300px;
-            margin: 30px 0;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 20px;
-            padding: 30px;
-            border: 2px solid rgba(74, 158, 255, 0.3);
+            height: 280px;
+            margin: 35px 0;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 25px;
+            padding: 30px 25px;
+            border: 2px solid rgba(74, 158, 255, 0.25);
             overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(15px);
         }
 
         .waveform-canvas {
             width: 100%;
             height: 100%;
             position: relative;
+            border-radius: 15px;
+            background: rgba(0, 5, 17, 0.3);
         }
 
         .waveform-grid {
@@ -67,9 +72,10 @@
             width: 100%;
             height: 100%;
             background-image: 
-                linear-gradient(rgba(74, 158, 255, 0.2) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(74, 158, 255, 0.2) 1px, transparent 1px);
+                linear-gradient(rgba(74, 158, 255, 0.15) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(74, 158, 255, 0.15) 1px, transparent 1px);
             background-size: 40px 20px;
+            border-radius: 15px;
         }
 
         .waveform-axis {
@@ -111,23 +117,32 @@
         .current-demo {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin: 40px 0;
+            gap: 25px;
+            margin: 35px 0;
         }
 
         .current-type {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 15px;
-            padding: 25px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 20px;
+            padding: 25px 20px;
             text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .current-type:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
         .dc-demo {
-            border: 2px solid var(--dc-color);
+            border-color: rgba(231, 76, 60, 0.5);
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.1), rgba(0, 0, 0, 0.4));
         }
 
         .ac-demo {
-            border: 2px solid var(--ac-color);
+            border-color: rgba(52, 152, 219, 0.5);
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(0, 0, 0, 0.4));
         }
 
         .demo-title {
@@ -180,34 +195,37 @@
 
         /* Comparison Table */
         .comparison-table {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
             overflow: hidden;
-            margin: 30px 0;
-            border: 2px solid rgba(74, 158, 255, 0.3);
+            margin: 35px 0;
+            border: 2px solid rgba(74, 158, 255, 0.25);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         }
 
         .table-header {
-            background: rgba(74, 158, 255, 0.2);
+            background: rgba(74, 158, 255, 0.15);
             padding: 20px;
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
             gap: 20px;
-            font-weight: 600;
+            font-weight: 700;
             font-size: 1.1rem;
+            border-bottom: 2px solid rgba(74, 158, 255, 0.2);
         }
 
         .table-row {
-            padding: 15px 20px;
+            padding: 16px 20px;
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
             gap: 20px;
             border-bottom: 1px solid rgba(74, 158, 255, 0.1);
             align-items: center;
+            transition: background 0.2s ease;
         }
 
-        .table-row:last-child {
-            border-bottom: none;
+        .table-row:hover {
+            background: rgba(74, 158, 255, 0.05);
         }
 
         .feature-name {
@@ -229,100 +247,211 @@
         .interactive-controls {
             background: rgba(74, 158, 255, 0.1);
             border: 2px solid rgba(74, 158, 255, 0.3);
-            border-radius: 15px;
-            padding: 25px;
-            margin: 30px 0;
+            border-radius: 20px;
+            padding: 30px 25px;
+            margin: 40px 0;
             text-align: center;
+            box-shadow: 0 8px 32px rgba(74, 158, 255, 0.1);
         }
 
+        /* ENHANCED CONTROL BUTTONS - PROPER SIZING */
         .control-buttons {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
             margin: 30px 0;
-            max-width: 900px;
+            max-width: 1100px;
             margin-left: auto;
             margin-right: auto;
-            padding: 0 20px;
+            padding: 0 10px;
         }
 
         .control-btn {
             background: linear-gradient(135deg, #4a9eff, #74b9ff);
             border: none;
             color: white;
-            padding: 24px 32px;
-            border-radius: 30px;
-            font-size: 1.3rem;
+            padding: 20px 28px;
+            border-radius: 28px;
+            font-size: 1.15rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 6px 20px rgba(74, 158, 255, 0.3);
-            white-space: normal;
-            word-wrap: break-word;
-            hyphens: auto;
-            min-height: 80px;
+            min-height: 75px;
+            height: auto;
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
-            line-height: 1.5;
-            letter-spacing: 0.5px;
+            line-height: 1.4;
+            letter-spacing: 0.4px;
+            position: relative;
+            overflow: visible;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        /* Ensure text fits properly */
+        .control-btn span {
+            display: block;
+            width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .control-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(74, 158, 255, 0.4);
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(74, 158, 255, 0.5);
+            background: linear-gradient(135deg, #74b9ff, #4a9eff);
         }
 
         .control-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 10px rgba(74, 158, 255, 0.3);
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 6px 20px rgba(74, 158, 255, 0.4);
         }
 
         .dc-btn {
             background: linear-gradient(135deg, var(--dc-color), #c0392b);
-            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.3);
         }
 
         .dc-btn:hover {
-            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+            background: linear-gradient(135deg, #c0392b, var(--dc-color));
+            box-shadow: 0 10px 30px rgba(231, 76, 60, 0.5);
         }
 
         .ac-btn {
             background: linear-gradient(135deg, var(--ac-color), #2980b9);
-            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3);
         }
 
         .ac-btn:hover {
-            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+            background: linear-gradient(135deg, #2980b9, var(--ac-color));
+            box-shadow: 0 10px 30px rgba(52, 152, 219, 0.5);
         }
+
+        /* ENHANCED RESPONSIVE DESIGN FOR BUTTONS */
+        @media (max-width: 1024px) {
+            .control-buttons {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 18px;
+                padding: 0 15px;
+            }
+            
+            .control-btn {
+                font-size: 1.1rem;
+                padding: 18px 24px;
+                min-height: 70px;
+                border-radius: 25px;
+                letter-spacing: 0.3px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .current-demo {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .historical-figures {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+            
+            .table-header,
+            .table-row {
+                grid-template-columns: 1fr;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .concept-section {
+                padding: 25px 20px;
+                margin: 30px 0;
+                border-radius: 20px;
+            }
+            
+            .section-title {
+                font-size: 1.8rem;
+                margin-bottom: 20px;
+            }
+            
+            .waveform-container {
+                padding: 20px 15px;
+                height: 220px;
+            }
+            
+            .interactive-controls {
+                padding: 20px 15px;
+                margin: 25px 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .current-type {
+                padding: 20px 15px;
+            }
+            
+            .app-card {
+                padding: 20px 15px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .concept-section {
+                padding: 20px 15px;
+            }
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-delay-1 { animation-delay: 0.2s; }
+        .animate-delay-2 { animation-delay: 0.4s; }
+        .animate-delay-3 { animation-delay: 0.6s; }
 
         /* Applications Section */
         .applications-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin: 30px 0;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 35px 0;
         }
 
         .app-card {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 15px;
-            padding: 20px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 18px;
+            padding: 25px 20px;
             text-align: center;
             transition: all 0.3s ease;
+            border: 2px solid transparent;
+            backdrop-filter: blur(10px);
         }
 
         .app-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
         }
 
         .dc-app {
-            border: 2px solid var(--dc-color);
+            border-color: rgba(231, 76, 60, 0.5);
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.08), rgba(0, 0, 0, 0.4));
         }
 
         .ac-app {
-            border: 2px solid var(--ac-color);
+            border-color: rgba(52, 152, 219, 0.5);
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.08), rgba(0, 0, 0, 0.4));
         }
 
         .app-icon {
@@ -381,121 +510,6 @@
             color: #bbb;
             line-height: 1.6;
         }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .current-demo {
-                grid-template-columns: 1fr;
-            }
-            
-            .historical-figures {
-                grid-template-columns: 1fr;
-            }
-            
-            .table-header,
-            .table-row {
-                grid-template-columns: 1fr;
-                gap: 10px;
-            }
-            
-            .control-buttons {
-                grid-template-columns: 1fr;
-                gap: 20px;
-                max-width: 100%;
-                padding: 0 15px;
-                margin: 25px 0;
-            }
-            
-            .control-btn {
-                font-size: 1.2rem;
-                padding: 20px 28px;
-                min-height: 70px;
-                border-radius: 25px;
-                letter-spacing: 0.3px;
-            }
-            
-            .hero-title {
-                font-size: 2.5rem !important;
-            }
-            
-            .narrative-text {
-                font-size: 1.1rem !important;
-            }
-            
-            .section-title {
-                font-size: 2rem;
-            }
-            
-            .waveform-container {
-                padding: 20px;
-                height: 250px;
-            }
-            
-            .concept-section {
-                padding: 30px 20px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .control-buttons {
-                max-width: 100%;
-                padding: 0 10px;
-                gap: 18px;
-            }
-            
-            .control-btn {
-                font-size: 1.1rem;
-                padding: 18px 24px;
-                min-height: 65px;
-                border-radius: 22px;
-                letter-spacing: 0.2px;
-            }
-            
-            .interactive-controls {
-                padding: 20px 15px;
-            }
-            
-            .current-demo {
-                gap: 20px;
-            }
-            
-            .current-type {
-                padding: 20px 15px;
-            }
-        }
-
-        @media (max-width: 360px) {
-            .control-buttons {
-                grid-template-columns: 1fr;
-                gap: 15px;
-                padding: 0 5px;
-            }
-            
-            .control-btn {
-                font-size: 1rem;
-                padding: 16px 20px;
-                min-height: 60px;
-                border-radius: 20px;
-                letter-spacing: 0.1px;
-            }
-        }
-
-        .fade-in {
-            opacity: 0;
-            transform: translateY(30px);
-            animation: fadeInUp 0.8s ease forwards;
-        }
-
-        @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .animate-delay-1 { animation-delay: 0.2s; }
-        .animate-delay-2 { animation-delay: 0.4s; }
-        .animate-delay-3 { animation-delay: 0.6s; }
     </style>
 </head>
 <body>
@@ -534,6 +548,11 @@
             </button>
         </div>
 
+        <!-- Audio Indicator -->
+        <div id="audio-indicator" style="position: fixed; top: 80px; right: 20px; background: rgba(74, 158, 255, 0.9); color: white; padding: 10px 15px; border-radius: 20px; font-size: 0.9rem; z-index: 1001; opacity: 0; transform: translateX(100px); transition: all 0.3s ease;">
+            🔊 <span id="audio-text">Narrating...</span>
+        </div>
+
         <!-- Main Content Container -->
         <div id="main-content">
             
@@ -567,12 +586,14 @@
 
                 <!-- Section 1: What are DC and AC? -->
                 <div class="concept-section fade-in">
-                    <h2 class="section-title">What are DC and AC?</h2>
+                    <h2 class="section-title">Understanding DC vs AC Current</h2>
                     
-                    <p style="font-size: 1.2rem; line-height: 1.8; margin-bottom: 30px; text-align: center;">
-                        Direct Current (DC) flows in one direction continuously, while Alternating Current (AC) 
-                        changes direction periodically. Both are essential for different applications.
-                    </p>
+                    <div style="text-align: center; margin-bottom: 35px;">
+                        <p style="font-size: 1.3rem; line-height: 1.7; color: #ddd; max-width: 800px; margin: 0 auto;">
+                            Electric current can flow in two different ways: Direct Current (DC) flows steadily in one direction, 
+                            while Alternating Current (AC) changes direction periodically.
+                        </p>
+                    </div>
 
                     <div class="current-demo">
                         <div class="current-type dc-demo">
@@ -582,11 +603,11 @@
                                 <div class="electron dc-electron" style="animation-delay: 1s;"></div>
                                 <div class="electron dc-electron" style="animation-delay: 2s;"></div>
                             </div>
-                            <p style="color: var(--dc-color); font-weight: 600;">
-                                Electrons flow in ONE direction only
+                            <p style="color: var(--dc-color); font-weight: 600; margin: 15px 0 10px;">
+                                ✓ Flows in ONE direction
                             </p>
-                            <p style="color: #bbb; font-size: 0.9rem;">
-                                Like water flowing down a river - always the same direction
+                            <p style="color: #bbb; font-size: 0.95rem; line-height: 1.4;">
+                                Like water flowing down a river - steady and consistent flow
                             </p>
                         </div>
 
@@ -597,33 +618,38 @@
                                 <div class="electron ac-electron" style="animation-delay: 0.5s;"></div>
                                 <div class="electron ac-electron" style="animation-delay: 1s;"></div>
                             </div>
-                            <p style="color: var(--ac-color); font-weight: 600;">
-                                Electrons change direction periodically
+                            <p style="color: var(--ac-color); font-weight: 600; margin: 15px 0 10px;">
+                                ↔ Changes direction periodically
                             </p>
-                            <p style="color: #bbb; font-size: 0.9rem;">
+                            <p style="color: #bbb; font-size: 0.95rem; line-height: 1.4;">
                                 Like waves on a beach - back and forth motion
                             </p>
                         </div>
                     </div>
 
                     <div class="interactive-controls">
-                        <h4 style="color: #4a9eff; margin-bottom: 15px;">Interactive Current Flow</h4>
+                        <h4 style="color: #4a9eff; margin-bottom: 20px; font-size: 1.2rem;">Interactive Demonstrations</h4>
                         <div class="control-buttons">
                             <button class="control-btn dc-btn" onclick="startDCFlow()">▶ Show DC Flow</button>
                             <button class="control-btn ac-btn" onclick="startACFlow()">🌊 Show AC Flow</button>
                             <button class="control-btn" onclick="stopFlow()">⏹ Stop Animation</button>
                         </div>
+                        <p style="color: #ddd; font-size: 0.9rem; margin-top: 15px; opacity: 0.8;">
+                            Click the buttons above to see how electrons move in each type of current
+                        </p>
                     </div>
                 </div>
 
                 <!-- Section 2: Waveform Visualization -->
                 <div class="concept-section fade-in animate-delay-1">
-                    <h2 class="section-title">Waveform Comparison</h2>
+                    <h2 class="section-title">Electrical Waveforms</h2>
                     
-                    <p style="font-size: 1.2rem; line-height: 1.8; margin-bottom: 30px; text-align: center;">
-                        The waveforms show the fundamental difference: DC maintains constant voltage, 
-                        while AC voltage varies sinusoidally over time.
-                    </p>
+                    <div style="text-align: center; margin-bottom: 35px;">
+                        <p style="font-size: 1.2rem; line-height: 1.7; color: #ddd; max-width: 800px; margin: 0 auto;">
+                            Waveforms show how voltage changes over time. DC maintains constant voltage, 
+                            while AC voltage varies in a smooth sine wave pattern.
+                        </p>
+                    </div>
 
                     <div class="waveform-container">
                         <div class="waveform-canvas" id="waveform-canvas">
@@ -632,17 +658,17 @@
                             <div class="waveform-axis axis-vertical"></div>
                             <canvas id="waveform-display" width="800" height="240" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></canvas>
                         </div>
-                        <div style="position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px;">
-                            <span style="color: var(--dc-color); font-weight: 600;">■ DC Waveform</span>
-                            <span style="color: var(--ac-color); font-weight: 600;">■ AC Waveform</span>
+                        <div style="position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; gap: 30px; background: rgba(0, 0, 0, 0.6); padding: 8px 20px; border-radius: 20px;">
+                            <span style="color: var(--dc-color); font-weight: 600; font-size: 0.9rem;">■ DC Signal</span>
+                            <span style="color: var(--ac-color); font-weight: 600; font-size: 0.9rem;">■ AC Signal</span>
                         </div>
                     </div>
 
                     <div class="interactive-controls">
-                        <h4 style="color: #4a9eff; margin-bottom: 15px;">Waveform Controls</h4>
+                        <h4 style="color: #4a9eff; margin-bottom: 20px; font-size: 1.2rem;">Waveform Controls</h4>
                         <div class="control-buttons">
-                            <button class="control-btn dc-btn" onclick="showDCWaveform()">📈 Show DC</button>
-                            <button class="control-btn ac-btn" onclick="showACWaveform()">〰️ Show AC</button>
+                            <button class="control-btn dc-btn" onclick="showDCWaveform()">📈 Show DC Only</button>
+                            <button class="control-btn ac-btn" onclick="showACWaveform()">〰️ Show AC Only</button>
                             <button class="control-btn" onclick="showBothWaveforms()">📊 Compare Both</button>
                             <button class="control-btn" onclick="animateWaveforms()">▶ Animate</button>
                         </div>
@@ -814,23 +840,194 @@
             setTimeout(() => {
                 hideLoadingScreen();
                 initializeAnimations();
-                initializeCartesiaAudio();
+                initializeVoiceSystem();
                 initializeWaveforms();
             }, 2000);
         });
 
         // Audio Control Variables
-        let audioEnabled = true;
         let waveformAnimationId = null;
         let currentWaveformType = 'both';
 
-        // Audio Content Scripts for DC vs AC
-        const audioScripts = {
-            intro: PHYSICS_AUDIO_SCRIPTS.dc_vs_ac_intro,
-            dc: "Direct Current flows steadily in one direction, making it perfect for electronic devices and energy storage. DC is produced by batteries, solar panels, and fuel cells. You'll find DC powering your smartphone, laptop, electric vehicles, and LED lights. The consistent flow makes it ideal for precise electronic components.",
-            ac: "Alternating Current changes direction periodically, typically 50 to 60 times per second. This alternating nature allows AC to be easily transformed to different voltages using transformers. AC dominates household power because it can travel long distances efficiently and be stepped up or down in voltage as needed.",
-            comparison: "The key differences lie in their flow patterns, transmission capabilities, and applications. DC excels at powering electronics and energy storage, while AC dominates power transmission and household applications. Each has unique advantages that make them irreplaceable in modern electrical systems.",
-            history: PHYSICS_AUDIO_SCRIPTS.current_wars
+        // Standardized Humanistic Voice System
+        class HumanisticVoice {
+            constructor() {
+                this.isEnabled = true;
+                this.currentUtterance = null;
+                this.preferredVoice = null;
+                this.settings = {
+                    rate: 0.85,        // Slightly slower for better comprehension
+                    pitch: 1.0,        // Natural pitch
+                    volume: 0.9        // Clear but not overwhelming
+                };
+                this.initializeVoices();
+            }
+
+            initializeVoices() {
+                // Wait for voices to load
+                if (speechSynthesis.getVoices().length === 0) {
+                    speechSynthesis.onvoiceschanged = () => {
+                        this.selectPreferredVoice();
+                    };
+                } else {
+                    this.selectPreferredVoice();
+                }
+            }
+
+            selectPreferredVoice() {
+                const voices = speechSynthesis.getVoices();
+                
+                // Priority order for premium British female voices (most natural sounding)
+                const preferredVoiceNames = [
+                    'Serena',                    // Premium British English female
+                    'Kate',                      // High-quality British English
+                    'Stephanie',                 // British English female
+                    'Emma',                      // British English female  
+                    'Amy',                       // British English female
+                    'British English Female',    // Generic British female
+                    'English (UK) Female',       // UK female variant
+                    'Google UK English Female',  // Google's British voice
+                    'Microsoft Hazel',           // Microsoft UK voice
+                    'Daniel (Enhanced)',         // Enhanced British male as backup
+                    'Moira',                     // Irish English (close alternative)
+                    'Fiona',                     // Scottish English female
+                    'Samantha',                  // macOS natural voice (backup)
+                    'Karen',                     // Natural sounding (backup)
+                    'Alex',                      // Good for education (backup)
+                    'Google US English',         // Google's neural voice (backup)
+                    'Microsoft Zira',            // Microsoft natural voice (backup)
+                    'Microsoft David'            // Final backup option
+                ];
+
+                // Try to find preferred voices first - prioritizing British female voices
+                for (const voiceName of preferredVoiceNames) {
+                    const voice = voices.find(v => 
+                        v.name.toLowerCase().includes(voiceName.toLowerCase()) && 
+                        (v.lang.includes('en-GB') || v.lang.includes('en-UK') || v.lang.includes('en'))
+                    );
+                    if (voice) {
+                        this.preferredVoice = voice;
+                        console.log(`🎤 Selected premium voice: ${voice.name} (${voice.lang})`);
+                        return;
+                    }
+                }
+
+                // Enhanced fallback to any high-quality English voice with British preference
+                this.preferredVoice = voices.find(voice => {
+                    const name = voice.name.toLowerCase();
+                    const lang = voice.lang.toLowerCase();
+                    return (lang.includes('en-gb') || lang.includes('en-uk')) && 
+                           (name.includes('female') || name.includes('woman') || 
+                            name.includes('premium') || name.includes('enhanced') || 
+                            name.includes('natural') || !name.includes('compact'));
+                }) || voices.find(voice => {
+                    const name = voice.name.toLowerCase();
+                    return voice.lang.includes('en') && 
+                           (name.includes('premium') || name.includes('enhanced') || 
+                            name.includes('natural') || name.includes('female') ||
+                            !name.includes('compact'));
+                }) || voices.find(voice => voice.lang.includes('en')) || voices[0];
+
+                if (this.preferredVoice) {
+                    console.log(`🎤 Using voice: ${this.preferredVoice.name} (${this.preferredVoice.lang})`);
+                }
+            }
+
+            speak(text, options = {}) {
+                if (!this.isEnabled || !text || !('speechSynthesis' in window)) {
+                    return;
+                }
+
+                // Stop any current speech
+                this.stop();
+
+                // Create utterance with humanistic settings
+                const utterance = new SpeechSynthesisUtterance(text);
+                
+                // Apply settings
+                utterance.rate = options.rate || this.settings.rate;
+                utterance.pitch = options.pitch || this.settings.pitch;
+                utterance.volume = options.volume || this.settings.volume;
+                
+                // Set preferred voice
+                if (this.preferredVoice) {
+                    utterance.voice = this.preferredVoice;
+                }
+
+                // Event handlers for better user experience
+                utterance.onstart = () => {
+                    console.log('🎤 Speaking:', text.substring(0, 50) + '...');
+                    this.showAudioIndicator();
+                };
+
+                utterance.onend = () => {
+                    this.currentUtterance = null;
+                    this.hideAudioIndicator();
+                };
+
+                utterance.onerror = (event) => {
+                    console.error('Speech synthesis error:', event.error);
+                    this.currentUtterance = null;
+                    this.hideAudioIndicator();
+                };
+
+                // Store current utterance and speak
+                this.currentUtterance = utterance;
+                speechSynthesis.speak(utterance);
+
+                return utterance;
+            }
+
+            stop() {
+                if (speechSynthesis.speaking || speechSynthesis.pending) {
+                    speechSynthesis.cancel();
+                }
+                this.currentUtterance = null;
+                this.hideAudioIndicator();
+            }
+
+            toggle() {
+                this.isEnabled = !this.isEnabled;
+                if (!this.isEnabled) {
+                    this.stop();
+                }
+                return this.isEnabled;
+            }
+
+            setEnabled(enabled) {
+                this.isEnabled = enabled;
+                if (!enabled) {
+                    this.stop();
+                }
+            }
+
+            showAudioIndicator() {
+                const indicator = document.getElementById('audio-indicator');
+                if (indicator) {
+                    indicator.style.opacity = '1';
+                    indicator.style.transform = 'translateX(0)';
+                }
+            }
+
+            hideAudioIndicator() {
+                const indicator = document.getElementById('audio-indicator');
+                if (indicator) {
+                    indicator.style.opacity = '0';
+                    indicator.style.transform = 'translateX(100px)';
+                }
+            }
+        }
+
+        // Initialize global voice system
+        let humanVoice = null;
+        let audioEnabled = true;
+
+        // Simplified audio content for DC vs AC
+        const audioContent = {
+            intro: "Welcome to DC versus AC current. Let's explore the fundamental differences between Direct Current and Alternating Current - two essential forms of electrical energy that power our modern world.",
+            dcBasics: "Direct Current flows steadily in one direction, like water flowing down a river. The electrons move consistently from negative to positive terminal, making DC ideal for electronic devices and battery storage.",
+            acBasics: "Alternating Current changes direction periodically, typically 50 to 60 times per second. This alternating motion allows efficient voltage transformation and long-distance power transmission.",
+            comparison: "Both DC and AC have unique advantages. DC provides stable power for electronics, while AC enables efficient power distribution across long distances."
         };
 
         function hideLoadingScreen() {
@@ -858,12 +1055,41 @@
             });
         }
 
-        function initializeCartesiaAudio() {
+        function initializeVoiceSystem() {
+            humanVoice = new HumanisticVoice();
+            
+            // Simple introduction without complex observer logic
             setTimeout(() => {
-                if (audioEnabled && window.cartesiaTTS) {
-                    window.cartesiaTTS.speak(audioScripts.intro);
+                if (audioEnabled) {
+                    humanVoice.speak(audioContent.intro);
                 }
-            }, 3000);
+            }, 1500);
+        }
+
+        function speakText(text) {
+            if (humanVoice && audioEnabled) {
+                humanVoice.speak(text);
+            }
+        }
+
+        function stopCurrentAudio() {
+            if (humanVoice) {
+                humanVoice.stop();
+            }
+        }
+
+        function toggleAudio() {
+            if (humanVoice) {
+                audioEnabled = humanVoice.toggle();
+                updateAudioButton();
+            }
+        }
+
+        function updateAudioButton() {
+            const muteBtn = document.getElementById('mute-btn');
+            if (muteBtn) {
+                muteBtn.classList.toggle('muted', !audioEnabled);
+            }
         }
 
         // Waveform Functions
@@ -877,24 +1103,24 @@
         function showDCWaveform() {
             currentWaveformType = 'dc';
             drawWaveforms();
-            if (audioEnabled && window.cartesiaTTS) {
-                window.cartesiaTTS.speak(audioScripts.dc);
+            if (audioEnabled) {
+                speakText(audioContent.dcBasics);
             }
         }
 
         function showACWaveform() {
             currentWaveformType = 'ac';
             drawWaveforms();
-            if (audioEnabled && window.cartesiaTTS) {
-                window.cartesiaTTS.speak(audioScripts.ac);
+            if (audioEnabled) {
+                speakText(audioContent.acBasics);
             }
         }
 
         function showBothWaveforms() {
             currentWaveformType = 'both';
             drawWaveforms();
-            if (audioEnabled && window.cartesiaTTS) {
-                window.cartesiaTTS.speak(audioScripts.comparison);
+            if (audioEnabled) {
+                speakText(audioContent.comparison);
             }
         }
 
@@ -1021,8 +1247,8 @@
                 electron.style.animationPlayState = 'running';
             });
             
-            if (audioEnabled && window.cartesiaTTS) {
-                window.cartesiaTTS.speak("DC electrons flow steadily in one direction, like water flowing down a river. This consistent flow makes DC ideal for electronic devices and energy storage in batteries and solar panels.");
+            if (audioEnabled && humanVoice) {
+                speakText(audioContent.dcBasics);
             }
         }
 
@@ -1031,8 +1257,8 @@
                 electron.style.animationPlayState = 'running';
             });
             
-            if (audioEnabled && window.cartesiaTTS) {
-                window.cartesiaTTS.speak("AC electrons alternate direction, typically 50 to 60 times per second. This alternating motion allows efficient voltage transformation and long-distance power transmission through the electrical grid.");
+            if (audioEnabled && humanVoice) {
+                speakText(audioContent.acBasics);
             }
         }
 
@@ -1041,19 +1267,14 @@
                 electron.style.animationPlayState = 'paused';
             });
             
-            if (window.cartesiaTTS) {
-                window.cartesiaTTS.stop();
+            if (humanVoice) {
+                humanVoice.stop();
             }
         }
 
-        // Audio control
+        // Audio Control
         document.getElementById('mute-btn')?.addEventListener('click', function() {
-            this.classList.toggle('muted');
-            audioEnabled = !audioEnabled;
-            
-            if (window.cartesiaTTS) {
-                window.cartesiaTTS.toggle();
-            }
+            toggleAudio();
         });
 
         // Bounce animation for scroll hint

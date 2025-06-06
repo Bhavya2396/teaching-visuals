@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ohm's Law - Interactive Physics</title>
     <link rel="stylesheet" href="parallax-style.css">
-    <script src="cartesia-config.js"></script>
     <style>
         /* Enhanced Ohm's Law Visualization Styles */
         :root {
@@ -603,16 +602,187 @@
             setTimeout(() => {
                 hideLoadingScreen();
                 initializeAnimations();
-                initializeAudio();
+                initializeVoiceSystem();
                 setupCalculator();
                 setupSliderInteractions();
             }, 2000);
         });
 
+        // Standardized Humanistic Voice System
+        class HumanisticVoice {
+            constructor() {
+                this.isEnabled = true;
+                this.currentUtterance = null;
+                this.preferredVoice = null;
+                this.settings = {
+                    rate: 0.85,        // Slightly slower for better comprehension
+                    pitch: 1.0,        // Natural pitch
+                    volume: 0.9        // Clear but not overwhelming
+                };
+                this.initializeVoices();
+            }
+
+            initializeVoices() {
+                // Wait for voices to load
+                if (speechSynthesis.getVoices().length === 0) {
+                    speechSynthesis.onvoiceschanged = () => {
+                        this.selectPreferredVoice();
+                    };
+                } else {
+                    this.selectPreferredVoice();
+                }
+            }
+
+            selectPreferredVoice() {
+                const voices = speechSynthesis.getVoices();
+                
+                // Priority order for premium British female voices (most natural sounding)
+                const preferredVoiceNames = [
+                    'Serena',                    // Premium British English female
+                    'Kate',                      // High-quality British English
+                    'Stephanie',                 // British English female
+                    'Emma',                      // British English female  
+                    'Amy',                       // British English female
+                    'British English Female',    // Generic British female
+                    'English (UK) Female',       // UK female variant
+                    'Google UK English Female',  // Google's British voice
+                    'Microsoft Hazel',           // Microsoft UK voice
+                    'Daniel (Enhanced)',         // Enhanced British male as backup
+                    'Moira',                     // Irish English (close alternative)
+                    'Fiona',                     // Scottish English female
+                    'Samantha',                  // macOS natural voice (backup)
+                    'Karen',                     // Natural sounding (backup)
+                    'Alex',                      // Good for education (backup)
+                    'Google US English',         // Google's neural voice (backup)
+                    'Microsoft Zira',            // Microsoft natural voice (backup)
+                    'Microsoft David'            // Final backup option
+                ];
+
+                // Try to find preferred voices first - prioritizing British female voices
+                for (const voiceName of preferredVoiceNames) {
+                    const voice = voices.find(v => 
+                        v.name.toLowerCase().includes(voiceName.toLowerCase()) && 
+                        (v.lang.includes('en-GB') || v.lang.includes('en-UK') || v.lang.includes('en'))
+                    );
+                    if (voice) {
+                        this.preferredVoice = voice;
+                        console.log(`🎤 Selected premium voice: ${voice.name} (${voice.lang})`);
+                        return;
+                    }
+                }
+
+                // Enhanced fallback to any high-quality English voice with British preference
+                this.preferredVoice = voices.find(voice => {
+                    const name = voice.name.toLowerCase();
+                    const lang = voice.lang.toLowerCase();
+                    return (lang.includes('en-gb') || lang.includes('en-uk')) && 
+                           (name.includes('female') || name.includes('woman') || 
+                            name.includes('premium') || name.includes('enhanced') || 
+                            name.includes('natural') || !name.includes('compact'));
+                }) || voices.find(voice => {
+                    const name = voice.name.toLowerCase();
+                    return voice.lang.includes('en') && 
+                           (name.includes('premium') || name.includes('enhanced') || 
+                            name.includes('natural') || name.includes('female') ||
+                            !name.includes('compact'));
+                }) || voices.find(voice => voice.lang.includes('en')) || voices[0];
+
+                if (this.preferredVoice) {
+                    console.log(`🎤 Using voice: ${this.preferredVoice.name} (${this.preferredVoice.lang})`);
+                }
+            }
+
+            speak(text, options = {}) {
+                if (!this.isEnabled || !text || !('speechSynthesis' in window)) {
+                    return;
+                }
+
+                // Stop any current speech
+                this.stop();
+
+                // Create utterance with humanistic settings
+                const utterance = new SpeechSynthesisUtterance(text);
+                
+                // Apply settings
+                utterance.rate = options.rate || this.settings.rate;
+                utterance.pitch = options.pitch || this.settings.pitch;
+                utterance.volume = options.volume || this.settings.volume;
+                
+                // Set preferred voice
+                if (this.preferredVoice) {
+                    utterance.voice = this.preferredVoice;
+                }
+
+                // Event handlers for better user experience
+                utterance.onstart = () => {
+                    console.log('🎤 Speaking:', text.substring(0, 50) + '...');
+                    this.showAudioIndicator();
+                };
+
+                utterance.onend = () => {
+                    this.currentUtterance = null;
+                    this.hideAudioIndicator();
+                };
+
+                utterance.onerror = (event) => {
+                    console.error('Speech synthesis error:', event.error);
+                    this.currentUtterance = null;
+                    this.hideAudioIndicator();
+                };
+
+                // Store current utterance and speak
+                this.currentUtterance = utterance;
+                speechSynthesis.speak(utterance);
+
+                return utterance;
+            }
+
+            stop() {
+                if (speechSynthesis.speaking || speechSynthesis.pending) {
+                    speechSynthesis.cancel();
+                }
+                this.currentUtterance = null;
+                this.hideAudioIndicator();
+            }
+
+            toggle() {
+                this.isEnabled = !this.isEnabled;
+                if (!this.isEnabled) {
+                    this.stop();
+                }
+                return this.isEnabled;
+            }
+
+            setEnabled(enabled) {
+                this.isEnabled = enabled;
+                if (!enabled) {
+                    this.stop();
+                }
+            }
+
+            showAudioIndicator() {
+                const indicator = document.getElementById('audio-indicator');
+                if (indicator) {
+                    indicator.style.opacity = '1';
+                    indicator.style.transform = 'translateX(0)';
+                }
+            }
+
+            hideAudioIndicator() {
+                const indicator = document.getElementById('audio-indicator');
+                if (indicator) {
+                    indicator.style.opacity = '0';
+                    indicator.style.transform = 'translateX(100px)';
+                }
+            }
+        }
+
+        // Initialize global voice system
+        let humanVoice = null;
+
         // Variables
         let audioEnabled = true;
         let currentAudio = null;
-        let speechSynthesis = window.speechSynthesis;
         let voltage = 12.0;
         let current = 1.0;
         let resistance = 12.0;
@@ -620,12 +790,16 @@
         let isDragging = false;
         let activeSlider = null;
 
-        // Audio Content Scripts
-        const audioScripts = {
-            intro: "Welcome to Ohm's Law - the fundamental relationship in electrical circuits. Voltage equals current times resistance. This law allows us to calculate any electrical quantity when we know the other two.",
-            formula: "Ohm's Law has three forms: V equals I times R for voltage, I equals V divided by R for current, and R equals V divided by I for resistance. Each form helps us solve different electrical problems.",
-            calculator: "Use the interactive calculator to explore how changing one value affects the others. The relationships are automatic and follow Ohm's Law precisely.",
-            circuit: "In the circuit visualization, you can see current flowing from positive to negative through the resistor. The flow speed represents the current magnitude."
+        // Audio content for Ohm's Law
+        const audioContent = {
+            intro: "Welcome to Ohm's Law, the fundamental relationship in electrical circuits. This law describes how voltage, current, and resistance work together. Voltage equals current times resistance. Understanding this relationship is essential for analyzing any electrical circuit.",
+            formula: "Ohm's Law has three forms that help us solve different electrical problems. V equals I times R calculates voltage when you know current and resistance. I equals V divided by R finds current when you know voltage and resistance. R equals V divided by I determines resistance when you know voltage and current.",
+            calculator: "Use this interactive calculator to explore how changing one electrical quantity affects the others. The relationships follow Ohm's Law precisely and automatically. Try adjusting voltage to see how current changes, or modify resistance to observe its effect on the circuit.",
+            circuit: "In this circuit visualization, current flows from the positive battery terminal through the resistor and back to the negative terminal. The flow speed represents current magnitude. Higher voltage increases current flow, while higher resistance slows it down.",
+            voltage: "Voltage is the electrical pressure that pushes electrons through a circuit. It's measured in volts and represents the energy per unit charge. Higher voltage means more force pushing electrons, which increases current if resistance stays constant.",
+            current: "Current is the flow of electric charge measured in amperes. One ampere equals one coulomb of charge flowing per second. Current intensity depends on both the voltage pushing the electrons and the resistance opposing their flow.",
+            resistance: "Resistance opposes the flow of electric current and is measured in ohms. Materials with high resistance make it difficult for electrons to flow. Lower resistance allows easier current flow for the same voltage.",
+            relationships: "These three quantities are intimately connected. Increasing voltage increases current. Increasing resistance decreases current. The power dissipated equals voltage times current, which also equals current squared times resistance."
         };
 
         function hideLoadingScreen() {
@@ -653,20 +827,90 @@
             });
         }
 
-        function initializeAudio() {
+        function initializeVoiceSystem() {
+            humanVoice = new HumanisticVoice();
+            
+            // Set up intersection observer for auto-audio with better timing
+            const audioObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && audioEnabled) {
+                        const section = entry.target;
+                        // Add delay to prevent rapid-fire audio changes
+                        setTimeout(() => {
+                            if (entry.isIntersecting) { // Double-check still in view
+                                playAudioForSection(section);
+                            }
+                        }, 300);
+                    }
+                });
+            }, { 
+                threshold: 0.4, // Lower threshold to catch sections earlier
+                rootMargin: '0px 0px -100px 0px' // Better margin for triggering
+            });
+
+            // Observe sections for auto-audio
+            const sections = document.querySelectorAll('.concept-section');
+            sections.forEach(section => audioObserver.observe(section));
+            
+            // Auto-play introduction after a short delay
             setTimeout(() => {
                 if (audioEnabled) {
-                    speakText(audioScripts.intro);
+                    humanVoice.speak(audioContent.intro);
                 }
-            }, 3000);
+            }, 1500);
+        }
+
+        function playAudioForSection(section) {
+            const sectionTitle = section.querySelector('.section-title');
+            if (!sectionTitle) return;
+
+            const title = sectionTitle.textContent;
+            
+            // Stop current audio instantly
+            if (humanVoice) {
+                humanVoice.stop();
+            }
+
+            // Brief pause to prevent audio overlap
+            setTimeout(() => {
+                if (!audioEnabled) return;
+                
+                // Play appropriate audio based on section
+                if (title.includes('Understanding Ohm')) {
+                    humanVoice.speak(audioContent.ohmsLaw);
+                } else if (title.includes('Interactive Calculator')) {
+                    humanVoice.speak(audioContent.calculator);
+                } else if (title.includes('Practical Applications')) {
+                    humanVoice.speak(audioContent.applications);
+                } else if (title.includes('Circuit Analysis')) {
+                    humanVoice.speak(audioContent.analysis);
+                }
+            }, 200);
         }
 
         function speakText(text) {
-            if (!audioEnabled) return;
+            if (humanVoice && audioEnabled) {
+                humanVoice.speak(text);
+            }
+        }
 
-            // Use Cartesia TTS if available, otherwise fallback to browser TTS
-            if (window.cartesiaTTS) {
-                window.cartesiaTTS.speak(text);
+        function stopCurrentAudio() {
+            if (humanVoice) {
+                humanVoice.stop();
+            }
+        }
+
+        function toggleAudio() {
+            if (humanVoice) {
+                audioEnabled = humanVoice.toggle();
+                updateAudioButton();
+            }
+        }
+
+        function updateAudioButton() {
+            const muteBtn = document.getElementById('mute-btn');
+            if (muteBtn) {
+                muteBtn.classList.toggle('muted', !audioEnabled);
             }
         }
 
@@ -937,7 +1181,7 @@
 
         function explainFormula() {
             if (audioEnabled) {
-                speakText(audioScripts.formula);
+                humanVoice.speak(audioContent.formula);
             }
             
             // Add visual formula explanation
@@ -946,62 +1190,58 @@
         }
 
         function demonstrateOhmsLaw() {
+            // Start with initial explanation
+            if (audioEnabled && humanVoice) {
+                humanVoice.speak("Let me demonstrate Ohm's law with three different examples. Watch how voltage, current, and resistance relate to each other in each scenario.");
+            }
+            
+            // Demonstrate the three forms of Ohm's Law with proper speech synchronization
             const demonstrations = [
-                {v: 3, desc: "Very low voltage - LED circuit", duration: 2500},
-                {v: 9, desc: "Battery voltage - typical circuit", duration: 2500},
-                {v: 12, desc: "Car battery voltage - automotive", duration: 2500},
-                {v: 24, desc: "High voltage - industrial application", duration: 2500},
-                {r: 10, desc: "Low resistance - thick wire", duration: 2500},
-                {r: 100, desc: "High resistance - thin wire", duration: 2500},
-                {i: 0.1, desc: "Low current - sensitive electronics", duration: 2500},
-                {i: 2.5, desc: "Medium current - household appliance", duration: 2500},
-                {i: 5.0, desc: "High current - power tool", duration: 2500}
+                { voltage: 12, resistance: 6, description: "12 volts across 6 ohms creates 2 amperes of current" },
+                { voltage: 24, resistance: 12, description: "24 volts across 12 ohms also creates 2 amperes, showing how proportional increases maintain the same current" },
+                { voltage: 6, resistance: 3, description: "6 volts across 3 ohms again produces 2 amperes, demonstrating the consistent relationship in Ohm's law" }
             ];
             
-            let index = 0;
-            const originalValues = {v: voltage, i: current, r: resistance};
+            let currentDemo = 0;
             
-            function showNext() {
-                if (index < demonstrations.length) {
-                    const demo = demonstrations[index];
-                    
-                    // Apply demonstration values
-                    if (demo.v !== undefined) {
-                        voltage = demo.v;
-                        lastChanged = 'voltage';
-                    } else if (demo.r !== undefined) {
-                        resistance = demo.r;
-                        lastChanged = 'resistance';
-                    } else if (demo.i !== undefined) {
-                        current = demo.i;
-                        lastChanged = 'current';
-                    }
-                    
+            function showNextDemo() {
+                if (currentDemo < demonstrations.length) {
+                    const demo = demonstrations[currentDemo];
+                    voltage = demo.voltage;
+                    resistance = demo.resistance;
+                    lastChanged = 'voltage';
                     calculateOhmsLaw();
                     updateDisplay();
                     
-                    // Enhanced audio feedback
-                    if (audioEnabled) {
-                        const power = voltage * current;
-                        speakText(`${demo.desc}: Voltage ${voltage.toFixed(1)} volts, Current ${current.toFixed(3)} amperes, Resistance ${resistance.toFixed(1)} ohms, Power ${power.toFixed(2)} watts.`);
+                    if (audioEnabled && humanVoice) {
+                        const utterance = humanVoice.speak(demo.description);
+                        
+                        // Wait for speech to complete before proceeding
+                        if (utterance) {
+                            utterance.onend = () => {
+                                currentDemo++;
+                                setTimeout(showNextDemo, 1000); // Brief pause after speech
+                            };
+                        } else {
+                            // Fallback if speech doesn't work
+                            currentDemo++;
+                            setTimeout(showNextDemo, 4000);
+                        }
+                    } else {
+                        // No audio mode - use standard timing
+                        currentDemo++;
+                        setTimeout(showNextDemo, 3000);
                     }
-                    
-                    // Visual feedback
-                    flashCalculatorSection();
-                    
-                    index++;
-                    setTimeout(showNext, demo.duration);
                 } else {
-                    // Return to original values
-                    setTimeout(() => {
-                        voltage = originalValues.v;
-                        current = originalValues.i;
-                        resistance = originalValues.r;
-                        updateDisplay();
-                    }, 1000);
+                    // Demo complete - final explanation
+                    if (audioEnabled && humanVoice) {
+                        humanVoice.speak("The demonstration is complete. You can see how Ohm's law maintains the relationship: voltage equals current times resistance. Try adjusting the sliders to explore different combinations.");
+                    }
                 }
             }
-            showNext();
+            
+            // Start the demo after initial explanation
+            setTimeout(showNextDemo, 2500);
         }
 
         function flashCalculatorSection() {
@@ -1022,13 +1262,13 @@
             updateDisplay();
             
             if (audioEnabled) {
-                speakText("Calculator reset to default values: 12 volts, 1 ampere, 12 ohms.");
+                humanVoice.speak("Calculator reset to default values: 12 volts, 1 ampere, 12 ohms.");
             }
         }
 
         function showCircuit() {
             if (audioEnabled) {
-                speakText(audioScripts.circuit);
+                humanVoice.speak(audioContent.circuit);
             }
             
             // Scroll to circuit
@@ -1048,7 +1288,11 @@
                 flow.style.animationPlayState = 'running';
             });
             
-            // Add enhanced particle effects
+            // Play circuit explanation instantly
+            if (audioEnabled) {
+                humanVoice.speak(audioContent.circuit);
+            }
+            
             addExtraParticles();
         }
 
@@ -1094,7 +1338,11 @@
             document.documentElement.style.setProperty('--flow-duration', `${newDuration}s`);
             
             if (audioEnabled) {
-                speakText(newDuration < 1 ? "High speed current flow activated" : "Normal speed current flow activated");
+                const message = newDuration < 1 ? "High speed current flow activated" : "Normal speed current flow activated";
+                if (window.speechSynthesis) {
+                    window.speechSynthesis.cancel();
+                    humanVoice.speak(message);
+                }
             }
         }
 
@@ -1121,15 +1369,9 @@
         }
 
         function speakCircuitAnalysis() {
-            const power = voltage * current;
-            const analysisText = `Circuit Analysis: With ${voltage.toFixed(1)} volts applied across ${resistance.toFixed(1)} ohms of resistance, 
-                we get ${current.toFixed(3)} amperes of current flow. The power dissipated is ${power.toFixed(2)} watts. 
-                ${power > 10 ? 'This is a high power circuit requiring proper heat management.' : 
-                power > 5 ? 'This is a medium power circuit suitable for typical applications.' : 
-                'This is a low power circuit ideal for sensitive electronics.'}`;
-            
+            // Play calculator explanation instantly
             if (audioEnabled) {
-                speakText(analysisText);
+                humanVoice.speak(audioContent.calculator);
             }
         }
 
@@ -1148,16 +1390,7 @@
 
         // Audio control
         document.getElementById('mute-btn')?.addEventListener('click', function() {
-            this.classList.toggle('muted');
-            audioEnabled = !audioEnabled;
-            
-            if (!audioEnabled && speechSynthesis.speaking) {
-                speechSynthesis.cancel();
-            }
-            
-            if (audioEnabled) {
-                speakText("Audio enabled");
-            }
+            toggleAudio();
         });
 
         // Enhanced keyboard controls

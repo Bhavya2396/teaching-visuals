@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voltage & Potential Difference - Interactive Physics</title>
+    <title>Voltage & Potential Difference - Physics Visualization</title>
     <link rel="stylesheet" href="parallax-style.css">
-    <script src="cartesia-config.js"></script>
     <style>
         /* Enhanced Educational Illustration Styles */
         :root {
@@ -88,7 +87,7 @@
 
         .low-voltage {
             bottom: 30px;
-            left: 20%;
+            right: 20%;
             background: rgba(52, 152, 219, 0.9);
         }
 
@@ -939,49 +938,230 @@
 
     <!-- Enhanced Script -->
     <script>
+        // Standardized Humanistic Voice System
+        class HumanisticVoice {
+            constructor() {
+                this.isEnabled = true;
+                this.currentUtterance = null;
+                this.preferredVoice = null;
+                this.settings = {
+                    rate: 0.85,        // Slightly slower for better comprehension
+                    pitch: 1.0,        // Natural pitch
+                    volume: 0.9        // Clear but not overwhelming
+                };
+                this.initializeVoices();
+            }
+
+            initializeVoices() {
+                // Wait for voices to load
+                if (speechSynthesis.getVoices().length === 0) {
+                    speechSynthesis.onvoiceschanged = () => {
+                        this.selectPreferredVoice();
+                    };
+                } else {
+                    this.selectPreferredVoice();
+                }
+            }
+
+            selectPreferredVoice() {
+                const voices = speechSynthesis.getVoices();
+                
+                // Priority order for premium British female voices (most natural sounding)
+                const preferredVoiceNames = [
+                    'Serena',                    // Premium British English female
+                    'Kate',                      // High-quality British English
+                    'Stephanie',                 // British English female
+                    'Emma',                      // British English female  
+                    'Amy',                       // British English female
+                    'British English Female',    // Generic British female
+                    'English (UK) Female',       // UK female variant
+                    'Google UK English Female',  // Google's British voice
+                    'Microsoft Hazel',           // Microsoft UK voice
+                    'Daniel (Enhanced)',         // Enhanced British male as backup
+                    'Moira',                     // Irish English (close alternative)
+                    'Fiona',                     // Scottish English female
+                    'Samantha',                  // macOS natural voice (backup)
+                    'Karen',                     // Natural sounding (backup)
+                    'Alex',                      // Good for education (backup)
+                    'Google US English',         // Google's neural voice (backup)
+                    'Microsoft Zira',            // Microsoft natural voice (backup)
+                    'Microsoft David'            // Final backup option
+                ];
+
+                // Try to find preferred voices first - prioritizing British female voices
+                for (const voiceName of preferredVoiceNames) {
+                    const voice = voices.find(v => 
+                        v.name.toLowerCase().includes(voiceName.toLowerCase()) && 
+                        (v.lang.includes('en-GB') || v.lang.includes('en-UK') || v.lang.includes('en'))
+                    );
+                    if (voice) {
+                        this.preferredVoice = voice;
+                        console.log(`🎤 Selected premium voice: ${voice.name} (${voice.lang})`);
+                        return;
+                    }
+                }
+
+                // Enhanced fallback to any high-quality English voice with British preference
+                this.preferredVoice = voices.find(voice => {
+                    const name = voice.name.toLowerCase();
+                    const lang = voice.lang.toLowerCase();
+                    return (lang.includes('en-gb') || lang.includes('en-uk')) && 
+                           (name.includes('female') || name.includes('woman') || 
+                            name.includes('premium') || name.includes('enhanced') || 
+                            name.includes('natural') || !name.includes('compact'));
+                }) || voices.find(voice => {
+                    const name = voice.name.toLowerCase();
+                    return voice.lang.includes('en') && 
+                           (name.includes('premium') || name.includes('enhanced') || 
+                            name.includes('natural') || name.includes('female') ||
+                            !name.includes('compact'));
+                }) || voices.find(voice => voice.lang.includes('en')) || voices[0];
+
+                if (this.preferredVoice) {
+                    console.log(`🎤 Using voice: ${this.preferredVoice.name} (${this.preferredVoice.lang})`);
+                }
+            }
+
+            speak(text, options = {}) {
+                if (!this.isEnabled || !text || !('speechSynthesis' in window)) {
+                    return;
+                }
+
+                // Stop any current speech
+                this.stop();
+
+                // Create utterance with humanistic settings
+                const utterance = new SpeechSynthesisUtterance(text);
+                
+                // Apply settings
+                utterance.rate = options.rate || this.settings.rate;
+                utterance.pitch = options.pitch || this.settings.pitch;
+                utterance.volume = options.volume || this.settings.volume;
+                
+                // Set preferred voice
+                if (this.preferredVoice) {
+                    utterance.voice = this.preferredVoice;
+                }
+
+                // Event handlers for better user experience
+                utterance.onstart = () => {
+                    console.log('🎤 Speaking:', text.substring(0, 50) + '...');
+                    this.showAudioIndicator();
+                };
+
+                utterance.onend = () => {
+                    this.currentUtterance = null;
+                    this.hideAudioIndicator();
+                };
+
+                utterance.onerror = (event) => {
+                    console.error('Speech synthesis error:', event.error);
+                    this.currentUtterance = null;
+                    this.hideAudioIndicator();
+                };
+
+                // Store current utterance and speak
+                this.currentUtterance = utterance;
+                speechSynthesis.speak(utterance);
+
+                return utterance;
+            }
+
+            stop() {
+                if (speechSynthesis.speaking || speechSynthesis.pending) {
+                    speechSynthesis.cancel();
+                }
+                this.currentUtterance = null;
+                this.hideAudioIndicator();
+            }
+
+            toggle() {
+                this.isEnabled = !this.isEnabled;
+                if (!this.isEnabled) {
+                    this.stop();
+                }
+                return this.isEnabled;
+            }
+
+            setEnabled(enabled) {
+                this.isEnabled = enabled;
+                if (!enabled) {
+                    this.stop();
+                }
+            }
+
+            showAudioIndicator() {
+                const indicator = document.getElementById('audio-indicator');
+                if (indicator) {
+                    indicator.style.opacity = '1';
+                    indicator.style.transform = 'translateX(0)';
+                }
+            }
+
+            hideAudioIndicator() {
+                const indicator = document.getElementById('audio-indicator');
+                if (indicator) {
+                    indicator.style.opacity = '0';
+                    indicator.style.transform = 'translateX(100px)';
+                }
+            }
+        }
+
+        // Initialize global voice system
+        let humanVoice = null;
+        let audioEnabled = true;
+        let currentVoltage = 6;
+
+        // Audio content for Voltage & Potential Difference
+        const audioContent = {
+            intro: "Welcome to understanding voltage and potential difference. Voltage is the electrical pressure that pushes electrons through a circuit. Think of it as the force that makes electricity flow, like water pressure in pipes.",
+            voltage: "Voltage, also called potential difference, is the electrical energy per unit charge. It's measured in volts and represents the force that pushes electrons through a conductor. Higher voltage means more electrical pressure and stronger current flow.",
+            batteries: "Different batteries provide different voltages for various applications. A watch battery provides 1.5 volts for low-power devices. Car batteries supply 12 volts for automotive systems. Wall outlets deliver 120 to 240 volts for household appliances.",
+            waterAnalogy: "The water tank analogy helps visualize voltage. A tall water tank creates high pressure, similar to high voltage. The water flows faster from high pressure to low pressure, just like electrons flow from high voltage to low voltage.",
+            control: "In this interactive demonstration, you can adjust the voltage and observe how it affects current flow. Higher voltage increases the speed of electron flow and the brightness of electrical components. This relationship follows Ohm's law.",
+            demonstration: "Watch how changing voltage affects the entire circuit. Higher voltage pushes more electrons through the resistance, creating stronger current and more power dissipation."
+        };
+
         // Initialize the experience
         window.addEventListener('load', () => {
             setTimeout(() => {
                 hideLoadingScreen();
                 initializeAnimations();
-                initializeAudio();
+                initializeVoiceSystem();
                 setupVoltageControl();
             }, 2000);
         });
 
-        // Audio Control Variables
-        let audioEnabled = true;
-        let currentAudio = null;
-        let speechSynthesis = window.speechSynthesis;
-        let currentVoltage = 6;
-
-        // Audio Content Scripts
-        const audioScripts = {
-            intro: "Welcome to understanding voltage and potential difference. Voltage is the electrical potential difference that drives current through circuits. It's the electrical pressure that pushes electrons.",
-            voltage: "Voltage is measured in volts and represents the amount of energy per unit charge. One volt equals one joule of energy per coulomb of charge. Higher voltage means more electrical pressure.",
-            batteries: "Different batteries provide different voltages. A 1.5 volt AA battery provides less electrical pressure than a 9 volt battery. This affects how much current can flow through a circuit.",
-            waterAnalogy: "Voltage is like water pressure in a tank. High water level creates high pressure and strong flow. Similarly, high voltage creates high electrical pressure and more current flow.",
-            control: "By adjusting voltage, you can control current in a circuit. According to Ohm's law, voltage equals current times resistance. More voltage means more current through the same resistance."
-        };
-
-        function initializeAudio() {
+        function initializeVoiceSystem() {
+            humanVoice = new HumanisticVoice();
+            
+            // Enhanced intersection observer with better timing
             const audioObserver = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting && audioEnabled) {
                         const section = entry.target;
-                        playAudioForSection(section);
+                        // Add delay to prevent rapid-fire audio changes
+                        setTimeout(() => {
+                            if (entry.isIntersecting) { // Double-check still in view
+                                playAudioForSection(section);
+                            }
+                        }, 300);
                     }
                 });
-            }, { threshold: 0.5 });
+            }, { 
+                threshold: 0.4, // Lower threshold to catch sections earlier
+                rootMargin: '0px 0px -100px 0px' // Better margin for triggering
+            });
 
             const sections = document.querySelectorAll('.concept-section');
             sections.forEach(section => audioObserver.observe(section));
 
+            // Auto-play introduction after a short delay
             setTimeout(() => {
                 if (audioEnabled) {
-                    speakText(audioScripts.intro);
+                    humanVoice.speak(audioContent.intro);
                 }
-            }, 3000);
+            }, 1500);
         }
 
         function playAudioForSection(section) {
@@ -989,45 +1169,53 @@
             if (!sectionTitle) return;
 
             const title = sectionTitle.textContent;
-            stopCurrentAudio();
-
-            if (title.includes('What is Voltage')) {
-                speakText(audioScripts.voltage);
-            } else if (title.includes('Battery Voltages')) {
-                speakText(audioScripts.batteries);
-            } else if (title.includes('Water Tank Analogy')) {
-                speakText(audioScripts.waterAnalogy);
-            } else if (title.includes('Voltage Control')) {
-                speakText(audioScripts.control);
+            
+            // Stop current audio instantly
+            if (humanVoice) {
+                humanVoice.stop();
             }
+
+            // Brief pause to prevent audio overlap
+            setTimeout(() => {
+                if (!audioEnabled) return;
+                
+                // Play appropriate audio based on section
+                if (title.includes('What is Voltage')) {
+                    humanVoice.speak(audioContent.voltage);
+                } else if (title.includes('Battery Voltages')) {
+                    humanVoice.speak(audioContent.batteries);
+                } else if (title.includes('Water Tank Analogy')) {
+                    humanVoice.speak(audioContent.waterAnalogy);
+                } else if (title.includes('Voltage Control')) {
+                    humanVoice.speak(audioContent.control);
+                }
+            }, 200);
         }
 
         function speakText(text) {
-            if (!audioEnabled) return;
-
-            // Use Cartesia TTS if available, otherwise fallback to browser TTS
-            if (window.cartesiaTTS) {
-                window.cartesiaTTS.speak(text);
+            if (humanVoice && audioEnabled) {
+                humanVoice.speak(text);
             }
         }
 
         function stopCurrentAudio() {
-            if (window.cartesiaTTS) {
-                window.cartesiaTTS.stop();
-            } else if (window.speechSynthesis && window.speechSynthesis.speaking) {
-                window.speechSynthesis.cancel();
+            if (humanVoice) {
+                humanVoice.stop();
             }
-            hideAudioIndicator();
         }
 
-        function showAudioIndicator(text) {
-            // Optional: Add visual indicator for audio playback
-            console.log('🎵 Playing:', text.substring(0, 50) + '...');
+        function toggleAudio() {
+            if (humanVoice) {
+                audioEnabled = humanVoice.toggle();
+                updateAudioButton();
+            }
         }
 
-        function hideAudioIndicator() {
-            // Optional: Hide visual indicator
-            console.log('🔇 Audio finished');
+        function updateAudioButton() {
+            const muteBtn = document.getElementById('mute-btn');
+            if (muteBtn) {
+                muteBtn.classList.toggle('muted', !audioEnabled);
+            }
         }
 
         function hideLoadingScreen() {
@@ -1060,10 +1248,6 @@
             const energyBall = document.querySelector('.energy-ball');
             if (energyBall) {
                 energyBall.style.animationPlayState = 'running';
-            }
-
-            if (audioEnabled) {
-                speakText("Watch the energy ball move from high potential to low potential. This represents how voltage creates a driving force for electrical energy flow.");
             }
         }
 
@@ -1173,9 +1357,14 @@
         }
 
         function demonstrateVoltage() {
-            // Demonstrate different voltage levels
+            // Demonstrate different voltage levels with proper speech synchronization
             const voltages = [2, 6, 10];
             let currentIndex = 0;
+            
+            // Start voice narration first
+            if (audioEnabled && humanVoice) {
+                humanVoice.speak("Let me demonstrate how different voltage levels affect the circuit. Watch how current and electron flow change with each voltage setting.");
+            }
             
             function showNextVoltage() {
                 if (currentIndex < voltages.length) {
@@ -1190,17 +1379,36 @@
                     updateVoltageDisplay(percentage);
                     updateCircuitVisuals(percentage);
                     
-                    if (audioEnabled) {
+                    if (audioEnabled && humanVoice) {
                         const current = (voltage / 12).toFixed(2);
-                        speakText(`At ${voltage} volts, the current is ${current} amperes. Notice how the electron flow speed changes with voltage.`);
+                        const utterance = humanVoice.speak(`At ${voltage} volts, the current is ${current} amperes. Notice how the electron flow speed changes with voltage.`);
+                        
+                        // Wait for speech to complete before proceeding
+                        if (utterance) {
+                            utterance.onend = () => {
+                                currentIndex++;
+                                setTimeout(showNextVoltage, 1000); // Brief pause after speech
+                            };
+                        } else {
+                            // Fallback if speech doesn't work
+                            currentIndex++;
+                            setTimeout(showNextVoltage, 4000);
+                        }
+                    } else {
+                        // No audio mode - use standard timing
+                        currentIndex++;
+                        setTimeout(showNextVoltage, 3000);
                     }
-                    
-                    currentIndex++;
-                    setTimeout(showNextVoltage, 3000);
+                } else {
+                    // Demo complete - final narration
+                    if (audioEnabled && humanVoice) {
+                        humanVoice.speak("The demonstration is complete. You can see how higher voltage creates more current and faster electron movement through the circuit.");
+                    }
                 }
             }
             
-            showNextVoltage();
+            // Start the demo after initial narration
+            setTimeout(showNextVoltage, 2000);
         }
         
         function startElectronFlow() {
@@ -1230,12 +1438,7 @@
 
         // Audio control
         document.getElementById('mute-btn')?.addEventListener('click', function() {
-            this.classList.toggle('muted');
-            audioEnabled = !audioEnabled;
-            
-            if (!audioEnabled) {
-                stopCurrentAudio();
-            }
+            toggleAudio();
         });
 
         // Smooth scrolling

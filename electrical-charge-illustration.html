@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Understanding Electric Charge - Visual Guide</title>
     <link rel="stylesheet" href="parallax-style.css">
-    <script src="cartesia-config.js"></script>
     <style>
         /* Enhanced Educational Illustration Styles */
         :root {
@@ -827,50 +826,229 @@
 
     <!-- Enhanced Script -->
     <script>
+        // Standardized Humanistic Voice System
+        class HumanisticVoice {
+            constructor() {
+                this.isEnabled = true;
+                this.currentUtterance = null;
+                this.preferredVoice = null;
+                this.settings = {
+                    rate: 0.85,        // Slightly slower for better comprehension
+                    pitch: 1.0,        // Natural pitch
+                    volume: 0.9        // Clear but not overwhelming
+                };
+                this.initializeVoices();
+            }
+
+            initializeVoices() {
+                // Wait for voices to load
+                if (speechSynthesis.getVoices().length === 0) {
+                    speechSynthesis.onvoiceschanged = () => {
+                        this.selectPreferredVoice();
+                    };
+                } else {
+                    this.selectPreferredVoice();
+                }
+            }
+
+            selectPreferredVoice() {
+                const voices = speechSynthesis.getVoices();
+                
+                // Priority order for premium British female voices (most natural sounding)
+                const preferredVoiceNames = [
+                    'Serena',                    // Premium British English female
+                    'Kate',                      // High-quality British English
+                    'Stephanie',                 // British English female
+                    'Emma',                      // British English female  
+                    'Amy',                       // British English female
+                    'British English Female',    // Generic British female
+                    'English (UK) Female',       // UK female variant
+                    'Google UK English Female',  // Google's British voice
+                    'Microsoft Hazel',           // Microsoft UK voice
+                    'Daniel (Enhanced)',         // Enhanced British male as backup
+                    'Moira',                     // Irish English (close alternative)
+                    'Fiona',                     // Scottish English female
+                    'Samantha',                  // macOS natural voice (backup)
+                    'Karen',                     // Natural sounding (backup)
+                    'Alex',                      // Good for education (backup)
+                    'Google US English',         // Google's neural voice (backup)
+                    'Microsoft Zira',            // Microsoft natural voice (backup)
+                    'Microsoft David'            // Final backup option
+                ];
+
+                // Try to find preferred voices first - prioritizing British female voices
+                for (const voiceName of preferredVoiceNames) {
+                    const voice = voices.find(v => 
+                        v.name.toLowerCase().includes(voiceName.toLowerCase()) && 
+                        (v.lang.includes('en-GB') || v.lang.includes('en-UK') || v.lang.includes('en'))
+                    );
+                    if (voice) {
+                        this.preferredVoice = voice;
+                        console.log(`🎤 Selected premium voice: ${voice.name} (${voice.lang})`);
+                        return;
+                    }
+                }
+
+                // Enhanced fallback to any high-quality English voice with British preference
+                this.preferredVoice = voices.find(voice => {
+                    const name = voice.name.toLowerCase();
+                    const lang = voice.lang.toLowerCase();
+                    return (lang.includes('en-gb') || lang.includes('en-uk')) && 
+                           (name.includes('female') || name.includes('woman') || 
+                            name.includes('premium') || name.includes('enhanced') || 
+                            name.includes('natural') || !name.includes('compact'));
+                }) || voices.find(voice => {
+                    const name = voice.name.toLowerCase();
+                    return voice.lang.includes('en') && 
+                           (name.includes('premium') || name.includes('enhanced') || 
+                            name.includes('natural') || name.includes('female') ||
+                            !name.includes('compact'));
+                }) || voices.find(voice => voice.lang.includes('en')) || voices[0];
+
+                if (this.preferredVoice) {
+                    console.log(`🎤 Using voice: ${this.preferredVoice.name} (${this.preferredVoice.lang})`);
+                }
+            }
+
+            speak(text, options = {}) {
+                if (!this.isEnabled || !text || !('speechSynthesis' in window)) {
+                    return;
+                }
+
+                // Stop any current speech
+                this.stop();
+
+                // Create utterance with humanistic settings
+                const utterance = new SpeechSynthesisUtterance(text);
+                
+                // Apply settings
+                utterance.rate = options.rate || this.settings.rate;
+                utterance.pitch = options.pitch || this.settings.pitch;
+                utterance.volume = options.volume || this.settings.volume;
+                
+                // Set preferred voice
+                if (this.preferredVoice) {
+                    utterance.voice = this.preferredVoice;
+                }
+
+                // Event handlers for better user experience
+                utterance.onstart = () => {
+                    console.log('🎤 Speaking:', text.substring(0, 50) + '...');
+                    this.showAudioIndicator();
+                };
+
+                utterance.onend = () => {
+                    this.currentUtterance = null;
+                    this.hideAudioIndicator();
+                };
+
+                utterance.onerror = (event) => {
+                    console.error('Speech synthesis error:', event.error);
+                    this.currentUtterance = null;
+                    this.hideAudioIndicator();
+                };
+
+                // Store current utterance and speak
+                this.currentUtterance = utterance;
+                speechSynthesis.speak(utterance);
+
+                return utterance;
+            }
+
+            stop() {
+                if (speechSynthesis.speaking || speechSynthesis.pending) {
+                    speechSynthesis.cancel();
+                }
+                this.currentUtterance = null;
+                this.hideAudioIndicator();
+            }
+
+            toggle() {
+                this.isEnabled = !this.isEnabled;
+                if (!this.isEnabled) {
+                    this.stop();
+                }
+                return this.isEnabled;
+            }
+
+            setEnabled(enabled) {
+                this.isEnabled = enabled;
+                if (!enabled) {
+                    this.stop();
+                }
+            }
+
+            showAudioIndicator() {
+                const indicator = document.getElementById('audio-indicator');
+                if (indicator) {
+                    indicator.style.opacity = '1';
+                    indicator.style.transform = 'translateX(0)';
+                }
+            }
+
+            hideAudioIndicator() {
+                const indicator = document.getElementById('audio-indicator');
+                if (indicator) {
+                    indicator.style.opacity = '0';
+                    indicator.style.transform = 'translateX(100px)';
+                }
+            }
+        }
+
+        // Initialize global voice system
+        let humanVoice = null;
+        let audioEnabled = true;
+
+        // Audio content for Electric Charge
+        const audioContent = {
+            intro: "Welcome to understanding electric charge, one of the fundamental properties of matter. Electric charge creates the invisible forces that hold atoms together, power our devices, and create lightning. Let's explore this fascinating aspect of physics.",
+            chargeBasics: "Electric charge is a fundamental property of matter. Objects can have positive charge, negative charge, or be electrically neutral. Charge cannot be created or destroyed, only transferred from one object to another.",
+            chargeTypes: "There are two types of electric charge: positive and negative. Protons carry positive charge, electrons carry negative charge. Like charges repel each other, while opposite charges attract with electromagnetic force.",
+            interactions: "Charges interact through electrostatic forces that follow Coulomb's law. The strength of this force depends on the amount of charge and the distance between them. These forces shape how atoms bond and how electricity flows.",
+            conservation: "Electric charge follows the law of conservation. The total amount of electric charge in an isolated system remains constant. When we create static electricity, we're actually separating existing charges, not creating new ones.",
+            applications: "Electric charge is everywhere around us. It's in the atoms of our bodies, the static that makes balloons stick to walls, the lightning in storms, and the electricity that powers our modern world."
+        };
+
         // Initialize the experience
         window.addEventListener('load', () => {
             setTimeout(() => {
                 hideLoadingScreen();
                 initializeAnimations();
-                initializeAudio();
+                initializeVoiceSystem();
             }, 2000);
         });
 
-        // Audio Control Variables
-        let audioEnabled = true;
-        let currentAudio = null;
-        let speechSynthesis = window.speechSynthesis;
-
-        // Audio Content Scripts
-        const audioScripts = {
-            intro: "Welcome to Understanding Electric Charge. Electric charge is a fundamental property of matter that creates forces between particles. Let's explore how protons and electrons create the electromagnetic forces that shape our world.",
-            chargeTypes: "There are three types of electric charge. Positive charge is carried by protons. Negative charge is carried by electrons. And neutral objects have equal numbers of protons and electrons, resulting in no net charge.",
-            attraction: "When you press the animation button, watch how opposite charges attract each other. The positive and negative charges will move toward each other until they come together. This demonstrates the fundamental rule that opposite charges attract.",
-            repulsion: "Now observe how like charges repel each other. When you animate the repulsion, both positive charges will push away from each other and stay separated. The same happens with negative charges. This demonstrates that like charges repel.",
-            conservation: "Electric charge follows the law of conservation. Charge cannot be created or destroyed, only transferred from one object to another. When we rub a balloon on our hair, electrons transfer from hair to balloon, but the total charge in the system remains zero."
-        };
-
-        function initializeAudio() {
-            // Set up intersection observer for auto-audio
+        function initializeVoiceSystem() {
+            humanVoice = new HumanisticVoice();
+            
+            // Set up intersection observer for auto-audio with better timing
             const audioObserver = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting && audioEnabled) {
                         const section = entry.target;
-                        playAudioForSection(section);
+                        // Add delay to prevent rapid-fire audio changes
+                        setTimeout(() => {
+                            if (entry.isIntersecting) { // Double-check still in view
+                                playAudioForSection(section);
+                            }
+                        }, 300);
                     }
                 });
-            }, { threshold: 0.5 });
+            }, { 
+                threshold: 0.4, // Lower threshold to catch sections earlier
+                rootMargin: '0px 0px -100px 0px' // Better margin for triggering
+            });
 
             // Observe sections for auto-audio
             const sections = document.querySelectorAll('.concept-section');
             sections.forEach(section => audioObserver.observe(section));
 
-            // Auto-play intro audio after loading
+            // Auto-play introduction after a short delay
             setTimeout(() => {
                 if (audioEnabled) {
-                    speakText(audioScripts.intro);
+                    humanVoice.speak(audioContent.intro);
                 }
-            }, 3000);
+            }, 1500);
         }
 
         function playAudioForSection(section) {
@@ -879,47 +1057,54 @@
 
             const title = sectionTitle.textContent;
             
-            // Stop current audio
-            stopCurrentAudio();
-
-            // Play appropriate audio based on section
-            if (title.includes('What is Electric Charge')) {
-                speakText(audioScripts.intro);
-            } else if (title.includes('Types of Electric Charge')) {
-                speakText(audioScripts.chargeTypes);
-            } else if (title.includes('How Charges Interact')) {
-                speakText(audioScripts.attraction + " " + audioScripts.repulsion);
-            } else if (title.includes('Conservation')) {
-                speakText(audioScripts.conservation);
+            // Stop current audio instantly
+            if (humanVoice) {
+                humanVoice.stop();
             }
+
+            // Brief pause to prevent audio overlap
+            setTimeout(() => {
+                if (!audioEnabled) return;
+                
+                // Play appropriate audio based on section
+                if (title.includes('What is Electric Charge')) {
+                    humanVoice.speak(audioContent.chargeBasics);
+                } else if (title.includes('Types of Electric Charge')) {
+                    humanVoice.speak(audioContent.chargeTypes);
+                } else if (title.includes('How Charges Interact')) {
+                    humanVoice.speak(audioContent.interactions);
+                } else if (title.includes('Conservation')) {
+                    humanVoice.speak(audioContent.conservation);
+                } else if (title.includes('Where Do We Find')) {
+                    humanVoice.speak(audioContent.applications);
+                }
+            }, 200);
         }
 
         function speakText(text) {
-            if (!audioEnabled) return;
-
-            // Use Cartesia TTS if available, otherwise fallback to browser TTS
-            if (window.cartesiaTTS) {
-                window.cartesiaTTS.speak(text);
+            if (humanVoice && audioEnabled) {
+                humanVoice.speak(text);
             }
         }
 
         function stopCurrentAudio() {
-            if (window.cartesiaTTS) {
-                window.cartesiaTTS.stop();
-            } else if (window.speechSynthesis && window.speechSynthesis.speaking) {
-                window.speechSynthesis.cancel();
+            if (humanVoice) {
+                humanVoice.stop();
             }
-            hideAudioIndicator();
         }
 
-        function showAudioIndicator(text) {
-            // Optional: Add visual indicator for audio playback
-            console.log('🎵 Playing:', text.substring(0, 50) + '...');
+        function toggleAudio() {
+            if (humanVoice) {
+                audioEnabled = humanVoice.toggle();
+                updateAudioButton();
+            }
         }
 
-        function hideAudioIndicator() {
-            // Optional: Hide visual indicator
-            console.log('🔇 Audio finished');
+        function updateAudioButton() {
+            const muteBtn = document.getElementById('mute-btn');
+            if (muteBtn) {
+                muteBtn.classList.toggle('muted', !audioEnabled);
+            }
         }
 
         function hideLoadingScreen() {
@@ -976,16 +1161,6 @@
             });
         }
 
-        // Audio control
-        document.getElementById('mute-btn')?.addEventListener('click', function() {
-            this.classList.toggle('muted');
-            audioEnabled = !audioEnabled;
-            
-            if (!audioEnabled) {
-                stopCurrentAudio();
-            }
-        });
-
         // Smooth scrolling
         document.addEventListener('wheel', (e) => {
             if (Math.abs(e.deltaY) > 50) {
@@ -1008,26 +1183,26 @@
         `;
         document.head.appendChild(style);
 
-        // Animation Control Functions
+        // Animation Control Functions with Synchronized Voice
         function animateAttraction() {
             const posCharge = document.getElementById('attract-pos');
             const negCharge = document.getElementById('attract-neg');
             const arrow = document.querySelector('#attraction-demo .force-arrow');
             
-            // Play audio narration
-            if (audioEnabled) {
-                speakText("Watch as opposite charges attract! The positive charge and negative charge will move toward each other until they come together, demonstrating electromagnetic attraction.");
-            }
-            
             // Reset any existing animations
             resetAttraction();
             
-            // Add animation classes after a brief delay
+            // Start voice narration first
+            if (audioEnabled && humanVoice) {
+                humanVoice.speak("Watch as opposite charges attract each other. The positive and negative charges are drawn together by electromagnetic force.");
+            }
+            
+            // Add animation classes after a brief delay to sync with voice
             setTimeout(() => {
                 posCharge.classList.add('charge-attract-left');
                 negCharge.classList.add('charge-attract-right');
-                arrow.style.animation = 'attractArrow 2s ease-in-out forwards';
-            }, 100);
+                arrow.style.animation = 'attractArrow 3s ease-in-out forwards'; // Slower animation
+            }, 1000); // Delay to sync with voice
         }
 
         function resetAttraction() {
@@ -1042,6 +1217,11 @@
             // Reset transforms
             posCharge.style.transform = '';
             negCharge.style.transform = '';
+            
+            // Stop any current audio
+            if (humanVoice) {
+                humanVoice.stop();
+            }
         }
 
         function animateRepulsion1() {
@@ -1049,20 +1229,20 @@
             const rightCharge = document.getElementById('repel-pos-2');
             const arrow = document.querySelector('#repulsion-demo-1 .force-arrow');
             
-            // Play audio narration
-            if (audioEnabled) {
-                speakText("Now observe repulsion! These two positive charges will push away from each other because like charges repel. Watch them move apart and stay separated.");
-            }
-            
             // Reset any existing animations
             resetRepulsion1();
             
-            // Add animation classes after a brief delay
+            // Start voice narration first
+            if (audioEnabled && humanVoice) {
+                humanVoice.speak("Now observe how like charges repel. These two positive charges push away from each other with electromagnetic force.");
+            }
+            
+            // Add animation classes after a brief delay to sync with voice
             setTimeout(() => {
                 leftCharge.classList.add('charge-repel-left');
                 rightCharge.classList.add('charge-repel-right');
-                arrow.style.animation = 'repelArrow 2s ease-in-out forwards';
-            }, 100);
+                arrow.style.animation = 'repelArrow 3s ease-in-out forwards'; // Slower animation
+            }, 1000);
         }
 
         function resetRepulsion1() {
@@ -1077,6 +1257,11 @@
             // Reset transforms
             leftCharge.style.transform = '';
             rightCharge.style.transform = '';
+            
+            // Stop any current audio
+            if (humanVoice) {
+                humanVoice.stop();
+            }
         }
 
         function animateRepulsion2() {
@@ -1084,20 +1269,20 @@
             const rightCharge = document.getElementById('repel-neg-2');
             const arrow = document.querySelector('#repulsion-demo-2 .force-arrow');
             
-            // Play audio narration
-            if (audioEnabled) {
-                speakText("Here's another example of repulsion! Two negative charges also repel each other. Like charges always push apart, whether they're positive or negative.");
-            }
-            
             // Reset any existing animations
             resetRepulsion2();
             
-            // Add animation classes after a brief delay
+            // Start voice narration first
+            if (audioEnabled && humanVoice) {
+                humanVoice.speak("Similarly, two negative charges also repel each other. Like charges always push apart, regardless of whether they're positive or negative.");
+            }
+            
+            // Add animation classes after a brief delay to sync with voice
             setTimeout(() => {
                 leftCharge.classList.add('charge-repel-left');
                 rightCharge.classList.add('charge-repel-right');
-                arrow.style.animation = 'repelArrow 2s ease-in-out forwards';
-            }, 100);
+                arrow.style.animation = 'repelArrow 3s ease-in-out forwards'; // Slower animation
+            }, 1000);
         }
 
         function resetRepulsion2() {
@@ -1112,7 +1297,17 @@
             // Reset transforms
             leftCharge.style.transform = '';
             rightCharge.style.transform = '';
+            
+            // Stop any current audio
+            if (humanVoice) {
+                humanVoice.stop();
+            }
         }
+
+        // Audio control
+        document.getElementById('mute-btn')?.addEventListener('click', function() {
+            toggleAudio();
+        });
     </script>
 </body>
 </html> 

@@ -11,6 +11,9 @@
     
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E⚡%3C/text%3E%3C/svg%3E">
     
+    <!-- Cartesia Voice Integration -->
+    <script src="cartesia-config.js"></script>
+    
     <!-- Three.js Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -1177,27 +1180,13 @@
             }
             
             playIntroduction() {
-                if (this.audioEnabled && 'speechSynthesis' in window) {
+                if (this.audioEnabled) {
                     setTimeout(() => {
                         const introMessage = "Welcome to the Interactive Electrical Concepts Experience! You'll explore nine fundamental topics in electricity and electronics. Use the navigation dots, arrow keys, or scroll wheel to move between sections. Press M to toggle audio narration. Each visualization demonstrates real physics with accurate calculations and measurements. Let's begin your journey into the fascinating world of electricity!";
                         
-                        const utterance = new SpeechSynthesisUtterance(introMessage);
-                        utterance.rate = 0.9;
-                        utterance.pitch = 1.0;
-                        utterance.volume = 0.8;
-                        
-                        const voices = window.speechSynthesis.getVoices();
-                        const preferredVoice = voices.find(voice => 
-                            voice.name.includes('Alex') || 
-                            voice.name.includes('Samantha') ||
-                            voice.lang.startsWith('en')
-                        );
-                        
-                        if (preferredVoice) {
-                            utterance.voice = preferredVoice;
+                        if (window.cartesiaTTS) {
+                            window.cartesiaTTS.speak(introMessage);
                         }
-                        
-                        window.speechSynthesis.speak(utterance);
                     }, 1000);
                 }
             }
@@ -3598,17 +3587,16 @@
                     audioBtn.style.transform = 'scale(1)';
                 }, 200);
                 
-                if (!this.audioEnabled && 'speechSynthesis' in window) {
-                    window.speechSynthesis.cancel();
+                if (!this.audioEnabled) {
+                    if (window.cartesiaTTS) {
+                        window.cartesiaTTS.stop();
+                    }
                 } else if (this.audioEnabled) {
-                    // Provide audio feedback when enabled
                     setTimeout(() => {
                         const message = "Audio narration enabled. Educational descriptions will now play for each section.";
-                        const utterance = new SpeechSynthesisUtterance(message);
-                        utterance.rate = 1.0;
-                        utterance.pitch = 1.0;
-                        utterance.volume = 0.6;
-                        window.speechSynthesis.speak(utterance);
+                        if (window.cartesiaTTS) {
+                            window.cartesiaTTS.speak(message);
+                        }
                     }, 300);
                 }
             }
@@ -3628,13 +3616,11 @@
             showCompletion() {
                 document.getElementById('completion-modal').classList.add('active');
                 
-                if (this.audioEnabled && 'speechSynthesis' in window) {
+                if (this.audioEnabled) {
                     const message = "Congratulations! You have completed the Electrical Concepts experience. You now understand the fundamental principles of electricity from charge to power.";
-                    const utterance = new SpeechSynthesisUtterance(message);
-                    utterance.rate = 1.0;
-                    utterance.pitch = 1.0;
-                    utterance.volume = 0.8;
-                    window.speechSynthesis.speak(utterance);
+                    if (window.cartesiaTTS) {
+                        window.cartesiaTTS.speak(message);
+                    }
                 }
             }
             
@@ -4745,10 +4731,12 @@
             }
             
             narrateSection(index) {
-                if (!this.audioEnabled || !('speechSynthesis' in window)) return;
+                if (!this.audioEnabled) return;
                 
                 // Cancel any ongoing speech
-                window.speechSynthesis.cancel();
+                if (window.cartesiaTTS) {
+                    window.cartesiaTTS.stop();
+                }
                 
                 // Educational narration content for each section
                 const narrations = [
@@ -4782,41 +4770,9 @@
                 
                 const message = narrations[index] || "Exploring electrical concepts.";
                 
-                // Create utterance with enhanced properties
-                const utterance = new SpeechSynthesisUtterance(message);
-                utterance.rate = 0.9; // Slightly slower for better comprehension
-                utterance.pitch = 1.0;
-                utterance.volume = 0.8;
-                
-                // Use a more natural voice if available
-                const voices = window.speechSynthesis.getVoices();
-                const preferredVoice = voices.find(voice => 
-                    voice.name.includes('Alex') || 
-                    voice.name.includes('Samantha') ||
-                    voice.name.includes('Daniel') ||
-                    voice.lang.startsWith('en')
-                );
-                
-                if (preferredVoice) {
-                    utterance.voice = preferredVoice;
-                }
-                
-                // Add pauses for better pacing
-                const pausedMessage = message
-                    .replace(/\./g, '. ')
-                    .replace(/!/g, '! ')
-                    .replace(/\?/g, '? ')
-                    .replace(/:/g, ': ')
-                    .replace(/;/g, '; ')
-                    .replace(/,/g, ', ');
-                
-                utterance.text = pausedMessage;
-                
-                // Speak with error handling
-                try {
-                    window.speechSynthesis.speak(utterance);
-                } catch (error) {
-                    console.log('Speech synthesis error:', error);
+                // Use Cartesia TTS for high-quality narration
+                if (window.cartesiaTTS) {
+                    window.cartesiaTTS.speak(message);
                 }
                 
                 // Visual feedback during narration

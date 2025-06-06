@@ -175,6 +175,9 @@
       transition: all 0.2s;
     }
   </style>
+
+    <!-- Cartesia Voice Integration -->
+    <script src="cartesia-config.js"></script>
 </head>
 <body>
   <div class="container">
@@ -216,7 +219,7 @@
       if (!voiceFeedbackEnabled) return;
       
       if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
+        // speechSynthesis.cancel removed - using Cartesia only
         const utter = new SpeechSynthesisUtterance(voiceoverText);
         currentVoice = utter;
 
@@ -244,7 +247,7 @@
           currentVoice = null;
         };
 
-        window.speechSynthesis.speak(utter);
+        // Old browser TTS removed - using Cartesia only
       }
     }
 
@@ -266,7 +269,7 @@
       if (!voiceFeedbackEnabled) return;
       
       if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
+        // speechSynthesis.cancel removed - using Cartesia only
         const utter = new SpeechSynthesisUtterance(text);
         currentVoice = utter;
 
@@ -294,7 +297,7 @@
           currentVoice = null;
         };
 
-        window.speechSynthesis.speak(utter);
+        // Old browser TTS removed - using Cartesia only
       }
     }
 
@@ -304,7 +307,7 @@
       this.innerHTML = voiceFeedbackEnabled ? '🔊 Enabled' : '🔇 Disabled';
       this.style.background = voiceFeedbackEnabled ? 'var(--accent)' : '#666';
       if (!voiceFeedbackEnabled) {
-        window.speechSynthesis.cancel();
+        // speechSynthesis.cancel removed - using Cartesia only
         currentVoice = null;
       }
     });

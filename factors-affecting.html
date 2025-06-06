@@ -301,6 +301,9 @@
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Cartesia Voice Integration -->
+    <script src="cartesia-config.js"></script>
 </head>
 <body>
     <div class="container">
@@ -433,7 +436,7 @@
             
             if ('speechSynthesis' in window) {
                 // Cancel any ongoing speech
-                window.speechSynthesis.cancel();
+                // speechSynthesis.cancel removed - using Cartesia only
                 
                 // Create new utterance
                 const utter = new window.SpeechSynthesisUtterance(voiceoverText);
@@ -458,7 +461,7 @@
                 utter.onerror = () => { currentVoice = null; };
                 
                 // Start speaking
-                window.speechSynthesis.speak(utter);
+                // Old browser TTS removed - using Cartesia only
             }
         }
 
@@ -466,7 +469,7 @@
             if (!voiceFeedbackEnabled) return;
             
             if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
+                // speechSynthesis.cancel removed - using Cartesia only
                 const utter = new window.SpeechSynthesisUtterance(text);
                 currentVoice = utter;
                 utter.rate = 1.0;
@@ -485,7 +488,7 @@
                 utter.onend = () => { currentVoice = null; };
                 utter.onerror = () => { currentVoice = null; };
                 
-                window.speechSynthesis.speak(utter);
+                // Old browser TTS removed - using Cartesia only
             }
         }
 
@@ -507,7 +510,7 @@
             this.innerHTML = voiceFeedbackEnabled ? '🔊 Enabled' : '🔇 Disabled';
             this.style.background = voiceFeedbackEnabled ? 'var(--accent)' : '#666';
             if (!voiceFeedbackEnabled) {
-                window.speechSynthesis.cancel();
+                // speechSynthesis.cancel removed - using Cartesia only
                 currentVoice = null;
             }
         });

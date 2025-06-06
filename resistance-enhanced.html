@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Electrical Resistance - Interactive Physics</title>
+    <title>Resistance Properties - Enhanced Physics</title>
     <link rel="stylesheet" href="parallax-style.css">
-    <script src="cartesia-config.js"></script>
     <style>
         /* Enhanced Resistance Visualization Styles */
         :root {
@@ -842,247 +841,233 @@
 
     <!-- Enhanced Script -->
     <script>
+        // Standardized Humanistic Voice System
+        class HumanisticVoice {
+            constructor() {
+                this.isEnabled = true;
+                this.currentUtterance = null;
+                this.preferredVoice = null;
+                this.settings = {
+                    rate: 0.85,        // Slightly slower for better comprehension
+                    pitch: 1.0,        // Natural pitch
+                    volume: 0.9        // Clear but not overwhelming
+                };
+                this.initializeVoices();
+            }
+
+            initializeVoices() {
+                // Wait for voices to load
+                if (speechSynthesis.getVoices().length === 0) {
+                    speechSynthesis.onvoiceschanged = () => {
+                        this.selectPreferredVoice();
+                    };
+                } else {
+                    this.selectPreferredVoice();
+                }
+            }
+
+            selectPreferredVoice() {
+                const voices = speechSynthesis.getVoices();
+                
+                // Priority order for premium British female voices (most natural sounding)
+                const preferredVoiceNames = [
+                    'Serena',                    // Premium British English female
+                    'Kate',                      // High-quality British English
+                    'Stephanie',                 // British English female
+                    'Emma',                      // British English female  
+                    'Amy',                       // British English female
+                    'British English Female',    // Generic British female
+                    'English (UK) Female',       // UK female variant
+                    'Google UK English Female',  // Google's British voice
+                    'Microsoft Hazel',           // Microsoft UK voice
+                    'Daniel (Enhanced)',         // Enhanced British male as backup
+                    'Moira',                     // Irish English (close alternative)
+                    'Fiona',                     // Scottish English female
+                    'Samantha',                  // macOS natural voice (backup)
+                    'Karen',                     // Natural sounding (backup)
+                    'Alex',                      // Good for education (backup)
+                    'Google US English',         // Google's neural voice (backup)
+                    'Microsoft Zira',            // Microsoft natural voice (backup)
+                    'Microsoft David'            // Final backup option
+                ];
+
+                // Try to find preferred voices first - prioritizing British female voices
+                for (const voiceName of preferredVoiceNames) {
+                    const voice = voices.find(v => 
+                        v.name.toLowerCase().includes(voiceName.toLowerCase()) && 
+                        (v.lang.includes('en-GB') || v.lang.includes('en-UK') || v.lang.includes('en'))
+                    );
+                    if (voice) {
+                        this.preferredVoice = voice;
+                        console.log(`🎤 Selected premium voice: ${voice.name} (${voice.lang})`);
+                        return;
+                    }
+                }
+
+                // Enhanced fallback to any high-quality English voice with British preference
+                this.preferredVoice = voices.find(voice => {
+                    const name = voice.name.toLowerCase();
+                    const lang = voice.lang.toLowerCase();
+                    return (lang.includes('en-gb') || lang.includes('en-uk')) && 
+                           (name.includes('female') || name.includes('woman') || 
+                            name.includes('premium') || name.includes('enhanced') || 
+                            name.includes('natural') || !name.includes('compact'));
+                }) || voices.find(voice => {
+                    const name = voice.name.toLowerCase();
+                    return voice.lang.includes('en') && 
+                           (name.includes('premium') || name.includes('enhanced') || 
+                            name.includes('natural') || name.includes('female') ||
+                            !name.includes('compact'));
+                }) || voices.find(voice => voice.lang.includes('en')) || voices[0];
+
+                if (this.preferredVoice) {
+                    console.log(`🎤 Using voice: ${this.preferredVoice.name} (${this.preferredVoice.lang})`);
+                }
+            }
+
+            speak(text, options = {}) {
+                if (!this.isEnabled || !text || !('speechSynthesis' in window)) {
+                    return;
+                }
+
+                // Stop any current speech
+                this.stop();
+
+                // Create utterance with humanistic settings
+                const utterance = new SpeechSynthesisUtterance(text);
+                
+                // Apply settings
+                utterance.rate = options.rate || this.settings.rate;
+                utterance.pitch = options.pitch || this.settings.pitch;
+                utterance.volume = options.volume || this.settings.volume;
+                
+                // Set preferred voice
+                if (this.preferredVoice) {
+                    utterance.voice = this.preferredVoice;
+                }
+
+                // Event handlers for better user experience
+                utterance.onstart = () => {
+                    console.log('🎤 Speaking:', text.substring(0, 50) + '...');
+                    this.showAudioIndicator();
+                };
+
+                utterance.onend = () => {
+                    this.currentUtterance = null;
+                    this.hideAudioIndicator();
+                };
+
+                utterance.onerror = (event) => {
+                    console.error('Speech synthesis error:', event.error);
+                    this.currentUtterance = null;
+                    this.hideAudioIndicator();
+                };
+
+                // Store current utterance and speak
+                this.currentUtterance = utterance;
+                speechSynthesis.speak(utterance);
+
+                return utterance;
+            }
+
+            stop() {
+                if (speechSynthesis.speaking || speechSynthesis.pending) {
+                    speechSynthesis.cancel();
+                }
+                this.currentUtterance = null;
+                this.hideAudioIndicator();
+            }
+
+            toggle() {
+                this.isEnabled = !this.isEnabled;
+                if (!this.isEnabled) {
+                    this.stop();
+                }
+                return this.isEnabled;
+            }
+
+            setEnabled(enabled) {
+                this.isEnabled = enabled;
+                if (!enabled) {
+                    this.stop();
+                }
+            }
+
+            showAudioIndicator() {
+                const indicator = document.getElementById('audio-indicator');
+                if (indicator) {
+                    indicator.style.opacity = '1';
+                    indicator.style.transform = 'translateX(0)';
+                }
+            }
+
+            hideAudioIndicator() {
+                const indicator = document.getElementById('audio-indicator');
+                if (indicator) {
+                    indicator.style.opacity = '0';
+                    indicator.style.transform = 'translateX(100px)';
+                }
+            }
+        }
+
+        // Initialize global voice system
+        let humanVoice = null;
+        let audioEnabled = true;
+
+        // Audio content for Resistance
+        const audioContent = {
+            intro: "Welcome to understanding electrical resistance. Resistance opposes the flow of electric current and is measured in ohms. Different materials and wire properties affect how much they resist current flow.",
+            resistance: "Electrical resistance is the opposition to the flow of electric current through a material. It determines how much current will flow for a given voltage. Resistance is measured in Ohms, and follows Ohm's law: R equals V divided by I.",
+            wireProperties: "Wire resistance depends on four main factors: material type, length, thickness, and temperature. Longer and thinner wires have higher resistance. Copper and silver are excellent conductors with low resistance.",
+            factors: "Four main factors determine the resistance of a conductor: length, cross-sectional area, material, and temperature. The resistance formula is R equals rho L over A, where rho is resistivity, L is length, and A is cross-sectional area.",
+            materials: "Materials fall into three categories based on resistance. Conductors like copper and aluminum have very low resistance. Insulators like rubber and glass have extremely high resistance. Semiconductors like silicon have resistance between conductors and insulators.",
+            colorCode: "Resistor color bands indicate the resistance value and tolerance. The first two bands represent significant digits, the third band is the multiplier, and the fourth band shows the precision tolerance.",
+            colorCodes: "Color bands represent digits and multipliers. The first two bands are significant digits, the third is the multiplier, and the fourth shows tolerance. For example, brown-black-red-gold represents 1-0 times 100, which equals 1000 ohms with 5% tolerance.",
+            interactive: "Use the interactive controls to explore how different resistance values affect circuits. Click on color bands to learn their functions, and try different resistor values to see how the color coding changes.",
+            ohmsLaw: "Resistance affects current flow according to Ohm's law. Higher resistance reduces current for the same voltage. This property allows resistors to control current in electronic circuits."
+        };
+
         // Initialize the experience
         window.addEventListener('load', () => {
             setTimeout(() => {
                 hideLoadingScreen();
                 initializeAnimations();
-                initializeAudio();
+                initializeVoiceSystem();
                 setupResistanceControl();
             }, 2000);
         });
 
-        // Audio Control Variables
-        let audioEnabled = true;
-        let currentAudio = null;
-        let speechSynthesis = window.speechSynthesis;
-        let currentResistance = 100;
-        let currentResistorValue = 1000;
-        let currentTolerance = 5;
-
-        // Color Code System
-        const colorValues = {
-            '#000000': { name: 'Black', value: 0 },
-            '#8B4513': { name: 'Brown', value: 1 },
-            '#FF0000': { name: 'Red', value: 2 },
-            '#FFA500': { name: 'Orange', value: 3 },
-            '#FFFF00': { name: 'Yellow', value: 4 },
-            '#008000': { name: 'Green', value: 5 },
-            '#0000FF': { name: 'Blue', value: 6 },
-            '#8A2BE2': { name: 'Violet', value: 7 },
-            '#808080': { name: 'Gray', value: 8 },
-            '#FFFFFF': { name: 'White', value: 9 }
-        };
-
-        const toleranceColors = {
-            '#8B4513': { name: 'Brown', value: 1 }, // ±1%
-            '#FF0000': { name: 'Red', value: 2 },   // ±2%
-            '#FFD700': { name: 'Gold', value: 5 },  // ±5%
-            '#C0C0C0': { name: 'Silver', value: 10 } // ±10%
-        };
-
-        function getColorFromValue(value) {
-            for (const [color, data] of Object.entries(colorValues)) {
-                if (data.value === value) return color;
-            }
-            return '#000000';
-        }
-
-        function getToleranceColor(tolerance) {
-            for (const [color, data] of Object.entries(toleranceColors)) {
-                if (data.value === tolerance) return color;
-            }
-            return '#FFD700'; // Default to gold (5%)
-        }
-
-        function calculateColorBands(resistance, tolerance) {
-            let resistanceStr = resistance.toString();
+        function initializeVoiceSystem() {
+            humanVoice = new HumanisticVoice();
             
-            // Handle values less than 10
-            if (resistance < 10) {
-                resistanceStr = resistance.toString() + '0';
-            }
-            
-            // Get first two significant digits
-            let firstDigit = parseInt(resistanceStr[0]);
-            let secondDigit = parseInt(resistanceStr[1] || '0');
-            
-            // Calculate multiplier (number of zeros after first two digits)
-            let multiplier = resistanceStr.length - 2;
-            if (resistance < 10) multiplier = 0;
-            
-            // Get colors
-            const band1Color = getColorFromValue(firstDigit);
-            const band2Color = getColorFromValue(secondDigit);
-            const band3Color = getColorFromValue(multiplier);
-            const band4Color = getToleranceColor(tolerance);
-            
-            return {
-                band1: { color: band1Color, value: firstDigit, name: colorValues[band1Color].name },
-                band2: { color: band2Color, value: secondDigit, name: colorValues[band2Color].name },
-                band3: { color: band3Color, value: multiplier, name: colorValues[band3Color].name },
-                band4: { color: band4Color, tolerance: tolerance, name: toleranceColors[band4Color].name }
-            };
-        }
-
-        function setResistorValue(resistance, tolerance = 5) {
-            currentResistorValue = resistance;
-            currentTolerance = tolerance;
-            
-            // Update active button - find the clicked button
-            document.querySelectorAll('.value-btn').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.textContent.includes(formatResistanceValue(resistance))) {
-                    btn.classList.add('active');
-                }
-            });
-            
-            // Calculate and display color bands
-            const bands = calculateColorBands(resistance, tolerance);
-            updateColorBands(bands);
-            
-            // Update resistance display
-            updateResistanceValueDisplay(resistance, tolerance);
-            
-            if (audioEnabled) {
-                const resistanceText = formatResistanceValue(resistance);
-                speakText(`Resistor value set to ${resistanceText} with ${tolerance} percent tolerance.`);
-            }
-        }
-
-        function updateColorBands(bands) {
-            const band1 = document.getElementById('band-1');
-            const band2 = document.getElementById('band-2');
-            const band3 = document.getElementById('band-3');
-            const band4 = document.getElementById('band-4');
-            
-            // Animate band color changes
-            animateBandColorChange(band1, bands.band1.color);
-            animateBandColorChange(band2, bands.band2.color);
-            animateBandColorChange(band3, bands.band3.color);
-            animateBandColorChange(band4, bands.band4.color);
-            
-            // Add click listeners for explanations
-            setupBandClickListeners(bands);
-        }
-
-        function animateBandColorChange(bandElement, newColor) {
-            // Fade out
-            bandElement.style.opacity = '0';
-            bandElement.style.transform = 'scale(0.8)';
-            
-            setTimeout(() => {
-                bandElement.style.backgroundColor = newColor;
-                // Fade in
-                bandElement.style.opacity = '1';
-                bandElement.style.transform = 'scale(1)';
-            }, 150);
-        }
-
-        function setupBandClickListeners(bands) {
-            const explanationElement = document.getElementById('band-explanation');
-            
-            document.getElementById('band-1').onclick = () => {
-                showBandExplanation(`1st Digit: ${bands.band1.name} = ${bands.band1.value}`);
-            };
-            
-            document.getElementById('band-2').onclick = () => {
-                showBandExplanation(`2nd Digit: ${bands.band2.name} = ${bands.band2.value}`);
-            };
-            
-            document.getElementById('band-3').onclick = () => {
-                const multiplierText = bands.band3.value === 0 ? '×1' : `×10^${bands.band3.value}`;
-                showBandExplanation(`Multiplier: ${bands.band3.name} = ${multiplierText}`);
-            };
-            
-            document.getElementById('band-4').onclick = () => {
-                showBandExplanation(`Tolerance: ${bands.band4.name} = ±${bands.band4.tolerance}%`);
-            };
-        }
-
-        function showBandExplanation(text) {
-            const explanationElement = document.getElementById('band-explanation');
-            explanationElement.textContent = text;
-            explanationElement.classList.add('active');
-            
-            setTimeout(() => {
-                explanationElement.classList.remove('active');
-            }, 3000);
-        }
-
-        function updateResistanceValueDisplay(resistance, tolerance) {
-            const formattedValue = formatResistanceValue(resistance);
-            document.getElementById('resistor-value').textContent = `${formattedValue} ±${tolerance}%`;
-        }
-
-        function formatResistanceValue(resistance) {
-            if (resistance >= 1000000) {
-                return `${(resistance / 1000000).toFixed(1)}MΩ`;
-            } else if (resistance >= 1000) {
-                return `${(resistance / 1000).toFixed(1)}kΩ`;
-            } else {
-                return `${resistance}Ω`;
-            }
-        }
-
-        function animateColorBands() {
-            const bands = [
-                document.getElementById('band-1'),
-                document.getElementById('band-2'),
-                document.getElementById('band-3'),
-                document.getElementById('band-4')
-            ];
-            
-            bands.forEach((band, index) => {
-                setTimeout(() => {
-                    band.classList.add('highlight');
-                    setTimeout(() => {
-                        band.classList.remove('highlight');
-                    }, 800);
-                }, index * 300);
-            });
-            
-            if (audioEnabled) {
-                setTimeout(() => {
-                    speakText("Color bands represent digits and multipliers. The first two bands are significant digits, the third is the multiplier, and the fourth shows tolerance.");
-                }, 1200);
-            }
-        }
-
-        // Audio Content Scripts
-        const audioScripts = {
-            intro: "Welcome to understanding electrical resistance. Resistance is the opposition to electric current flow through materials. It determines how much current flows for a given voltage.",
-            resistance: "Resistance is measured in ohms. According to Ohm's law, resistance equals voltage divided by current. Higher resistance means less current flow for the same voltage.",
-            factors: "Four factors affect resistance: length, cross-sectional area, material type, and temperature. Longer wires have more resistance. Thicker wires have less resistance. Different materials have different resistivity values.",
-            materials: "Materials are classified as conductors, semiconductors, or insulators based on their resistance. Conductors like copper have very low resistance. Insulators like rubber have extremely high resistance.",
-            colorCodes: "Resistors use color bands to show their value. Each color represents a number. The first two bands are digits, the third is a multiplier, and the fourth shows tolerance."
-        };
-
-        function initializeAudio() {
+            // Set up intersection observer for auto-audio with better timing
             const audioObserver = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting && audioEnabled) {
                         const section = entry.target;
-                        playAudioForSection(section);
+                        // Add delay to prevent rapid-fire audio changes
+                        setTimeout(() => {
+                            if (entry.isIntersecting) { // Double-check still in view
+                                playAudioForSection(section);
+                            }
+                        }, 300);
                     }
                 });
-            }, { threshold: 0.5 });
+            }, { 
+                threshold: 0.4, // Lower threshold to catch sections earlier
+                rootMargin: '0px 0px -100px 0px' // Better margin for triggering
+            });
 
+            // Observe sections for auto-audio
             const sections = document.querySelectorAll('.concept-section');
             sections.forEach(section => audioObserver.observe(section));
-
+            
+            // Auto-play introduction after a short delay
             setTimeout(() => {
                 if (audioEnabled) {
-                    speakText(audioScripts.intro);
+                    humanVoice.speak(audioContent.intro);
                 }
-            }, 3000);
-
-            // Initialize with default resistor value
-            setTimeout(() => {
-                const bands = calculateColorBands(currentResistorValue, currentTolerance);
-                updateColorBands(bands);
-                updateResistanceValueDisplay(currentResistorValue, currentTolerance);
-            }, 100);
+            }, 1500);
         }
 
         function playAudioForSection(section) {
@@ -1090,45 +1075,27 @@
             if (!sectionTitle) return;
 
             const title = sectionTitle.textContent;
-            stopCurrentAudio();
-
-            if (title.includes('What is')) {
-                speakText(audioScripts.resistance);
-            } else if (title.includes('Factors')) {
-                speakText(audioScripts.factors);
-            } else if (title.includes('Materials')) {
-                speakText(audioScripts.materials);
-            } else if (title.includes('Color')) {
-                speakText(audioScripts.colorCodes);
+            
+            // Stop current audio instantly
+            if (humanVoice) {
+                humanVoice.stop();
             }
-        }
 
-        function speakText(text) {
-            if (!audioEnabled) return;
-
-            // Use Cartesia TTS if available, otherwise fallback to browser TTS
-            if (window.cartesiaTTS) {
-                window.cartesiaTTS.speak(text);
-            }
-        }
-
-        function stopCurrentAudio() {
-            if (window.cartesiaTTS) {
-                window.cartesiaTTS.stop();
-            } else if (window.speechSynthesis && window.speechSynthesis.speaking) {
-                window.speechSynthesis.cancel();
-            }
-            hideAudioIndicator();
-        }
-
-        function showAudioIndicator(text) {
-            // Optional: Add visual indicator for audio playback
-            console.log('🎵 Playing:', text.substring(0, 50) + '...');
-        }
-
-        function hideAudioIndicator() {
-            // Optional: Hide visual indicator
-            console.log('🔇 Audio finished');
+            // Brief pause to prevent audio overlap
+            setTimeout(() => {
+                if (!audioEnabled) return;
+                
+                // Play appropriate audio based on section
+                if (title.includes('What is Electrical Resistance')) {
+                    humanVoice.speak(audioContent.resistance);
+                } else if (title.includes('Factors Affecting Resistance')) {
+                    humanVoice.speak(audioContent.factors);
+                } else if (title.includes('Materials and Their Resistance')) {
+                    humanVoice.speak(audioContent.materials);
+                } else if (title.includes('Resistor Color Code')) {
+                    humanVoice.speak(audioContent.colorCode);
+                }
+            }, 200);
         }
 
         function hideLoadingScreen() {
@@ -1162,7 +1129,15 @@
             const bands = calculateColorBands(currentResistorValue, currentTolerance);
             updateColorBands(bands);
             updateResistanceValueDisplay(currentResistorValue, currentTolerance);
+            
+            // Set up interactions
+            setupColorBandInteractions();
+            addResistorPresets();
         }
+
+        // Variables for resistor demo
+        let currentResistorValue = 1000;
+        let currentTolerance = 5;
 
         function demonstrateResistance() {
             // Demonstrate different resistance values using the preset buttons
@@ -1177,15 +1152,14 @@
                     // Update resistor value
                     setResistorValue(resistance, tolerance);
                     
-                    if (audioEnabled) {
-                        const resistanceText = formatResistanceValue(resistance);
-                        const bands = calculateColorBands(resistance, tolerance);
-                        speakText(`Resistor value: ${resistanceText}. Color bands are ${bands.band1.name}, ${bands.band2.name}, ${bands.band3.name}, and ${bands.band4.name} for tolerance.`);
-                    }
-                    
                     currentIndex++;
-                    setTimeout(showNextResistance, 4000);
+                    setTimeout(showNextResistance, 3000);
                 }
+            }
+            
+            // Play demo audio instantly
+            if (audioEnabled) {
+                speakByKey('colorCodes');
             }
             
             showNextResistance();
@@ -1197,10 +1171,9 @@
         }
 
         function showColorCode() {
+            // Play color code explanation instantly
             if (audioEnabled) {
-                const bands = calculateColorBands(currentResistorValue, currentTolerance);
-                const resistanceText = formatResistanceValue(currentResistorValue);
-                speakText(`This ${resistanceText} resistor has ${bands.band1.name} for the first digit, ${bands.band2.name} for the second digit, ${bands.band3.name} for the multiplier, and ${bands.band4.name} for ${currentTolerance} percent tolerance.`);
+                speakByKey('colorCodes');
             }
             
             // Animate color bands with detailed explanations
@@ -1209,12 +1182,7 @@
 
         // Audio control
         document.getElementById('mute-btn')?.addEventListener('click', function() {
-            this.classList.toggle('muted');
-            audioEnabled = !audioEnabled;
-            
-            if (!audioEnabled) {
-                stopCurrentAudio();
-            }
+            toggleAudio();
         });
 
         // Smooth scrolling
@@ -1238,6 +1206,240 @@
             }
         `;
         document.head.appendChild(style);
+
+        function explainColorCode() {
+            if (audioEnabled) {
+                speakText("Color bands represent digits and multipliers. The first two bands are significant digits, the third is the multiplier, and the fourth shows tolerance.");
+            }
+            animateColorBands();
+        }
+
+        // Color Code System Implementation
+        const colorCodes = {
+            0: { color: 'black', name: 'Black', hex: '#000000' },
+            1: { color: 'brown', name: 'Brown', hex: '#8B4513' },
+            2: { color: 'red', name: 'Red', hex: '#FF0000' },
+            3: { color: 'orange', name: 'Orange', hex: '#FFA500' },
+            4: { color: 'yellow', name: 'Yellow', hex: '#FFFF00' },
+            5: { color: 'green', name: 'Green', hex: '#008000' },
+            6: { color: 'blue', name: 'Blue', hex: '#0000FF' },
+            7: { color: 'violet', name: 'Violet', hex: '#8A2BE2' },
+            8: { color: 'gray', name: 'Gray', hex: '#808080' },
+            9: { color: 'white', name: 'White', hex: '#FFFFFF' }
+        };
+
+        const multipliers = {
+            0: 1,
+            1: 10,
+            2: 100,
+            3: 1000,
+            4: 10000,
+            5: 100000,
+            6: 1000000,
+            7: 10000000,
+            8: 0.01,
+            9: 0.1
+        };
+
+        const toleranceCodes = {
+            1: { color: 'brown', name: 'Brown', hex: '#8B4513' },
+            2: { color: 'red', name: 'Red', hex: '#FF0000' },
+            5: { color: 'gold', name: 'Gold', hex: '#FFD700' },
+            10: { color: 'silver', name: 'Silver', hex: '#C0C0C0' },
+            20: { color: 'none', name: 'No band', hex: 'transparent' }
+        };
+
+        function calculateColorBands(resistance, tolerance = 5) {
+            // Convert resistance to string and extract digits
+            const resistanceStr = resistance.toString();
+            let firstDigit, secondDigit, multiplier;
+            
+            if (resistance < 10) {
+                firstDigit = 0;
+                secondDigit = resistance;
+                multiplier = 0;
+            } else if (resistance < 100) {
+                firstDigit = Math.floor(resistance / 10);
+                secondDigit = resistance % 10;
+                multiplier = 0;
+            } else {
+                firstDigit = parseInt(resistanceStr[0]);
+                secondDigit = parseInt(resistanceStr[1]);
+                
+                // Calculate multiplier based on remaining digits
+                const remainingDigits = resistanceStr.length - 2;
+                multiplier = remainingDigits;
+            }
+            
+            return {
+                band1: firstDigit,
+                band2: secondDigit,
+                band3: multiplier,
+                band4: tolerance
+            };
+        }
+
+        function updateColorBands(bands) {
+            const band1 = document.getElementById('band-1');
+            const band2 = document.getElementById('band-2');
+            const band3 = document.getElementById('band-3');
+            const band4 = document.getElementById('band-4');
+            
+            if (band1 && colorCodes[bands.band1]) {
+                band1.style.backgroundColor = colorCodes[bands.band1].hex;
+                band1.title = `${colorCodes[bands.band1].name} (${bands.band1})`;
+            }
+            
+            if (band2 && colorCodes[bands.band2]) {
+                band2.style.backgroundColor = colorCodes[bands.band2].hex;
+                band2.title = `${colorCodes[bands.band2].name} (${bands.band2})`;
+            }
+            
+            if (band3 && colorCodes[bands.band3]) {
+                band3.style.backgroundColor = colorCodes[bands.band3].hex;
+                band3.title = `${colorCodes[bands.band3].name} (×${multipliers[bands.band3]})`;
+            }
+            
+            if (band4 && toleranceCodes[bands.band4]) {
+                band4.style.backgroundColor = toleranceCodes[bands.band4].hex;
+                band4.title = `${toleranceCodes[bands.band4].name} (±${bands.band4}%)`;
+            }
+        }
+
+        function animateColorBands() {
+            const bands = [
+                document.getElementById('band-1'),
+                document.getElementById('band-2'),
+                document.getElementById('band-3'),
+                document.getElementById('band-4')
+            ];
+            
+            bands.forEach((band, index) => {
+                if (band) {
+                    setTimeout(() => {
+                        band.classList.add('highlight');
+                        setTimeout(() => {
+                            band.classList.remove('highlight');
+                        }, 1000);
+                    }, index * 500);
+                }
+            });
+        }
+
+        function setResistorValue(resistance, tolerance = 5) {
+            currentResistorValue = resistance;
+            currentTolerance = tolerance;
+            
+            const bands = calculateColorBands(resistance, tolerance);
+            updateColorBands(bands);
+            updateResistanceValueDisplay(resistance, tolerance);
+            
+            // Provide audio feedback
+            if (audioEnabled) {
+                const unit = resistance >= 1000000 ? 'megohm' : resistance >= 1000 ? 'kilohm' : 'ohm';
+                const value = resistance >= 1000000 ? (resistance / 1000000) : resistance >= 1000 ? (resistance / 1000) : resistance;
+                speakText(`Set to ${value} ${unit} with ${tolerance}% tolerance`);
+            }
+        }
+
+        function updateResistanceValueDisplay(resistance, tolerance) {
+            // Update the resistance display - use the existing resistor-value element
+            const display = document.getElementById('resistor-value');
+            if (display) {
+                let unit = 'Ω';
+                let value = resistance;
+                
+                if (resistance >= 1000000) {
+                    value = resistance / 1000000;
+                    unit = 'MΩ';
+                } else if (resistance >= 1000) {
+                    value = resistance / 1000;
+                    unit = 'kΩ';
+                }
+                
+                display.textContent = `${value}${unit} ±${tolerance}%`;
+            }
+        }
+
+        // Set up color band click interactions
+        function setupColorBandInteractions() {
+            const bandExplanations = {
+                'band-1': 'First digit of resistance value',
+                'band-2': 'Second digit of resistance value', 
+                'band-3': 'Multiplier (number of zeros)',
+                'band-4': 'Tolerance (precision percentage)'
+            };
+            
+            Object.keys(bandExplanations).forEach(bandId => {
+                const band = document.getElementById(bandId);
+                if (band) {
+                    band.style.cursor = 'pointer';
+                    band.addEventListener('click', () => {
+                        const explanation = document.getElementById('band-explanation');
+                        if (explanation) {
+                            explanation.textContent = bandExplanations[bandId];
+                            explanation.classList.add('active');
+                            
+                            if (audioEnabled) {
+                                speakText(bandExplanations[bandId]);
+                            }
+                            
+                            setTimeout(() => {
+                                explanation.classList.remove('active');
+                            }, 3000);
+                        }
+                    });
+                }
+            });
+        }
+
+        // Enhanced setup function for existing buttons
+        function addResistorPresets() {
+            // The HTML already has preset buttons, so we'll just make sure they're properly set up
+            // Update the active state for the default 1kΩ button
+            const valueButtons = document.querySelectorAll('.value-btn');
+            valueButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Remove active class from all buttons
+                    valueButtons.forEach(b => b.classList.remove('active'));
+                    // Add active class to clicked button
+                    btn.classList.add('active');
+                });
+            });
+        }
+
+        // Helper function for audio
+        function speakByKey(key) {
+            if (audioEnabled && audioContent[key]) {
+                humanVoice.speak(audioContent[key]);
+            }
+        }
+
+        function speakText(text) {
+            if (humanVoice && audioEnabled) {
+                humanVoice.speak(text);
+            }
+        }
+
+        function stopCurrentAudio() {
+            if (humanVoice) {
+                humanVoice.stop();
+            }
+        }
+
+        function toggleAudio() {
+            if (humanVoice) {
+                audioEnabled = humanVoice.toggle();
+                updateAudioButton();
+            }
+        }
+
+        function updateAudioButton() {
+            const muteBtn = document.getElementById('mute-btn');
+            if (muteBtn) {
+                muteBtn.classList.toggle('muted', !audioEnabled);
+            }
+        }
     </script>
 </body>
 </html> 

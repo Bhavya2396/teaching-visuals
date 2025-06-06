@@ -201,8 +201,6 @@
 </head>
 <body>
   <div class="container">
-
-
     <div class="visualization-container">
       <div class="simulation-panel" id="simulation">
         <!-- Voltage simulation will be rendered here -->
@@ -235,6 +233,23 @@
         <div class="formula" style="margin-top: 10px;">
           <div class="formula-text">E = -∇V</div>
         </div>
+        <button id="mute-btn" class="control-btn">
+          <span class="unmute-icon">🔊</span>
+          <span class="mute-icon">🔇</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Voltage Analysis Display -->
+  <div class="voltage-display">
+    <h2>⚡ Voltage Analysis</h2>
+    <div class="voltage-info">
+      <div class="voltage-value">
+        <span id="voltage-number">12.0</span> V
+      </div>
+      <div class="voltage-description" id="voltage-desc">
+        Standard automotive battery voltage
       </div>
     </div>
   </div>
@@ -272,7 +287,7 @@
       if (!voiceFeedbackEnabled) return;
       
       if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
+        // speechSynthesis.cancel removed - using Cartesia only
         const utter = new window.SpeechSynthesisUtterance(voiceoverText);
         currentVoice = utter;
         utter.rate = 1.0;
@@ -291,7 +306,7 @@
         utter.onend = () => { currentVoice = null; };
         utter.onerror = () => { currentVoice = null; };
         
-        window.speechSynthesis.speak(utter);
+        // Old browser TTS removed - using Cartesia only
       }
     }
 
@@ -299,7 +314,7 @@
       if (!voiceFeedbackEnabled) return;
       
       if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
+        // speechSynthesis.cancel removed - using Cartesia only
         const utter = new window.SpeechSynthesisUtterance(text);
         currentVoice = utter;
         utter.rate = 1.0;
@@ -318,7 +333,7 @@
         utter.onend = () => { currentVoice = null; };
         utter.onerror = () => { currentVoice = null; };
         
-        window.speechSynthesis.speak(utter);
+        // Old browser TTS removed - using Cartesia only
       }
     }
 
@@ -337,7 +352,7 @@
       this.innerHTML = voiceFeedbackEnabled ? '🔊 Enabled' : '🔇 Disabled';
       this.style.background = voiceFeedbackEnabled ? 'var(--accent)' : '#666';
       if (!voiceFeedbackEnabled) {
-        window.speechSynthesis.cancel();
+        // speechSynthesis.cancel removed - using Cartesia only
         currentVoice = null;
       }
     });
@@ -845,6 +860,83 @@
         window.speechSynthesis.pause();
       } else if (!document.hidden && currentVoice) {
         window.speechSynthesis.resume();
+      }
+    });
+
+    function voiceoverSection(voiceoverText) {
+      if (!voiceFeedbackEnabled || !voiceoverText) return;
+
+      // Use browser's built-in speech synthesis
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        
+        const utterance = new SpeechSynthesisUtterance(voiceoverText);
+        utterance.rate = 0.9;
+        utterance.pitch = 1.0;
+        utterance.volume = 0.8;
+        
+        // Get available voices and use a preferred one
+        const voices = window.speechSynthesis.getVoices();
+        if (voices.length > 0) {
+          const preferredVoice = voices.find(voice => 
+            voice.lang.includes('en') && 
+            (voice.name.includes('Natural') || voice.name.includes('Enhanced'))
+          ) || voices.find(voice => voice.lang.includes('en')) || voices[0];
+          
+          utterance.voice = preferredVoice;
+        }
+        
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    function speakText(text) {
+      if (!voiceFeedbackEnabled || !text) return;
+
+      // Use browser's built-in speech synthesis
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 0.9;
+        utterance.pitch = 1.0;
+        utterance.volume = 0.8;
+        
+        // Get available voices and use a preferred one
+        const voices = window.speechSynthesis.getVoices();
+        if (voices.length > 0) {
+          const preferredVoice = voices.find(voice => 
+            voice.lang.includes('en') && 
+            (voice.name.includes('Natural') || voice.name.includes('Enhanced'))
+          ) || voices.find(voice => voice.lang.includes('en')) || voices[0];
+          
+          utterance.voice = preferredVoice;
+        }
+        
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    function stopCurrentAudio() {
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    }
+
+    // Add mute button functionality
+    const muteBtn = document.getElementById('mute-btn');
+    muteBtn.addEventListener('click', () => {
+      const unmuteIcon = muteBtn.querySelector('.unmute-icon');
+      const muteIcon = muteBtn.querySelector('.mute-icon');
+      
+      if (unmuteIcon.style.display === 'none') {
+        unmuteIcon.style.display = 'inline';
+        muteIcon.style.display = 'none';
+        stopCurrentAudio();
+      } else {
+        unmuteIcon.style.display = 'none';
+        muteIcon.style.display = 'inline';
+        playVoiceover();
       }
     });
   </script>

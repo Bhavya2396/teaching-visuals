@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: white;
+        }
+        .test-btn {
+            background: #4a9eff;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            margin: 10px;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .test-btn:hover {
+            background: #74b9ff;
+        }
+        .log {
+            background: #2d3748;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 0.9rem;
+            height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔊 Audio System Test</h1>
+    
+    <div>
+        <button class="test-btn" onclick="testBrowserAudio()">Test Browser Audio</button>
+        <button class="test-btn" onclick="testVoices()">Test Available Voices</button>
+        <button class="test-btn" onclick="testLongText()">Test Long Text</button>
+        <button class="test-btn" onclick="clearLog()">Clear Log</button>
+    </div>
+    
+    <div id="log" class="log"></div>
+    
+    <script>
+        const log = document.getElementById('log');
+        
+        function addLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? '#ff6b6b' : type === 'success' ? '#51cf66' : '#74b9ff';
+            log.innerHTML += `<div style="color: ${color}">[${timestamp}] ${message}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        function clearLog() {
+            log.innerHTML = '';
+        }
+        
+        // Test basic browser audio
+        function testBrowserAudio() {
+            addLog('Testing browser audio capabilities...');
+            
+            if (!('speechSynthesis' in window)) {
+                addLog('❌ Browser speech synthesis not supported', 'error');
+                return;
+            }
+            
+            addLog('✅ Browser speech synthesis available', 'success');
+            
+            // Test browser TTS
+            const utterance = new SpeechSynthesisUtterance('This is a browser audio test. The physics visualization system is working correctly.');
+            utterance.rate = 0.9;
+            utterance.pitch = 1.0;
+            utterance.volume = 0.8;
+            
+            utterance.onstart = () => addLog('🔊 Browser TTS started', 'success');
+            utterance.onend = () => addLog('🏁 Browser TTS finished', 'success');
+            utterance.onerror = (e) => addLog(`❌ Browser TTS error: ${e.error}`, 'error');
+            
+            speechSynthesis.speak(utterance);
+        }
+        
+        // Test available voices
+        function testVoices() {
+            addLog('Testing available voices...');
+            
+            if (!('speechSynthesis' in window)) {
+                addLog('❌ Speech synthesis not available', 'error');
+                return;
+            }
+            
+            const voices = speechSynthesis.getVoices();
+            
+            if (voices.length === 0) {
+                addLog('⏳ Voices loading... trying again in 1 second');
+                setTimeout(testVoices, 1000);
+                return;
+            }
+            
+            addLog(`✅ Found ${voices.length} available voices:`, 'success');
+            
+            voices.forEach((voice, index) => {
+                const isDefault = voice.default ? ' (default)' : '';
+                const lang = voice.lang;
+                addLog(`  ${index + 1}. ${voice.name} [${lang}]${isDefault}`, 'info');
+            });
+            
+            // Test with a preferred voice
+            const englishVoices = voices.filter(voice => voice.lang.includes('en'));
+            if (englishVoices.length > 0) {
+                const testVoice = englishVoices[0];
+                addLog(`🎤 Testing with voice: ${testVoice.name}`, 'info');
+                
+                const utterance = new SpeechSynthesisUtterance('Testing voice quality for physics education.');
+                utterance.voice = testVoice;
+                utterance.rate = 0.9;
+                speechSynthesis.speak(utterance);
+            }
+        }
+        
+        // Test long text
+        function testLongText() {
+            addLog('Testing long text narration...');
+            
+            const longText = `Electric charge is a fundamental property of matter that causes it to experience a force when placed in an electromagnetic field. 
+            There are two types of electric charge: positive and negative. Like charges repel each other, while opposite charges attract. 
+            This principle is fundamental to understanding electrical circuits, atomic structure, and electromagnetic phenomena in physics.`;
+            
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(longText);
+                utterance.rate = 0.8;
+                utterance.pitch = 1.0;
+                utterance.volume = 0.8;
+                
+                utterance.onstart = () => addLog('🔊 Long text narration started', 'success');
+                utterance.onend = () => addLog('🏁 Long text narration completed', 'success');
+                utterance.onerror = (e) => addLog(`❌ Long text error: ${e.error}`, 'error');
+                
+                speechSynthesis.speak(utterance);
+            } else {
+                addLog('❌ Speech synthesis not available', 'error');
+            }
+        }
+        
+        // Initialize on load
+        window.addEventListener('load', () => {
+            addLog('🚀 Audio test page loaded');
+            addLog('Click buttons above to test browser speech synthesis');
+            
+            // Auto-test basic setup
+            setTimeout(() => {
+                if ('speechSynthesis' in window) {
+                    addLog('✅ Speech synthesis API available', 'success');
+                    
+                    // Wait for voices to load
+                    if (speechSynthesis.getVoices().length === 0) {
+                        speechSynthesis.onvoiceschanged = () => {
+                            addLog(`✅ ${speechSynthesis.getVoices().length} voices loaded`, 'success');
+                        };
+                    } else {
+                        addLog(`✅ ${speechSynthesis.getVoices().length} voices already available`, 'success');
+                    }
+                } else {
+                    addLog('❌ Speech synthesis not supported in this browser', 'error');
+                }
+            }, 500);
+        });
+    </script>
+</body>
+</html> 
