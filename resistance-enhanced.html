@@ -1140,29 +1140,68 @@
         let currentTolerance = 5;
 
         function demonstrateResistance() {
-            // Demonstrate different resistance values using the preset buttons
-            const resistanceValues = [220, 1000, 4700, 10000, 47000, 100000];
+            // Start with initial explanation
+            if (audioEnabled && humanVoice) {
+                humanVoice.speak("Let me demonstrate different resistance values with their color codes. Watch how the color bands change as we explore various resistance values from 220 ohms to 100 kilohms.");
+            }
+            
+            // Demonstrate different resistance values with proper speech synchronization
+            const resistanceValues = [
+                { value: 220, tolerance: 5, description: "220 ohms with 5% tolerance - red, red, brown, gold bands" },
+                { value: 1000, tolerance: 5, description: "1 kilohm with 5% tolerance - brown, black, red, gold bands" },
+                { value: 4700, tolerance: 5, description: "4.7 kilohms with 5% tolerance - yellow, violet, red, gold bands" },
+                { value: 10000, tolerance: 5, description: "10 kilohms with 5% tolerance - brown, black, orange, gold bands" },
+                { value: 47000, tolerance: 10, description: "47 kilohms with 10% tolerance - yellow, violet, orange, silver bands" },
+                { value: 100000, tolerance: 5, description: "100 kilohms with 5% tolerance - brown, black, yellow, gold bands" }
+            ];
+            
             let currentIndex = 0;
             
             function showNextResistance() {
                 if (currentIndex < resistanceValues.length) {
-                    const resistance = resistanceValues[currentIndex];
-                    const tolerance = resistance === 47000 ? 10 : 5;
+                    const item = resistanceValues[currentIndex];
                     
-                    // Update resistor value
-                    setResistorValue(resistance, tolerance);
+                    // Update resistor value first
+                    setResistorValue(item.value, item.tolerance);
                     
-                    currentIndex++;
-                    setTimeout(showNextResistance, 3000);
+                    // Then speak the description with proper timing
+                    if (audioEnabled && humanVoice) {
+                        const utterance = humanVoice.speak(item.description);
+                        
+                        if (utterance) {
+                            utterance.onend = () => {
+                                // Wait 1 second after speech completes, then move to next
+                                setTimeout(() => {
+                                    currentIndex++;
+                                    showNextResistance();
+                                }, 1000);
+                            };
+                        } else {
+                            // Fallback timing if speech synthesis fails
+                            setTimeout(() => {
+                                currentIndex++;
+                                showNextResistance();
+                            }, 4000);
+                        }
+                    } else {
+                        // If audio is disabled, use shorter timing
+                        setTimeout(() => {
+                            currentIndex++;
+                            showNextResistance();
+                        }, 2000);
+                    }
+                } else {
+                    // Demo complete
+                    if (audioEnabled && humanVoice) {
+                        humanVoice.speak("Resistance demonstration complete. Notice how each resistance value corresponds to specific color band combinations following the standard resistor color code system.");
+                    }
                 }
             }
             
-            // Play demo audio instantly
-            if (audioEnabled) {
-                speakByKey('colorCodes');
-            }
-            
-            showNextResistance();
+            // Start the demo after a short delay to allow intro speech
+            setTimeout(() => {
+                showNextResistance();
+            }, 3000);
         }
 
         function resetResistorDemo() {
