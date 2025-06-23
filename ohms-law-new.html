@@ -792,15 +792,19 @@
 
         // Audio content for Ohm's Law
         const audioContent = {
-            intro: "Welcome to Ohm's Law, the fundamental relationship in electrical circuits. This law describes how voltage, current, and resistance work together. Voltage equals current times resistance. Understanding this relationship is essential for analyzing any electrical circuit.",
-            formula: "Ohm's Law has three forms that help us solve different electrical problems. V equals I times R calculates voltage when you know current and resistance. I equals V divided by R finds current when you know voltage and resistance. R equals V divided by I determines resistance when you know voltage and current.",
-            calculator: "Use this interactive calculator to explore how changing one electrical quantity affects the others. The relationships follow Ohm's Law precisely and automatically. Try adjusting voltage to see how current changes, or modify resistance to observe its effect on the circuit.",
-            circuit: "In this circuit visualization, current flows from the positive battery terminal through the resistor and back to the negative terminal. The flow speed represents current magnitude. Higher voltage increases current flow, while higher resistance slows it down.",
-            voltage: "Voltage is the electrical pressure that pushes electrons through a circuit. It's measured in volts and represents the energy per unit charge. Higher voltage means more force pushing electrons, which increases current if resistance stays constant.",
-            current: "Current is the flow of electric charge measured in amperes. One ampere equals one coulomb of charge flowing per second. Current intensity depends on both the voltage pushing the electrons and the resistance opposing their flow.",
-            resistance: "Resistance opposes the flow of electric current and is measured in ohms. Materials with high resistance make it difficult for electrons to flow. Lower resistance allows easier current flow for the same voltage.",
-            relationships: "These three quantities are intimately connected. Increasing voltage increases current. Increasing resistance decreases current. The power dissipated equals voltage times current, which also equals current squared times resistance."
+            intro: "Welcome to Ohm's Law, the fundamental relationship in electrical circuits. This interactive guide will help you understand how voltage, current, and resistance work together to power our electrical world.",
+            understanding: "Let's understand Ohm's Law in detail. The law states that the current flowing through a conductor is directly proportional to the voltage and inversely proportional to the resistance. This means if you increase the voltage, the current increases, and if you increase the resistance, the current decreases.",
+            formula: "The Ohm's Law formula takes three forms: V equals I times R for finding voltage, I equals V divided by R for finding current, and R equals V divided by I for finding resistance. These three equations help us solve any basic circuit problem.",
+            calculator: "This interactive calculator lets you explore Ohm's Law in action. Try adjusting the voltage, current, or resistance sliders to see how they affect each other. The calculator automatically updates all values based on Ohm's Law.",
+            circuit: "In this circuit visualization, you can see how electrons flow through a simple circuit. The battery provides voltage, pushing electrons through the resistor. The flow speed represents the current, while the resistor controls how easily the electrons can move.",
+            voltage: "Voltage is like electrical pressure, measured in volts. It's the force that pushes electrons through the circuit. Think of it as the electrical equivalent of water pressure in a pipe.",
+            current: "Current is the flow rate of electrons, measured in amperes. One ampere represents one coulomb of charge flowing per second. The higher the current, the more electrons are flowing past a point each second.",
+            resistance: "Resistance, measured in ohms, is how much the material opposes electron flow. Higher resistance means electrons have a harder time flowing through, like a narrow pipe restricting water flow.",
+            relationships: "Watch how these quantities interact: doubling the voltage while keeping resistance constant will double the current. Similarly, doubling the resistance while maintaining the same voltage will halve the current."
         };
+
+        let lastVoiceUpdate = 0;
+        const VOICE_UPDATE_DELAY = 1000; // Minimum time between voice updates in milliseconds
 
         function hideLoadingScreen() {
             const loadingScreen = document.getElementById('loading-screen');
@@ -865,7 +869,7 @@
             const sectionTitle = section.querySelector('.section-title, .section-number');
             if (!sectionTitle) return;
 
-            const title = sectionTitle.textContent;
+            const title = sectionTitle.textContent.trim();
             
             // Stop current audio instantly
             if (humanVoice) {
@@ -876,14 +880,14 @@
             setTimeout(() => {
                 if (!audioEnabled) return;
                 
-                // Play appropriate audio based on section
-                if (title.includes('⚡') || title.includes('Ohm')) {
+                // Play appropriate audio based on section with more specific matching
+                if (title === '⚡' || title === 'Ohm\'s Law') {
                     humanVoice.speak(audioContent.intro);
-                } else if (title.includes('Understanding')) {
-                    humanVoice.speak(audioContent.formula);
-                } else if (title.includes('Interactive Calculator')) {
+                } else if (title === 'Understanding Ohm\'s Law') {
+                    humanVoice.speak(audioContent.understanding);
+                } else if (title === 'Interactive Ohm\'s Law Calculator') {
                     humanVoice.speak(audioContent.calculator);
-                } else if (title.includes('Circuit')) {
+                } else if (title === 'Circuit Visualization') {
                     humanVoice.speak(audioContent.circuit);
                 }
             }, 200);
@@ -1090,10 +1094,28 @@
             document.getElementById('result-resistance').textContent = `${resistance.toFixed(2)} Ω`;
             document.getElementById('result-power').textContent = `${power.toFixed(2)} W`;
             
-            // Enhanced voice feedback for all values
-            if (humanVoice && audioEnabled) {
-                const message = `Current readings: Voltage is ${voltage.toFixed(1)} volts, Current is ${current.toFixed(2)} amperes, Resistance is ${resistance.toFixed(1)} ohms, resulting in ${power.toFixed(1)} watts of power`;
-                humanVoice.speak(message);
+            // Enhanced voice feedback with rate limiting
+            const now = Date.now();
+            if (humanVoice && audioEnabled && (now - lastVoiceUpdate > VOICE_UPDATE_DELAY)) {
+                lastVoiceUpdate = now;
+                let message = '';
+                
+                // Create context-aware messages based on what changed
+                switch(lastChanged) {
+                    case 'voltage':
+                        message = `Voltage set to ${voltage.toFixed(1)} volts. This ${voltage > 12 ? 'higher' : 'lower'} voltage ${voltage > 12 ? 'increases' : 'decreases'} the current to ${current.toFixed(2)} amperes through ${resistance.toFixed(1)} ohms of resistance.`;
+                        break;
+                    case 'current':
+                        message = `Current adjusted to ${current.toFixed(2)} amperes. To maintain this current through ${resistance.toFixed(1)} ohms of resistance, we need ${voltage.toFixed(1)} volts.`;
+                        break;
+                    case 'resistance':
+                        message = `Resistance changed to ${resistance.toFixed(1)} ohms. With ${voltage.toFixed(1)} volts applied, this results in a current of ${current.toFixed(2)} amperes.`;
+                        break;
+                }
+                
+                if (message) {
+                    humanVoice.speak(message);
+                }
             }
             
             // Update formula used with more accurate descriptions
