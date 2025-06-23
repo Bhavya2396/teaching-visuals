@@ -844,13 +844,14 @@
                     }
                 });
             }, { 
-                threshold: 0.4, // Lower threshold to catch sections earlier
-                rootMargin: '0px 0px -100px 0px' // Better margin for triggering
+                threshold: 0.4,
+                rootMargin: '0px 0px -100px 0px'
             });
 
-            // Observe sections for auto-audio
-            const sections = document.querySelectorAll('.concept-section');
-            sections.forEach(section => audioObserver.observe(section));
+            // Observe all sections that should trigger audio
+            document.querySelectorAll('.concept-section, .cinematic-section').forEach(section => {
+                audioObserver.observe(section);
+            });
             
             // Auto-play introduction after a short delay
             setTimeout(() => {
@@ -861,7 +862,7 @@
         }
 
         function playAudioForSection(section) {
-            const sectionTitle = section.querySelector('.section-title');
+            const sectionTitle = section.querySelector('.section-title, .section-number');
             if (!sectionTitle) return;
 
             const title = sectionTitle.textContent;
@@ -876,14 +877,14 @@
                 if (!audioEnabled) return;
                 
                 // Play appropriate audio based on section
-                if (title.includes('Understanding Ohm')) {
-                    humanVoice.speak(audioContent.ohmsLaw);
+                if (title.includes('⚡') || title.includes('Ohm')) {
+                    humanVoice.speak(audioContent.intro);
+                } else if (title.includes('Understanding')) {
+                    humanVoice.speak(audioContent.formula);
                 } else if (title.includes('Interactive Calculator')) {
                     humanVoice.speak(audioContent.calculator);
-                } else if (title.includes('Practical Applications')) {
-                    humanVoice.speak(audioContent.applications);
-                } else if (title.includes('Circuit Analysis')) {
-                    humanVoice.speak(audioContent.analysis);
+                } else if (title.includes('Circuit')) {
+                    humanVoice.speak(audioContent.circuit);
                 }
             }, 200);
         }
@@ -1088,6 +1089,12 @@
             document.getElementById('result-current').textContent = `${current.toFixed(3)} A`;
             document.getElementById('result-resistance').textContent = `${resistance.toFixed(2)} Ω`;
             document.getElementById('result-power').textContent = `${power.toFixed(2)} W`;
+            
+            // Enhanced voice feedback for all values
+            if (humanVoice && audioEnabled) {
+                const message = `Current readings: Voltage is ${voltage.toFixed(1)} volts, Current is ${current.toFixed(2)} amperes, Resistance is ${resistance.toFixed(1)} ohms, resulting in ${power.toFixed(1)} watts of power`;
+                humanVoice.speak(message);
+            }
             
             // Update formula used with more accurate descriptions
             let formulaUsed;
